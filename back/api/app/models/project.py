@@ -1,7 +1,7 @@
 """Project and related models"""
 import uuid
 from datetime import datetime
-from sqlalchemy import Column, String, Text, DateTime, ForeignKey, Integer, SmallInteger, CheckConstraint, PrimaryKeyConstraint, UniqueConstraint
+from sqlalchemy import Column, Text, DateTime, ForeignKey, Integer, SmallInteger, CheckConstraint, PrimaryKeyConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 

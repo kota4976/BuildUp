@@ -6,7 +6,7 @@ from pathlib import Path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from app.database import SessionLocal
-from app.models.user import User
+from app.models.user import User, OAuthAccount
 
 
 def create_test_user():
