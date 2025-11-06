@@ -1,0 +1,584 @@
+/* 基本設定 */
+
+/* ========== 共通設定 ========== */
+body, html {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f0f4f8; /* サイト全体の背景色 */
+    color: #333;
+}
+
+/* ========== 1. ナビゲーションバー ========== */
+.navbar {
+    background-color: #ffffff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    padding: 15px 40px;
+    position: sticky; /* スクロールしても画面上部に固定 */
+    top: 0;
+    z-index: 1000;
+}
+
+.navbar-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+}
+
+.logo-text {
+    font-size: 1.5rem; /* 24px */
+    font-weight: 700;
+    color: #222;
+    text-decoration: none;
+    /* ロゴ画像を使う場合 */
+    /* .logo img { height: 30px; } */
+}
+
+.nav-menu {
+    margin-left: 40px;
+    display: flex;
+    gap: 30px;
+}
+
+.nav-link {
+    text-decoration: none;
+    color: #555;
+    font-weight: 500;
+    font-size: 0.95rem; /* 15.2px */
+    transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+    color: #007bff;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+.nav-button {
+    text-decoration: none;
+    padding: 8px 18px;
+    border-radius: 6px;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.nav-button.login {
+    background-color: transparent;
+    color: #555;
+}
+.nav-button.login:hover {
+    background-color: #f0f0f0;
+}
+
+.nav-button.signup {
+    background-color: #007bff; /* 青 */
+    color: #ffffff;
+}
+.nav-button.signup:hover {
+    background-color: #0056b3;
+}
+
+
+/* ========== 2. ヒーローセクション ========== */
+.hero-section {
+    position: relative; /* オーバーレイを重ねるための基準 */
+    height: 500px; /* ヒーローセクションの高さ */
+    background-image: url('hero -background.jpg'); /* 背景画像を指定 */
+    background-size: cover; /* 画像をセクション全体に表示 */
+    background-position: center; /* 画像の中央を表示 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    color: #ffffff; /* テキストを白に */
+    padding: 20px;
+}
+
+/* 画像を暗くするオーバーレイ */
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 30, 80, 0.6); /* 濃い青色の半透明 */
+    z-index: 1;
+}
+
+/* テキストやボタンのコンテンツ */
+.hero-content {
+    position: relative; /* オーバーレイより手前に表示 */
+    z-index: 2;
+    max-width: 800px;
+}
+
+.hero-content h1 {
+    font-size: 3rem; /* 48px */
+    font-weight: 700;
+    margin: 0 0 20px 0;
+    line-height: 1.3;
+}
+
+.hero-content p {
+    font-size: 1.1rem; /* 17.6px */
+    max-width: 600px;
+    margin: 0 auto 30px auto;
+    line-height: 1.6;
+    opacity: 0.9;
+}
+
+.hero-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+.hero-button {
+    text-decoration: none;
+    padding: 14px 30px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+/* ボタン（青） */
+.hero-button.primary {
+    background-color: #007bff;
+    color: #ffffff;
+    border: 2px solid #007bff;
+}
+.hero-button.primary:hover {
+    background-color: #0056b3;
+    border-color: #0056b3;
+}
+
+/* ボタン（白抜き） */
+.hero-button.secondary {
+    background-color: transparent;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+}
+.hero-button.secondary:hover {
+    background-color: #ffffff;
+    color: #333;
+}
+
+/* projects-sectionに上下の余白を追加 */
+.projects-section {
+    max-width: 1200px;
+    margin: 60px auto; /* 上下に余白を追加 */
+    text-align: center;
+}
+
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f0f4f8; /* 画像の背景色に近い色 */
+    color: #333;
+}
+
+/* セクション全体 */
+.projects-section {
+    max-width: 1200px;
+    margin: 0 auto;
+    text-align: center;
+}
+
+.projects-section h2 {
+    font-size: 2rem; /* 32px */
+    font-weight: 700;
+    margin-bottom: 40px;
+    color: #222;
+}
+
+/* カードを横に並べるグリッド（Flexbox） */
+.project-grid {
+    display: flex;
+    justify-content: center;
+    gap: 30px; /* カード間の隙間 */
+    flex-wrap: wrap; /* 画面が狭くなったら折り返す */
+}
+
+/* プロジェクトカード */
+.project-card {
+    background-color: #ffffff;
+    border-radius: 16px; /* 角の丸み */
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.05); /* 影 */
+    width: 350px; /* カードの幅 */
+    overflow: hidden; /* 画像のはみ出しを防ぐ */
+    text-align: left;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.project-card:hover {
+    transform: translateY(-5px); /* 少し浮き上がる */
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* カードサムネイル画像 */
+.card-thumbnail {
+    width: 100%;
+    height: 200px; /* 画像の高さを固定 */
+    object-fit: cover; /* 画像の比率を保ちつつトリミング */
+    display: block;
+}
+
+/* カードのテキストコンテンツ部分 */
+.card-content {
+    padding: 24px;
+}
+
+.card-title {
+    font-size: 1.25rem; /* 20px */
+    font-weight: 600;
+    margin: 0 0 8px 0;
+    color: #111;
+}
+
+.card-description {
+    font-size: 0.9rem; /* 14.4px */
+    color: #555;
+    margin: 0 0 20px 0;
+    line-height: 1.5;
+    /* 2行で省略（...）する場合（オプション） */
+    /*
+    height: 42px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    */
+}
+
+/* タグ */
+.card-tags {
+    margin-bottom: 20px;
+}
+
+.tag {
+    display: inline-block;
+    background-color: #e6f0ff; /* タグの背景色（青系） */
+    color: #0052cc; /* タグの文字色 */
+    padding: 4px 12px;
+    border-radius: 20px; /* 楕円形 */
+    font-size: 0.75rem; /* 12px */
+    font-weight: 500;
+    margin-right: 8px;
+    margin-bottom: 8px;
+}
+
+/* カードフッター（メンバー情報とボタン） */
+.card-footer {
+    display: flex;
+    justify-content: space-between; /* 両端に配置 */
+    align-items: center;
+    border-top: 1px solid #eee;
+    padding-top: 16px;
+    margin-top: 16px;
+}
+
+.member-info {
+    font-size: 0.85rem;
+    color: #777;
+}
+.member-info .fa-users {
+    margin-right: 6px;
+    color: #999;
+}
+
+/* 詳細を見るボタン */
+.details-button {
+    background-color: #007bff; /* ボタンの青色 */
+    color: #ffffff;
+    text-decoration: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-weight: 500;
+    transition: background-color 0.3s ease;
+}
+
+.details-button:hover {
+    background-color: #0056b3;
+}
+
+/* 「すべて見る」ボタン */
+.view-all-container {
+    margin-top: 40px;
+}
+
+.view-all-button {
+    background-color: transparent;
+    color: #007bff;
+    border: 2px solid #007bff; /* 枠線ボタン */
+    padding: 12px 28px;
+    border-radius: 8px;
+    text-decoration: none;
+    font-weight: 600;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.view-all-button:hover {
+    background-color: #007bff;
+    color: #ffffff;
+}
+
+/* ... (前回のCSSの続き) ... */
+
+
+/* ========== 3. 特徴セクション ========== */
+.features-section {
+    max-width: 1000px;
+    margin: 80px auto; /* 上下の余白 */
+    padding: 20px;
+    text-align: center;
+}
+
+.features-section h2 {
+    font-size: 2rem; /* 32px */
+    font-weight: 700;
+    margin-bottom: 50px;
+    color: #222;
+}
+
+.features-grid {
+    display: flex;
+    justify-content: space-around; /* 均等に配置 */
+    gap: 30px;
+    flex-wrap: wrap; /* スマホで折り返し */
+}
+
+.feature-item {
+    width: 280px; /* 各要素の幅 */
+    text-align: center;
+}
+
+.feature-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%; /* 円形 */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: 0 auto 20px auto; /* 中央揃え */
+    font-size: 1.8rem; /* 28.8px (アイコンサイズ) */
+}
+
+/* アイコンの背景色 */
+.icon-bg-blue {
+    background-color: #e6f0ff; /* 淡い青 */
+    color: #007bff; /* 濃い青 */
+}
+.icon-bg-green {
+    background-color: #e6f9f0; /* 淡い緑 */
+    color: #28a745; /* 濃い緑 */
+}
+.icon-bg-purple {
+    background-color: #f3e6ff; /* 淡い紫 */
+    color: #6f42c1; /* 濃い紫 */
+}
+
+.feature-item h3 {
+    font-size: 1.25rem; /* 20px */
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.feature-item p {
+    font-size: 0.9rem; /* 14.4px */
+    color: #555;
+    line-height: 1.6;
+}
+
+
+/* ========== 4. CTA (Call to Action) セクション ========== */
+.cta-section {
+    background-color: #007bff; /* 画像の青色 */
+    color: #ffffff; /* テキストを白に */
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.cta-section h2 {
+    font-size: 2.2rem; /* 35.2px */
+    font-weight: 700;
+    margin: 0 0 15px 0;
+}
+
+.cta-section p {
+    font-size: 1.1rem; /* 17.6px */
+    margin: 0 auto 30px auto;
+    opacity: 0.9;
+}
+
+.cta-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+}
+
+/* CTAセクション用のボタン（ヒーローと共通） */
+.cta-button {
+    text-decoration: none;
+    padding: 14px 30px;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+/* ボタン（白） */
+.cta-button.primary-white {
+    background-color: #ffffff;
+    color: #007bff; /* 文字を青に */
+    border: 2px solid #ffffff;
+}
+.cta-button.primary-white:hover {
+    background-color: #f0f0f0;
+    border-color: #f0f0f0;
+}
+
+/* ボタン（透明・白枠） */
+.cta-button.secondary-white {
+    background-color: transparent;
+    color: #ffffff;
+    border: 2px solid #ffffff;
+}
+.cta-button.secondary-white:hover {
+    background-color: #ffffff;
+    color: #007bff; /* ホバー時に文字を青に */
+}
+.site-footer {
+    background-color: #1a202c; /* 画像の濃い背景色 (濃い紺/黒) */
+    color: #a0aec0; /* テキストの基本色 (明るめのグレー) */
+    padding: 60px 40px;
+    font-size: 0.9rem; /* 14.4px */
+}
+
+.footer-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* フッター上段 (ロゴとリンク) */
+.footer-top {
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap; /* スマホなどで折り返す */
+    gap: 40px; /* 折り返した際の隙間 */
+}
+
+/* ロゴと説明 */
+.footer-about {
+    flex: 2; /* リンク列よりも少し広めに */
+    min-width: 250px; /* 折り返し時の最小幅 */
+}
+
+.footer-logo-text {
+    font-size: 1.8rem; /* 28.8px */
+    font-weight: 700;
+    color: #ffffff; /* ロゴは白 */
+    margin-bottom: 15px;
+    display: inline-block;
+}
+
+.footer-about p {
+    margin: 0;
+    line-height: 1.6;
+    max-width: 300px;
+}
+
+/* リンク列全体のラッパー */
+.footer-links-wrapper {
+    display: flex;
+    flex: 3; /* ロゴ列より広めに */
+    justify-content: space-between;
+    gap: 30px;
+    flex-wrap: wrap; /* 狭い画面では列自体も折り返す */
+}
+
+.footer-links-column {
+    min-width: 150px; /* 各列の最小幅 */
+}
+
+.footer-links-column h4 {
+    font-size: 1rem; /* 16px */
+    font-weight: 600;
+    color: #ffffff; /* 見出しは白 */
+    margin: 0 0 20px 0;
+}
+
+.footer-links-column ul {
+    list-style: none; /*箇条書きの点を消す*/
+    padding: 0;
+    margin: 0;
+}
+
+.footer-links-column li {
+    margin-bottom: 12px;
+}
+
+.footer-links-column a {
+    text-decoration: none;
+    color: #a0aec0; /* 通常のテキスト色 */
+    transition: color 0.3s ease;
+}
+
+.footer-links-column a:hover {
+    color: #ffffff; /* ホバーで白に */
+    text-decoration: underline;
+}
+
+/* SNSアイコン */
+.social-icons {
+    display: flex;
+    gap: 20px;
+}
+
+.social-icons a {
+    color: #a0aec0;
+    font-size: 1.2rem; /* 19.2px */
+    transition: color 0.3s ease;
+}
+
+.social-icons a:hover {
+    color: #ffffff;
+}
+
+/* フッター下段 (コピーライト) */
+.footer-bottom {
+    padding-top: 30px;
+    margin-top: 40px;
+    border-top: 1px solid #3e4a5f; /* 区切り線 */
+    text-align: center;
+}
+
+/* hrタグを使う場合（HTMLの<hr>を使う場合） */
+.footer-divider {
+    display: none; /* CSSでborder-topを使ったのでHTMLのhrは隠す */
+}
+
+.footer-bottom p {
+    margin: 0;
+    font-size: 0.8rem; /* 12.8px */
+    color: #718096; /* コピーライトはさらに薄い色 */
+}
