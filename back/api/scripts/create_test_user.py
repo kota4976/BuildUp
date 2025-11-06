@@ -1,7 +1,6 @@
 """Create a test user for development"""
 import sys
 from pathlib import Path
-import uuid
 
 # Add parent directory to path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
