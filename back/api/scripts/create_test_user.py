@@ -8,7 +8,6 @@ sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from app.database import SessionLocal
 from app.models.user import User, OAuthAccount
-from datetime import datetime
 
 
 def create_test_user():
