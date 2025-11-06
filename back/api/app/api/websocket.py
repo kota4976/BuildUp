@@ -179,5 +179,6 @@ async def websocket_chat(
         try:
             await websocket.close(code=status.WS_1011_INTERNAL_ERROR)
         except:
+            # Ignore exceptions when closing the WebSocket, as it may already be closed or closing may fail for other reasons.
             pass
 
