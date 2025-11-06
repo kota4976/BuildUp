@@ -5,7 +5,6 @@ from typing import Generator
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
-from sqlalchemy.pool import StaticPool
 
 # Set test database URL before importing app
 os.environ["DATABASE_URL"] = "postgresql://localhost:5432/buildup_test"
