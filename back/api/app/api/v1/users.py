@@ -7,8 +7,8 @@ from datetime import datetime
 
 from app.database import get_db
 from app.core.deps import get_current_user
-from app.models.user import User, UserSkill
-from app.models.skill import Skill
+from app.models.user import User
+from app.models.skill import Skill, UserSkill
 from app.models.github_repo import GitHubRepo
 from app.models.audit import AuditLog
 from app.services.github_service import GitHubService
@@ -251,4 +251,58 @@ async def sync_github_repos(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Failed to sync repositories"
         )
+
+
+@router.get("/me/applications")
+async def get_my_applications(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get current user's applications"""
+    from app.models.application import Application
+    from app.schemas.application import ApplicationListResponse, ApplicationResponse
+    
+    applications = db.query(Application).filter(
+        Application.applicant_id == current_user.id
+    ).order_by(Application.created_at.desc()).all()
+    
+    return ApplicationListResponse(
+        applications=[ApplicationResponse.from_orm(app) for app in applications]
+    )
+
+
+@router.get("/me/offers/sent")
+async def get_sent_offers(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get offers sent by current user"""
+    from app.models.offer import Offer
+    from app.schemas.offer import OfferListResponse, OfferResponse
+    
+    offers = db.query(Offer).filter(
+        Offer.sender_id == current_user.id
+    ).order_by(Offer.created_at.desc()).all()
+    
+    return OfferListResponse(
+        offers=[OfferResponse.from_orm(offer) for offer in offers]
+    )
+
+
+@router.get("/me/offers/received")
+async def get_received_offers(
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Get offers received by current user"""
+    from app.models.offer import Offer
+    from app.schemas.offer import OfferListResponse, OfferResponse
+    
+    offers = db.query(Offer).filter(
+        Offer.receiver_id == current_user.id
+    ).order_by(Offer.created_at.desc()).all()
+    
+    return OfferListResponse(
+        offers=[OfferResponse.from_orm(offer) for offer in offers]
+    )
 

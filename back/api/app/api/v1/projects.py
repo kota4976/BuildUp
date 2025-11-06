@@ -1,10 +1,14 @@
 """Project endpoints"""
 import logging
-from typing import Optional
-from fastapi import APIRouter, Depends, HTTPException, status, Query
+from typing import Optional, TYPE_CHECKING
+from fastapi import APIRouter, Depends, HTTPException, status, Query, Body
 from sqlalchemy.orm import Session, joinedload
 from sqlalchemy import or_, and_, func
 from datetime import datetime
+
+if TYPE_CHECKING:
+    from app.schemas.application import ApplicationCreate, ApplicationResponse
+    from app.schemas.offer import OfferCreate, OfferResponse
 
 from app.database import get_db
 from app.core.deps import get_current_user, get_current_user_optional
@@ -396,4 +400,164 @@ async def unfavorite_project(
     db.commit()
     
     return SuccessResponse(message="Project removed from favorites")
+
+
+@router.post("/{project_id}/applications", status_code=status.HTTP_201_CREATED)
+async def apply_to_project(
+    project_id: str,
+    application_data: dict = Body(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Apply to a project"""
+    from app.models.application import Application
+    from app.schemas.application import ApplicationCreate, ApplicationResponse
+    
+    # Parse request body
+    application_data = ApplicationCreate(**application_data)
+    
+    # Check if project exists
+    project = db.query(Project).filter(
+        Project.id == project_id,
+        Project.deleted_at.is_(None),
+        Project.status == "open"
+    ).first()
+    
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found or not open"
+        )
+    
+    # Cannot apply to own project
+    if project.owner_id == current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot apply to your own project"
+        )
+    
+    # Check if already applied
+    existing = db.query(Application).filter(
+        Application.project_id == project_id,
+        Application.applicant_id == current_user.id
+    ).first()
+    
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Already applied to this project"
+        )
+    
+    # Create application
+    application = Application(
+        project_id=project_id,
+        applicant_id=current_user.id,
+        message=application_data.message,
+        status="pending"
+    )
+    db.add(application)
+    
+    # Create audit log
+    audit_log = AuditLog(
+        user_id=current_user.id,
+        action="CREATE_APPLICATION",
+        resource="applications",
+        payload={"project_id": str(project_id)}
+    )
+    db.add(audit_log)
+    
+    db.commit()
+    db.refresh(application)
+    
+    return ApplicationResponse.from_orm(application)
+
+
+@router.post("/{project_id}/offers", status_code=status.HTTP_201_CREATED)
+async def create_offer(
+    project_id: str,
+    offer_data: dict = Body(...),
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Create an offer to a user for a project"""
+    from app.models.offer import Offer
+    from app.schemas.offer import OfferCreate, OfferResponse
+    
+    # Parse request body
+    offer_data = OfferCreate(**offer_data)
+    
+    # Check if project exists and user is owner
+    project = db.query(Project).filter(
+        Project.id == project_id,
+        Project.deleted_at.is_(None),
+        Project.status == "open"
+    ).first()
+    
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Project not found or not open"
+        )
+    
+    if project.owner_id != current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Only project owner can send offers"
+        )
+    
+    # Check if receiver exists
+    receiver = db.query(User).filter(
+        User.id == offer_data.receiver_id,
+        User.deleted_at.is_(None)
+    ).first()
+    
+    if not receiver:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User not found"
+        )
+    
+    # Cannot offer to self
+    if receiver.id == current_user.id:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Cannot send offer to yourself"
+        )
+    
+    # Check if already offered
+    existing = db.query(Offer).filter(
+        Offer.project_id == project_id,
+        Offer.sender_id == current_user.id,
+        Offer.receiver_id == offer_data.receiver_id
+    ).first()
+    
+    if existing:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Offer already sent to this user"
+        )
+    
+    # Create offer
+    offer = Offer(
+        project_id=project_id,
+        sender_id=current_user.id,
+        receiver_id=offer_data.receiver_id,
+        message=offer_data.message,
+        status="pending"
+    )
+    db.add(offer)
+    
+    # Create audit log
+    audit_log = AuditLog(
+        user_id=current_user.id,
+        action="CREATE_OFFER",
+        resource="offers",
+        payload={"project_id": str(project_id), "receiver_id": str(offer_data.receiver_id)}
+    )
+    db.add(audit_log)
+    
+    db.commit()
+    db.refresh(offer)
+    
+    return OfferResponse.from_orm(offer)
 
