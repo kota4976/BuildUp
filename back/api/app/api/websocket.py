@@ -5,8 +5,6 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Query, Depends, s
 from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import Session
 from sqlalchemy import or_
-from datetime import datetime
-
 from app.database import get_db
 from app.core.security import verify_token
 from app.models.user import User
