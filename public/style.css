@@ -99,7 +99,7 @@ body {
 .hero-section {
     position: relative; /* オーバーレイを重ねるための基準 */
     height: 500px; /* ヒーローセクションの高さ */
-    background-image: url('hero -background.jpg'); /* 背景画像を指定 */
+    background-image: url('hero-background.jpg'); /* 背景画像を指定 */
     background-size: cover; /* 画像をセクション全体に表示 */
     background-position: center; /* 画像の中央を表示 */
     display: flex;
