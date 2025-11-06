@@ -178,6 +178,6 @@ async def websocket_chat(
         logger.error(f"WebSocket connection error: {str(e)}")
         try:
             await websocket.close(code=status.WS_1011_INTERNAL_ERROR)
-        except:
+        except Exception:
             pass
 
