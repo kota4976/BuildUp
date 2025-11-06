@@ -24,6 +24,14 @@ def upgrade() -> None:
     op.execute('CREATE EXTENSION IF NOT EXISTS pg_trgm')
     op.execute('CREATE EXTENSION IF NOT EXISTS unaccent')
     
+    # Create IMMUTABLE wrapper for unaccent function (required for index)
+    op.execute("""
+        CREATE OR REPLACE FUNCTION unaccent_immutable(text)
+        RETURNS text AS $$
+        SELECT unaccent('unaccent', $1);
+        $$ LANGUAGE sql IMMUTABLE;
+    """)
+    
     # Create users table
     op.create_table(
         'users',
@@ -110,7 +118,7 @@ def upgrade() -> None:
     # Create full-text search index for projects
     op.execute("""
         CREATE INDEX idx_projects_search ON projects 
-        USING GIN (to_tsvector('simple', unaccent(coalesce(title,'')||' '||coalesce(description,''))))
+        USING GIN (to_tsvector('simple', unaccent_immutable(coalesce(title,'')||' '||coalesce(description,''))))
     """)
     
     # Create project_skills table
@@ -233,6 +241,9 @@ def downgrade() -> None:
     op.drop_table('skills')
     op.drop_table('oauth_accounts')
     op.drop_table('users')
+    
+    # Drop custom function
+    op.execute('DROP FUNCTION IF EXISTS unaccent_immutable(text)')
     
     # Drop extensions
     op.execute('DROP EXTENSION IF EXISTS unaccent')

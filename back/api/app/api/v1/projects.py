@@ -129,12 +129,11 @@ async def list_projects(
     
     # Apply filters
     if query:
-        # Use PostgreSQL full-text search
+        # Use PostgreSQL full-text search with unaccent_immutable function
+        from sqlalchemy import text
         q = q.filter(
-            func.to_tsvector('simple', func.unaccent(
-                func.coalesce(Project.title, '') + ' ' + func.coalesce(Project.description, '')
-            )).op('@@')(func.plainto_tsquery('simple', query))
-        )
+            text("to_tsvector('simple', unaccent_immutable(coalesce(projects.title, '') || ' ' || coalesce(projects.description, ''))) @@ plainto_tsquery('simple', :query)")
+        ).params(query=query)
     
     if skill_id:
         q = q.join(ProjectSkill).filter(ProjectSkill.skill_id == skill_id)

@@ -8,15 +8,27 @@ set -e
 echo "🧪 BuildUp API Test Runner"
 echo "=========================="
 
+# PostgreSQL commands path (adjust if needed)
+PSQL_PATH="/opt/homebrew/opt/postgresql@15/bin/psql"
+CREATEDB_PATH="/opt/homebrew/opt/postgresql@15/bin/createdb"
+
+# Use system psql/createdb if custom path doesn't exist
+if [ ! -f "$PSQL_PATH" ]; then
+    PSQL_PATH="psql"
+fi
+if [ ! -f "$CREATEDB_PATH" ]; then
+    CREATEDB_PATH="createdb"
+fi
+
 # Check if test database exists
 echo "📊 Checking test database..."
-if psql -lqt | cut -d \| -f 1 | grep -qw buildup_test; then
+if $PSQL_PATH -lqt 2>/dev/null | cut -d \| -f 1 | grep -qw buildup_test; then
     echo "✓ Test database 'buildup_test' exists"
 else
     echo "⚠ Test database 'buildup_test' not found. Creating..."
-    createdb buildup_test || {
+    $CREATEDB_PATH buildup_test || {
         echo "❌ Failed to create test database"
-        echo "Please create it manually: createdb buildup_test"
+        echo "Please create it manually: $CREATEDB_PATH buildup_test"
         exit 1
     }
     echo "✓ Test database created"
