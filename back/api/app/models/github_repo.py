@@ -1,5 +1,4 @@
 """GitHub repository model"""
-from datetime import datetime
 from sqlalchemy import Column, BigInteger, Integer, Text, DateTime, ForeignKey, UniqueConstraint
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
