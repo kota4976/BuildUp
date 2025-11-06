@@ -1,14 +1,12 @@
 """Create a test user for development"""
 import sys
 from pathlib import Path
-import uuid
 
 # Add parent directory to path
 sys.path.append(str(Path(__file__).resolve().parents[1]))
 
 from app.database import SessionLocal
-from app.models.user import User, OAuthAccount
-from datetime import datetime
+from app.models.user import User
 
 
 def create_test_user():
