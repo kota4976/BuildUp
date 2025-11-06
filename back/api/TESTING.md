@@ -50,6 +50,12 @@ pytest tests/test_auth.py::test_get_current_user_authorized
 - マイグレーションの実行
 - テストの実行
 
+**注意**: スクリプトは実行権限付きでコミットされていますが、もし実行できない場合は以下のコマンドで権限を付与してください：
+
+```bash
+chmod +x run_tests.sh
+```
+
 ## テスト構成
 
 ### テストファイル
