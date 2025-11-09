@@ -36,13 +36,16 @@ body {
     align-items: center;
 }
 
-.logo-text {
-    font-size: 1.5rem; /* 24px */
-    font-weight: 700;
-    color: #222;
+.logo {
     text-decoration: none;
-    /* ロゴ画像を使う場合 */
-    /* .logo img { height: 30px; } */
+    margin-right: 30px;
+}
+                
+/* 💡 修正箇所 1: ロゴ画像用のCSSを追加 */
+.logo-img { 
+    height: 35px; /* 高さで調整 */
+    width: auto;
+    display: block;
 }
 
 .nav-menu {
@@ -79,11 +82,11 @@ body {
 }
 
 .nav-button.login {
-    background-color: transparent;
-    color: #555;
+    background-color: #007bff; /* 青 */
+    color: #ffffff;
 }
 .nav-button.login:hover {
-    background-color: #f0f0f0;
+    background-color: #0056b3;
 }
 
 .nav-button.signup {
@@ -99,7 +102,7 @@ body {
 .hero-section {
     position: relative; /* オーバーレイを重ねるための基準 */
     height: 500px; /* ヒーローセクションの高さ */
-    background-image: url('hero-background.jpg'); /* 背景画像を指定 */
+    background-image: url('../images/hero-background.jpg'); /* 背景画像を指定 */
     background-size: cover; /* 画像をセクション全体に表示 */
     background-position: center; /* 画像の中央を表示 */
     display: flex;
