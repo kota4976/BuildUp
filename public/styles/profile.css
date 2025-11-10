@@ -1,0 +1,261 @@
+/* --- 1. 基本設定とレイアウト --- */
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    background-color: #f4f7f9; /* 画面全体の背景色 */
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* ナビゲーションバーのスタイルは今回は除外し、メインコンテンツに焦点を当てます */
+
+.main-content {
+    padding: 30px 50px;
+    max-width: 1200px; /* 最大幅を制限 */
+    margin: 0 auto; /* 中央寄せ */
+}
+
+/* --- 2. プロフィールカード (Profile Card) --- */
+
+.profile-card {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); /* 軽い影 */
+    margin-bottom: 30px;
+    position: relative; /* 編集ボタンの位置決めの基準 */
+}
+
+.profile-img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%; /* 円形に */
+    object-fit: cover;
+    margin-right: 25px;
+}
+
+.profile-info h1 {
+    margin: 0 0 5px 0;
+    font-size: 24px;
+    color: #333;
+}
+
+.profile-info p {
+    margin: 0 0 3px 0;
+    color: #666;
+    font-size: 15px;
+}
+
+.profile-info span { /* 場所（San Francisco, CA）のスタイル */
+    font-size: 13px;
+    color: #999;
+}
+
+.edit-btn {
+    position: absolute;
+    right: 30px;
+    padding: 8px 15px;
+    background-color: #f0f4ff; /* 薄い青の背景 */
+    color: #3f51b5; /* 青色のテキスト */
+    border: none;
+    border-radius: 4px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+/* --- 3. タブナビゲーション (Tabs) --- */
+
+.tabs {
+    display: flex;
+    border-bottom: 2px solid #eee;
+    margin-bottom: 20px;
+}
+
+.tabs a {
+    padding: 10px 20px;
+    text-decoration: none;
+    color: #555;
+    font-weight: 500;
+    position: relative;
+    margin-right: 15px;
+}
+
+.tabs .active { /* アクティブなタブ */
+    color: #3f51b5;
+    font-weight: 600;
+}
+
+.tabs .active::after { /* アクティブなタブの下線 */
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #3f51b5;
+}
+
+/* ------------------------------------------------ */
+/* 💡 追加: タブコンテンツの表示/非表示を制御するCSS */
+/* ------------------------------------------------ */
+
+/* すべてのタブコンテンツの基本クラス */
+.tab-content {
+    /* 必要に応じてアニメーションなどを追加 */
+}
+
+/* JavaScriptによって付けられる非表示クラス */
+.tab-content.hidden {
+    display: none;
+}
+
+/* JavaScriptによって付けられるアクティブな表示クラス */
+.tab-content.active {
+    /* display: block; は grid-layout の中で処理されるため、特に変更は不要な場合が多い */
+    /* 非表示を上書きする役割を果たす */
+}
+
+
+/* --- 4. コンテンツレイアウト (Grid) --- */
+
+.profile-layout {
+    display: grid;
+    grid-template-columns: 2fr 1fr; /* 左:右 = 2:1 の比率 */
+    gap: 30px; /* カラム間のスペース */
+}
+
+/* --- 5. セクションカード (About, Contact, Stats) --- */
+
+.section-card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+}
+
+.section-card h3 {
+    margin-top: 0;
+    margin-bottom: 15px;
+    font-size: 18px;
+    font-weight: 600;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+/* --- 6. 右側カラムの詳細 (Contact Information) --- */
+
+.contact-info .info-item, .quick-stats .stat-item {
+    margin-bottom: 10px;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.contact-info a {
+    color: #3f51b5;
+    text-decoration: none;
+    margin-left: 10px;
+}
+
+.contact-info strong { /* アイコン部分の代わり */
+    margin-right: 5px;
+    color: #666;
+}
+
+/* --- 7. 右側カラムの詳細 (Quick Stats) --- */
+
+.quick-stats .stat-item {
+    display: flex;
+    justify-content: space-between;
+    padding-bottom: 5px;
+    border-bottom: 1px solid #f0f0f0;
+}
+
+.quick-stats .stat-item:last-child {
+    border-bottom: none;
+    padding-bottom: 0;
+}
+
+.quick-stats .stat-value {
+    font-weight: 600;
+    color: #333;
+}
+
+.rating-stars {
+    color: gold; /* 星の色 */
+}
+
+/* --- プロジェクトカードリスト専用のスタイル --- */
+
+.project-list {
+    /* Overviewタブのコンテンツ(About)は section-card を使用しているため、
+       ここでは margin-top を 0 にして、一貫性を持たせます。*/
+    margin-top: 0; 
+}
+
+.project-card-item {
+    display: flex;
+    background-color: white;
+    padding: 15px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    margin-bottom: 15px;
+    align-items: center;
+    position: relative; /* ステータスの位置決め用 */
+}
+
+.project-thumbnail {
+    width: 60px;
+    height: 60px;
+    border-radius: 4px;
+    object-fit: cover;
+    margin-right: 15px;
+}
+
+.project-details {
+    flex-grow: 1; /* スペースを埋める */
+    text-align: left;
+}
+
+.project-details h4 {
+    margin: 0 0 5px 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+}
+
+.project-details p { /* 役職 */
+    margin: 0;
+    font-size: 13px;
+    color: #666;
+}
+
+.project-details span { /* メンバー数 */
+    display: block;
+    font-size: 12px;
+    color: #999;
+    margin-top: 3px;
+}
+
+.project-status {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.status-active {
+    background-color: #e8f5e9; /* 薄い緑 */
+    color: #4caf50; /* 濃い緑 */
+}
+
+.status-completed {
+    background-color: #f5f5f5; /* 薄いグレー */
+    color: #757575; /* 濃いグレー */
+}

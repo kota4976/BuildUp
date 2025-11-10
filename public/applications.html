@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>応募管理 - BuildUp</title>
+    <!-- Tailwind CSSとフォントを読み込みます -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <!-- Lucide Iconsを読み込みます -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    
+    <style>
+        /* --------------------------------------------------
+         * 全体設定
+         * -------------------------------------------------- */
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f4f7f9;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .main-content {
+            padding: 30px 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* --------------------------------------------------
+         * タブナビゲーション
+         * -------------------------------------------------- */
+        .tabs {
+            display: flex;
+            border-bottom: 2px solid #e5e7eb;
+            margin-bottom: 30px;
+        }
+
+        .tabs button {
+            padding: 10px 20px;
+            text-decoration: none;
+            color: #6b7280;
+            font-weight: 500;
+            position: relative;
+            transition: color 0.2s;
+            background: none;
+            border: none;
+            cursor: pointer;
+            outline: none;
+        }
+
+        .tabs button:hover {
+            color: #3b82f6;
+        }
+
+        .tabs .active-tab { 
+            color: #3f51b5;
+            font-weight: 600;
+        }
+
+        .tabs .active-tab::after {
+            content: '';
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background-color: #3f51b5;
+        }
+
+        /* --------------------------------------------------
+         * 応募カード
+         * -------------------------------------------------- */
+        .application-card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+            transition: transform 0.2s;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .application-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px solid #f3f4f6;
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+        }
+
+        .project-info h3 {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin: 0;
+        }
+
+        .project-info p {
+            font-size: 0.875rem;
+            color: #6b7280;
+            margin: 2px 0 0 0;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-left: 10px;
+        }
+
+        /* ステータスバッジの色 */
+        .status-pending {
+            background-color: #fef3c7;
+            color: #f59e0b;
+        }
+        .status-accepted {
+            background-color: #d1fae5;
+            color: #10b981;
+        }
+        .status-rejected {
+            background-color: #fee2e2;
+            color: #ef4444;
+        }
+
+        /* 応募者/プロジェクトオーナー情報 */
+        .applicant-info {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #f3f4f6;
+            padding-bottom: 15px;
+        }
+
+        .applicant-info img {
+            width: 40px;
+            height: 40px;
+            border-radius: 9999px;
+            object-fit: cover;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        .applicant-details h4 {
+            font-size: 0.9375rem;
+            font-weight: 600;
+            margin: 0;
+        }
+
+        .applicant-details p {
+            font-size: 0.8125rem;
+            color: #9ca3af;
+            margin: 0;
+        }
+
+        /* メッセージ/詳細情報 */
+        .application-message {
+            padding-bottom: 15px;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #f3f4f6;
+            font-style: italic;
+            color: #4b5563;
+        }
+
+        /* アクションボタン */
+        .card-footer {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            padding-top: 15px;
+        }
+
+        .action-btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: background-color 0.2s, opacity 0.2s;
+            display: flex;
+            align-items: center;
+        }
+
+        .action-btn i {
+            margin-right: 5px;
+        }
+
+        .btn-primary {
+            background-color: #3b82f6;
+            color: white;
+            border: none;
+        }
+        .btn-primary:hover {
+            background-color: #2563eb;
+        }
+
+        .btn-secondary {
+            background-color: #f3f4f6;
+            color: #4b5563;
+            border: 1px solid #e5e7eb;
+        }
+        .btn-secondary:hover {
+            background-color: #e5e7eb;
+        }
+
+        .btn-secondary.text-red-600:hover {
+            background-color: #fee2e2;
+        }
+
+        /* --------------------------------------------------
+         * モバイル対応
+         * -------------------------------------------------- */
+        @media (max-width: 768px) {
+            .main-content {
+                padding: 20px 10px;
+            }
+            
+            .card-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .status-badge {
+                margin-top: 10px;
+                margin-left: 0;
+            }
+            
+            .applicant-info {
+                flex-wrap: wrap;
+                padding-bottom: 10px;
+            }
+            
+            .applicant-info span.text-sm {
+                width: 100%;
+                margin-top: 10px;
+                text-align: right;
+            }
+
+            .card-footer {
+                flex-direction: column;
+                justify-content: flex-start;
+                gap: 8px;
+            }
+            
+            .action-btn {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    
+    <!-- ヘッダーコンポーネントの呼び出し -->
+    <build-up-header></build-up-header>
+
+    <div class="main-content">
+        
+        <h1 class="text-3xl font-bold text-gray-800 mb-6">応募管理</h1>
+        
+        <!-- タブナビゲーション -->
+        <div class="tabs">
+            <button id="tab-received" class="active-tab" data-tab="received">応募されたプロジェクト (3)</button>
+            <button id="tab-submitted" data-tab="submitted">応募したプロジェクト (2)</button>
+        </div>
+
+        <!-- タブコンテンツコンテナ -->
+        <div id="tab-content">
+            
+            <!-- 1. 応募されたプロジェクト (初期表示) -->
+            <div id="received-content" class="tab-content">
+                
+                <!-- Card 1: AI Learning Platform - Pending -->
+                <div class="application-card">
+                    <div class="card-header">
+                        <div class="project-info">
+                            <h3>AI-Powered Learning Platform</h3>
+                            <p>募集職種: フロントエンド開発者</p>
+                        </div>
+                        <span class="status-badge status-pending">審査中</span>
+                    </div>
+                    
+                    <div class="applicant-info">
+                        <img src="https://placehold.co/40x40/f8bbd0/fff?text=MJ" alt="Mike Johnson" onerror="this.onerror=null; this.src='https://placehold.co/40x40/ccc/fff?text=MJ'">
+                        <div class="applicant-details">
+                            <h4>Mike Johnson</h4>
+                            <p>専門: React, TypeScript, UI/UX</p>
+                        </div>
+                        <div class="flex-grow"></div>
+                        <span class="text-sm text-gray-500">応募日: 2024/11/05</span>
+                    </div>
+
+                    <p class="application-message text-sm">「モダンなReactの知識と、大規模なウェブアプリケーションでのパフォーマンス最適化経験を活かせます。」</p>
+
+                    <div class="card-footer">
+                        <button class="action-btn btn-secondary"><i data-lucide="message-square" class="w-4 h-4"></i> メッセージ</button>
+                        <button class="action-btn btn-primary"><i data-lucide="check" class="w-4 h-4"></i> 承認</button>
+                        <button class="action-btn btn-secondary text-red-600 hover:bg-red-50"><i data-lucide="x" class="w-4 h-4"></i> 却下</button>
+                    </div>
+                </div>
+
+                <!-- Card 2: Sustainable Energy App - Accepted -->
+                <div class="application-card">
+                    <div class="card-header">
+                        <div class="project-info">
+                            <h3>Sustainable Energy App</h3>
+                            <p>募集職種: バックエンドエンジニア</p>
+                        </div>
+                        <span class="status-badge status-accepted">承認済み</span>
+                    </div>
+                    
+                    <div class="applicant-info">
+                        <img src="https://placehold.co/40x40/66bb6a/fff?text=SC" alt="Sarah Chen" onerror="this.onerror=null; this.src='https://placehold.co/40x40/ccc/fff?text=SC'">
+                        <div class="applicant-details">
+                            <h4>Sarah Chen</h4>
+                            <p>専門: Python, AWS, データパイプライン</p>
+                        </div>
+                        <div class="flex-grow"></div>
+                        <span class="text-sm text-gray-500">応募日: 2024/10/28</span>
+                    </div>
+
+                    <p class="application-message text-sm">「データ処理とクラウドインフラ構築において、チームに貢献できることを楽しみにしています。」</p>
+
+                    <div class="card-footer">
+                        <button class="action-btn btn-primary"><i data-lucide="message-square" class="w-4 h-4"></i> メッセージ</button>
+                    </div>
+                </div>
+                
+                <!-- Card 3: New App Idea - Rejected -->
+                <div class="application-card opacity-60">
+                    <div class="card-header">
+                        <div class="project-info">
+                            <h3>Next Generation App Idea</h3>
+                            <p>募集職種: UI/UXデザイナー</p>
+                        </div>
+                        <span class="status-badge status-rejected">却下済み</span>
+                    </div>
+                    
+                    <div class="applicant-info">
+                        <img src="https://placehold.co/40x40/ff8a65/fff?text=LP" alt="Lisa Park" onerror="this.onerror=null; this.src='https://placehold.co/40x40/ccc/fff?text=LP'">
+                        <div class="applicant-details">
+                            <h4>Lisa Park</h4>
+                            <p>専門: Figma, モバイルデザイン</p>
+                        </div>
+                        <div class="flex-grow"></div>
+                        <span class="text-sm text-gray-500">応募日: 2024/10/20</span>
+                    </div>
+
+                    <p class="application-message text-sm">「（この応募は却下されました。詳細は表示されません。）」</p>
+
+                    <div class="card-footer">
+                        <button class="action-btn btn-secondary" disabled>却下済み</button>
+                    </div>
+                </div>
+
+            </div> <!-- End of received-content -->
+
+            <!-- 2. 応募したプロジェクト (非表示) -->
+            <div id="submitted-content" class="tab-content hidden">
+                
+                <!-- Card 1: Community Garden Network - Accepted -->
+                <div class="application-card">
+                    <div class="card-header">
+                        <div class="project-info">
+                            <h3>Community Garden Network</h3>
+                            <p>応募職種: UI/UXデザイナー</p>
+                        </div>
+                        <span class="status-badge status-accepted">承認済み</span>
+                    </div>
+                    
+                    <div class="applicant-info">
+                        <img src="https://placehold.co/40x40/4fc3f7/fff?text=DK" alt="David Kim" onerror="this.onerror=null; this.src='https://placehold.co/40x40/ccc/fff?text=DK'">
+                        <div class="applicant-details">
+                            <h4>プロジェクトオーナー: David Kim</h4>
+                            <p>プロジェクトの開始日: 2024/09/01</p>
+                        </div>
+                        <div class="flex-grow"></div>
+                        <span class="text-sm text-gray-500">承認日: 2024/10/05</span>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <button class="action-btn btn-primary"><i data-lucide="message-square" class="w-4 h-4"></i> メッセージ</button>
+                        <button class="action-btn btn-secondary"><i data-lucide="folder-open" class="w-4 h-4"></i> プロジェクトページ</button>
+                    </div>
+                </div>
+
+                <!-- Card 2: Open Source Utility - Pending -->
+                <div class="application-card">
+                    <div class="card-header">
+                        <div class="project-info">
+                            <h3>Open Source Utility Library</h3>
+                            <p>応募職種: ドキュメンテーション作成</p>
+                        </div>
+                        <span class="status-badge status-pending">審査中</span>
+                    </div>
+                    
+                    <div class="applicant-info">
+                        <img src="https://placehold.co/40x40/f06292/fff?text=OS" alt="Open Source Team" onerror="this.onerror=null; this.src='https://placehold.co/40x40/ccc/fff?text=OS'">
+                        <div class="applicant-details">
+                            <h4>プロジェクトオーナー: Open Source Team</h4>
+                            <p>予想完了日: 2025/03/30</p>
+                        </div>
+                        <div class="flex-grow"></div>
+                        <span class="text-sm text-gray-500">応募日: 2024/11/01</span>
+                    </div>
+                    
+                    <div class="card-footer">
+                        <button class="action-btn btn-secondary" disabled>返信待ち</button>
+                    </div>
+                </div>
+
+            </div> <!-- End of submitted-content -->
+
+        </div> <!-- End of tab-content -->
+
+    </div> <!-- End of main-content -->
+
+    <!-- 💡 JavaScript: ヘッダーコンポーネントとタブ切り替えロジック -->
+    <script src="component/header-component.js" type="module"></script> 
+    
+    <script>
+        // ----------------------------------------------------------------
+        // タブ切り替えロジック
+        // ----------------------------------------------------------------
+        document.addEventListener('DOMContentLoaded', () => {
+            const tabReceived = document.getElementById('tab-received');
+            const tabSubmitted = document.getElementById('tab-submitted');
+            const receivedContent = document.getElementById('received-content');
+            const submittedContent = document.getElementById('submitted-content');
+            
+            // タブをクリックしたときの処理
+            function switchTab(targetTab, targetContent, otherTab, otherContent) {
+                // タブのアクティブクラスを切り替える
+                targetTab.classList.add('active-tab');
+                otherTab.classList.remove('active-tab');
+                
+                // コンテンツの表示/非表示を切り替える
+                targetContent.classList.remove('hidden');
+                otherContent.classList.add('hidden');
+            }
+
+            // 初期化
+            if (tabReceived && receivedContent) {
+                tabReceived.classList.add('active-tab');
+                receivedContent.classList.remove('hidden');
+            }
+            if (tabSubmitted && submittedContent) {
+                 tabSubmitted.classList.remove('active-tab');
+                 submittedContent.classList.add('hidden');
+            }
+
+
+            tabReceived.addEventListener('click', () => {
+                switchTab(tabReceived, receivedContent, tabSubmitted, submittedContent);
+                // Lucide Iconsの再描画 (HeaderComponentが再描画されないため、ページ本体のアイコンを再描画)
+                if (typeof lucide !== 'undefined') { lucide.createIcons(); }
+            });
+
+            tabSubmitted.addEventListener('click', () => {
+                switchTab(tabSubmitted, submittedContent, tabReceived, receivedContent);
+                // Lucide Iconsの再描画
+                if (typeof lucide !== 'undefined') { lucide.createIcons(); }
+            });
+            
+            // 初回ロード時にアイコンを再初期化
+            if (typeof lucide !== 'undefined') { lucide.createIcons(); }
+        });
+        
+    </script>
+</body>
+</html>

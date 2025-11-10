@@ -1,0 +1,248 @@
+/*
+ * applications-style.css
+ * 応募管理画面のカスタムスタイル定義
+ */
+
+/* --------------------------------------------------
+ * 全体設定
+ * -------------------------------------------------- */
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f4f7f9; /* 軽い背景色 */
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+.main-content {
+    padding: 30px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+/* --------------------------------------------------
+ * タブナビゲーション
+ * -------------------------------------------------- */
+.tabs {
+    display: flex;
+    border-bottom: 2px solid #e5e7eb; /* gray-200 */
+    margin-bottom: 30px;
+}
+
+.tabs button {
+    padding: 10px 20px;
+    text-decoration: none;
+    color: #6b7280; /* gray-500 */
+    font-weight: 500;
+    position: relative;
+    transition: color 0.2s;
+    background: none;
+    border: none;
+    cursor: pointer;
+    outline: none;
+}
+
+.tabs button:hover {
+    color: #3b82f6; /* blue-500 */
+}
+
+.tabs .active-tab { 
+    color: #3f51b5; /* BuildUp Primary Blue */
+    font-weight: 600;
+}
+
+.tabs .active-tab::after { /* アクティブなタブの下線 */
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background-color: #3f51b5;
+}
+
+/* --------------------------------------------------
+ * 応募カード
+ * -------------------------------------------------- */
+.application-card {
+    background-color: white;
+    padding: 20px;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+    margin-bottom: 20px;
+    transition: transform 0.2s;
+    display: flex;
+    flex-direction: column;
+}
+
+.application-card:hover {
+    transform: translateY(-2px);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start; /* ステータスバッジとタイトルを上揃え */
+    border-bottom: 1px solid #f3f4f6; /* gray-100 */
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+}
+
+.project-info h3 {
+    font-size: 1.125rem; /* text-lg */
+    font-weight: 600; /* font-semibold */
+    color: #1f2937; /* gray-900 */
+    margin: 0;
+}
+
+.project-info p {
+    font-size: 0.875rem; /* text-sm */
+    color: #6b7280; /* gray-500 */
+    margin: 2px 0 0 0;
+}
+
+.status-badge {
+    padding: 4px 10px;
+    border-radius: 9999px; /* rounded-full */
+    font-size: 0.75rem; /* text-xs */
+    font-weight: 700; /* font-bold */
+    flex-shrink: 0; /* 縮小させない */
+    margin-left: 10px; /* タイトルとの間にスペース */
+}
+
+/* ステータスバッジの色 */
+.status-pending {
+    background-color: #fef3c7; /* yellow-100 */
+    color: #f59e0b; /* yellow-600 */
+}
+.status-accepted {
+    background-color: #d1fae5; /* green-100 */
+    color: #10b981; /* green-600 */
+}
+.status-rejected {
+    background-color: #fee2e2; /* red-100 */
+    color: #ef4444; /* red-600 */
+}
+
+/* 応募者/プロジェクトオーナー情報 */
+.applicant-info {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #f3f4f6;
+    padding-bottom: 15px;
+}
+
+.applicant-info img {
+    width: 40px;
+    height: 40px;
+    border-radius: 9999px;
+    object-fit: cover;
+    margin-right: 15px;
+    flex-shrink: 0;
+}
+
+.applicant-details h4 {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.applicant-details p {
+    font-size: 0.8125rem;
+    color: #9ca3af;
+    margin: 0;
+}
+
+/* メッセージ/詳細情報 */
+.application-message {
+    padding-bottom: 15px;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #f3f4f6;
+    font-style: italic;
+    color: #4b5563; /* gray-600 */
+}
+
+/* アクションボタン */
+.card-footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    padding-top: 15px; /* 上の要素と明確に分離 */
+}
+
+.action-btn {
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: background-color 0.2s, opacity 0.2s;
+    display: flex;
+    align-items: center;
+}
+
+.action-btn i {
+    margin-right: 5px;
+}
+
+.btn-primary {
+    background-color: #3b82f6; /* blue-500 (承認/メインアクション) */
+    color: white;
+    border: none;
+}
+.btn-primary:hover {
+    background-color: #2563eb; /* blue-600 */
+}
+
+.btn-secondary {
+    background-color: #f3f4f6; /* gray-100 (却下/メッセージ/その他) */
+    color: #4b5563; /* gray-600 */
+    border: 1px solid #e5e7eb; /* gray-200 */
+}
+.btn-secondary:hover {
+    background-color: #e5e7eb; /* gray-200 */
+}
+
+.btn-secondary.text-red-600:hover {
+    background-color: #fee2e2; /* red-100 */
+}
+
+/* --------------------------------------------------
+ * モバイル対応
+ * -------------------------------------------------- */
+@media (max-width: 768px) {
+    .main-content {
+        padding: 20px 10px;
+    }
+    
+    .card-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .status-badge {
+        margin-top: 10px;
+        margin-left: 0;
+    }
+    
+    .applicant-info {
+        flex-wrap: wrap;
+        padding-bottom: 10px;
+    }
+    
+    .applicant-info span.text-sm { /* 応募日 */
+        width: 100%;
+        margin-top: 10px;
+        text-align: right;
+    }
+
+    .card-footer {
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 8px;
+    }
+    
+    .action-btn {
+        width: 100%;
+        justify-content: center;
+    }
+}
