@@ -1,0 +1,104 @@
+/* ----------------------------------------------------------------
+ * カスタムCSSファイル: message.css
+ * Tailwind CSSでカバーできない部分を補完します。
+ * ---------------------------------------------------------------- */
+
+body {
+    font-family: 'Inter', sans-serif;
+    background-color: #f4f7f9;
+}
+
+/* メインコンテナの高さ調整 (ヘッダーの高さを引く) */
+.main-container {
+    height: calc(100vh - 64px);
+}
+
+/* ヘッダーのプレースホルダー (ここでは未使用ですが、設計上64pxを確保) */
+.header-placeholder {
+    height: 64px;
+    background-color: white;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* ----------------------------------------------------------------
+ * カスタムスクロールバーのスタイル
+ * ---------------------------------------------------------------- */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 2px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* ----------------------------------------------------------------
+ * チャット吹き出しのカスタムスタイル
+ * ---------------------------------------------------------------- */
+
+/* 自分のメッセージ (右側) */
+.message-bubble.user {
+    background-color: #3f51b5; /* 青 */
+    color: white;
+    /* 右上に尖った角丸: 右上(4px) + その他(18px) */
+    border-radius: 18px 18px 4px 18px;
+}
+
+/* 相手のメッセージ (左側) */
+.message-bubble.other {
+    background-color: #ffffff; /* 白 */
+    color: #333;
+    /* 左上に尖った角丸: 左上(4px) + その他(18px) */
+    border-radius: 18px 18px 18px 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+/* ファイル添付用の非表示input */
+#file-input {
+    display: none;
+}
+
+/* ----------------------------------------------------------------
+ * モバイルレスポンシブ制御
+ * ---------------------------------------------------------------- */
+
+@media (max-width: 768px) {
+    /* デフォルトではリストを表示 */
+    .chat-list {
+        display: block;
+        width: 100%;
+        border-right: none;
+    }
+
+    /* デフォルトではチャットウィンドウを非表示 */
+    .chat-window {
+        display: none;
+        width: 100%;
+    }
+
+    /* JSで 'active' クラスが付与されたらチャットウィンドウを全画面表示 */
+    .chat-window.active {
+        display: flex;
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 10;
+        /* 背景色を白に設定してリストの上に重ねる */
+        background-color: white; 
+    }
+
+    /* 戻るボタンをモバイルでのみ表示 */
+    .back-btn {
+        display: block !important;
+    }
+}
