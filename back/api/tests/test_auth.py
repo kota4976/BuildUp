@@ -1,5 +1,9 @@
 """Tests for authentication endpoints"""
 from fastapi.testclient import TestClient
+from sqlalchemy.orm import Session
+
+from app.models.user import OAuthAccount, User
+from app.services.github_service import GitHubService
 
 
 def test_github_login_redirect(client: TestClient):
@@ -30,4 +34,104 @@ def test_get_current_user_invalid_token(client: TestClient):
     headers = {"Authorization": "Bearer invalid_token"}
     response = client.get("/api/v1/auth/me", headers=headers)
     assert response.status_code == 401  # Unauthorized
+
+
+def test_github_callback_reuses_existing_user(
+    client: TestClient,
+    db_session: Session,
+    test_user: User,
+    monkeypatch
+):
+    """GitHub callback should attach OAuth data to an existing user instead of duplicating."""
+
+    async def mock_exchange_code_for_token(code: str):
+        assert code == "sample_code"
+        return {"access_token": "token123"}
+
+    async def mock_get_user_info(access_token: str):
+        assert access_token == "token123"
+        return {
+            "id": 123456,
+            "login": test_user.github_login,
+            "avatar_url": "https://avatars.githubusercontent.com/u/123456?v=4",
+            "bio": "Updated bio"
+        }
+
+    async def mock_get_user_emails(access_token: str):
+        assert access_token == "token123"
+        return [{"email": test_user.email, "primary": True}]
+
+    monkeypatch.setattr(GitHubService, "exchange_code_for_token", mock_exchange_code_for_token)
+    monkeypatch.setattr(GitHubService, "get_user_info", mock_get_user_info)
+    monkeypatch.setattr(GitHubService, "get_user_emails", mock_get_user_emails)
+
+    response = client.get("/api/v1/auth/github/callback", params={"code": "sample_code"})
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["user"]["id"] == str(test_user.id)
+    assert payload["user"]["github_login"] == test_user.github_login
+
+    oauth_accounts = (
+        db_session.query(OAuthAccount)
+        .filter(
+            OAuthAccount.user_id == test_user.id,
+            OAuthAccount.provider == "github",
+            OAuthAccount.provider_account_id == "123456"
+        )
+        .all()
+    )
+    assert len(oauth_accounts) == 1
+    assert oauth_accounts[0].access_token == "token123"
+
+
+def test_github_callback_generates_unique_handle(client: TestClient, db_session: Session, monkeypatch):
+    """New GitHub users should get a unique handle even if the preferred one is taken."""
+    # Existing user occupying the base handle
+    existing_user = User(
+        handle="duplicate",
+        email="existing@example.com",
+        github_login="existing",
+        bio="Existing user"
+    )
+    db_session.add(existing_user)
+    db_session.commit()
+
+    async def mock_exchange_code_for_token(code: str):
+        return {"access_token": "token456"}
+
+    async def mock_get_user_info(access_token: str):
+        return {
+            "id": 654321,
+            "login": "duplicate",
+            "avatar_url": "https://avatars.githubusercontent.com/u/654321?v=4",
+            "bio": "New user bio"
+        }
+
+    async def mock_get_user_emails(access_token: str):
+        return [{"email": "newuser@example.com", "primary": True}]
+
+    monkeypatch.setattr(GitHubService, "exchange_code_for_token", mock_exchange_code_for_token)
+    monkeypatch.setattr(GitHubService, "get_user_info", mock_get_user_info)
+    monkeypatch.setattr(GitHubService, "get_user_emails", mock_get_user_emails)
+
+    response = client.get("/api/v1/auth/github/callback", params={"code": "another_code"})
+
+    assert response.status_code == 200
+    response_user = response.json()["user"]
+    assert response_user["github_login"] == "duplicate"
+    assert response_user["handle"].startswith("duplicate")
+
+    new_user = db_session.query(User).filter(User.github_login == "duplicate").one()
+    assert new_user.handle == "duplicate-1"
+
+    oauth_record = (
+        db_session.query(OAuthAccount)
+        .filter(
+            OAuthAccount.provider_account_id == "654321",
+            OAuthAccount.provider == "github"
+        )
+        .one()
+    )
+    assert oauth_record.user_id == new_user.id
 

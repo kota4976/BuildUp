@@ -14,6 +14,11 @@ class Settings(BaseSettings):
     
     # Database
     database_url: str
+    postgres_host: str = "localhost"
+    postgres_port: int = 5432
+    postgres_db: str = "buildup"
+    postgres_user: str = "buildup_user"
+    postgres_password: str = "postgres"
     
     # GitHub OAuth
     github_client_id: str
