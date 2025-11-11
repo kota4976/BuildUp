@@ -64,7 +64,7 @@ def test_get_my_applications(
     )
     
     # Get applications
-    response = client.get("/api/v1/users/me/applications", headers=applicant_headers)
+    response = client.get("/api/v1/me/applications", headers=applicant_headers)
     assert response.status_code == 200
     data = response.json()
     assert "applications" in data
