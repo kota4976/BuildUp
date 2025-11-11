@@ -72,7 +72,7 @@ def test_get_sent_offers(
     )
     
     # Get sent offers
-    response = client.get("/api/v1/users/me/offers/sent", headers=auth_headers)
+    response = client.get("/api/v1/me/offers/sent", headers=auth_headers)
     assert response.status_code == 200
     data = response.json()
     assert "offers" in data
@@ -103,7 +103,7 @@ def test_get_received_offers(
     receiver_token = create_access_token(data={"sub": str(test_user2.id)})
     receiver_headers = {"Authorization": f"Bearer {receiver_token}"}
     
-    response = client.get("/api/v1/users/me/offers/received", headers=receiver_headers)
+    response = client.get("/api/v1/me/offers/received", headers=receiver_headers)
     assert response.status_code == 200
     data = response.json()
     assert "offers" in data
