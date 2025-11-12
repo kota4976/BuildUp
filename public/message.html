@@ -4,13 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>メッセージ | BuildUp</title>
-    <!-- Tailwind CSSとフォントを読み込みます -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Lucide Iconsを読み込みます: CDNパスを修正しました -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
-    
-    <!-- カスタムスタイル: 高さ、幅、固定配置の調整 -->
+
     <style>
         /* Interフォントを適用 */
         body {
@@ -19,7 +16,7 @@
             margin: 0;
             padding: 0;
         }
-        
+
         /* ヘッダーの固定スタイル (HeaderComponent.js がこの役割を担うが、念のため) */
         build-up-header {
             position: fixed;
@@ -37,7 +34,7 @@
             flex-direction: column;
             padding-top: 60px; /* ヘッダーの高さに応じて調整 */
         }
-        
+
         /* チャットリストとウィンドウの領域が利用可能な高さをフルに使う */
         .main-container {
             flex-grow: 1;
@@ -91,10 +88,10 @@
             }
             .main-container {
                 /* モバイルでは画面全体を使用 */
-                max-width: 100%; 
+                max-width: 100%;
             }
         }
-        
+
         /* デスクトップで外枠の横幅を固定 (例: 1024px) */
         @media (min-width: 768px) {
             .main-container-fixed {
@@ -105,387 +102,174 @@
 
 </head>
 <body class="bg-gray-50">
-    
-    <!-- ヘッダー (前回のプロジェクトのものを想定) -->
-    <!-- ヘッダー自体を固定するためのクラスは、通常 Web Component 内部または全体スタイルで制御されます。 -->
-    <!-- このコンテナは、固定表示の準備として、メインコンテンツの上に配置されます。 -->
-    <build-up-header></build-up-header>
 
-    <!-- メインコンテナラッパー: 高さを画面全体に固定し、ヘッダー分のパディングを適用 -->
-    <!-- このラッパーが画面の高さを占有するため、チャットの外枠全体が固定されます。 -->
-    <div class="main-container-wrapper">
-        
-        <!-- メインコンテナ: レスポンシブな2カラムレイアウト -->
-        <div class="main-container main-container-fixed flex mx-auto border-x border-gray-200 bg-white shadow-xl overflow-hidden h-full">
+<build-up-header></build-up-header>
 
-            <!-- 1. メッセージリスト (左カラム) -->
-            <div id="chat-list" class="chat-list w-full md:w-80 flex-shrink-0 border-r border-gray-200 overflow-y-auto custom-scrollbar flex flex-col h-full">
-                <h1 class="text-2xl font-semibold p-5 border-b border-gray-100 text-gray-800 flex-shrink-0">Messages</h1>
+<div class="main-container-wrapper">
 
-                <!-- メッセージアイテムのコンテナ: flex-grow で残りのスペースを占有し、スクロール可能に -->
-                <div id="message-container" class="flex-grow overflow-y-auto">
-                    <!-- メッセージリストアイテム (初期アクティブ: data-chat-id="1") -->
-                    <div class="chat-item flex items-center p-4 cursor-pointer hover:bg-gray-50 transition duration-150 border-b border-gray-100 active-chat bg-gray-100" data-chat-id="1">
-                        <img src="https://placehold.co/48x48/f8bbd0/fff?text=AI" onerror="this.onerror=null; this.src='https://placehold.co/48x48/f0f0f0/666?text=U'" alt="AI Platform Team" class="w-12 h-12 rounded-full object-cover mr-3">
-                        <div class="flex-grow min-w-0">
-                            <div class="flex justify-between items-center">
-                                <h2 class="text-sm font-semibold truncate">AI Learning Platform Team</h2>
-                                <span class="text-xs text-gray-500 flex-shrink-0">2 min ago</span>
-                            </div>
-                            <p class="text-xs text-gray-600 truncate mt-1">Great progress on the...</p>
-                        </div>
-                        <!-- 未読件数 -->
-                        <span class="unread-count ml-2 w-5 h-5 bg-blue-500 text-white text-xs font-bold flex items-center justify-center rounded-full">3</span>
-                    </div>
-                    
-                    <div class="chat-item flex items-center p-4 cursor-pointer hover:bg-gray-50 transition duration-150 border-b border-gray-100" data-chat-id="2">
-                        <img src="https://placehold.co/48x48/66bb6a/fff?text=SC" onerror="this.onerror=null; this.src='https://placehold.co/48x48/f0f0f0/666?text=S'" alt="Sarah Chen" class="w-12 h-12 rounded-full object-cover mr-3">
-                        <div class="flex-grow min-w-0">
-                            <div class="flex justify-between items-center">
-                                <h2 class="text-sm font-semibold truncate">Sarah Chen</h2>
-                                <span class="text-xs text-gray-500 flex-shrink-0">1 hour ago</span>
-                            </div>
-                            <p class="text-xs text-gray-600 truncate mt-1">Can we schedule a ...</p>
-                        </div>
-                        <span class="unread-count ml-2 w-5 h-5 bg-blue-500 text-white text-xs font-bold flex items-center justify-center rounded-full hidden">0</span>
-                    </div>
+    <div class="main-container main-container-fixed flex mx-auto border-x border-gray-200 bg-white shadow-xl overflow-hidden h-full">
 
-                    <div class="chat-item flex items-center p-4 cursor-pointer hover:bg-gray-50 transition duration-150 border-b border-gray-100" data-chat-id="3">
-                        <img src="https://placehold.co/48x48/ff8a65/fff?text=SE" onerror="this.onerror=null; this.src='https://placehold.co/48x48/f0f0f0/666?text=S'" alt="Sustainable Energy" class="w-12 h-12 rounded-full object-cover mr-3">
-                        <div class="flex-grow min-w-0">
-                            <div class="flex justify-between items-center">
-                                <h2 class="text-sm font-semibold truncate">Sustainable Energy</h2>
-                                <span class="text-xs text-gray-500 flex-shrink-0">3 hours ago</span>
-                            </div>
-                            <p class="text-xs text-gray-600 truncate mt-1">The prototype is read...</p>
-                        </div>
-                        <span class="unread-count ml-2 w-5 h-5 bg-blue-500 text-white text-xs font-bold flex items-center justify-center rounded-full">1</span>
-                    </div>
+        <div id="chat-list" class="chat-list w-full md:w-80 flex-shrink-0 border-r border-gray-200 overflow-y-auto custom-scrollbar flex flex-col h-full">
+            <h1 class="text-2xl font-semibold p-5 border-b border-gray-100 text-gray-800 flex-shrink-0">Messages</h1>
 
-                    <div class="chat-item flex items-center p-4 cursor-pointer hover:bg-gray-50 transition duration-150 border-b border-gray-100" data-chat-id="4">
-                        <img src="https://placehold.co/48x48/4fc3f7/fff?text=DK" onerror="this.onerror=null; this.src='https://placehold.co/48x48/f0f0f0/666?text=D'" alt="David Kim" class="w-12 h-12 rounded-full object-cover mr-3">
-                        <div class="flex-grow min-w-0">
-                            <div class="flex justify-between items-center">
-                                <h2 class="text-sm font-semibold truncate">David Kim</h2>
-                                <span class="text-xs text-gray-500 flex-shrink-0">1 day ago</span>
-                            </div>
-                            <p class="text-xs text-gray-600 truncate mt-1">Thanks for the code r...</p>
-                        </div>
-                        <span class="unread-count ml-2 w-5 h-5 bg-blue-500 text-white text-xs font-bold flex items-center justify-center rounded-full hidden">0</span>
-                    </div>
-                </div>
-                
+            <div id="message-container" class="flex-grow overflow-y-auto">
             </div>
 
-            <!-- 2. チャットウィンドウ (右カラム) -->
-            <div id="chat-window" class="chat-window flex-grow flex flex-col hidden md:flex h-full">
-                
-                <!-- チャットヘッダー: flex-shrink-0 で高さを固定 -->
-                <div id="chat-header" class="flex items-center justify-between p-4 border-b border-gray-200 bg-white flex-shrink-0">
-                    <!-- コンテンツはJSで動的に更新されます -->
-                </div>
+        </div>
 
-                <!-- メッセージエリア: flex-grow と overflow-y-auto で高さを自動調整し、スクロール可能にする -->
-                <div id="messages-area" class="flex-grow p-6 space-y-4 overflow-y-auto custom-scrollbar">
-                    <!-- コンテンツはJSで動的に更新されます -->
-                </div>
+        <div id="chat-window" class="chat-window flex-grow flex flex-col hidden md:flex h-full">
 
-                <!-- メッセージ入力エリア: flex-shrink-0 で高さを固定 -->
-                <div class="p-4 border-t border-gray-200 bg-white flex-shrink-0">
-                    <form id="chat-form" class="flex items-center space-x-3">
-                        <!-- ファイル添付ボタン -->
-                        <label for="file-input" class="cursor-pointer text-gray-500 hover:text-blue-600 transition">
-                            <i data-lucide="paperclip" class="w-6 h-6"></i>
-                        </label>
-                        <input type="file" id="file-input" accept="*/*" class="hidden">
-                        
-                        <!-- メッセージ入力フィールド -->
-                        <input type="text" id="message-input" placeholder="Type a message..." class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 outline-none transition" aria-label="Message input">
-
-                        <!-- 送信ボタン -->
-                        <button type="submit" class="p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center justify-center flex-shrink-0">
-                            <i data-lucide="send" class="w-5 h-5"></i>
-                        </button>
-                    </form>
-                </div>
-
+            <div id="chat-header" class="flex items-center justify-between p-4 border-b border-gray-200 bg-white flex-shrink-0">
+                <p class="text-gray-500">チャットを選択してください</p>
             </div>
+
+            <div id="messages-area" class="flex-grow p-6 space-y-4 overflow-y-auto custom-scrollbar">
+            </div>
+
+            <div class="p-4 border-t border-gray-200 bg-white flex-shrink-0">
+                <form id="chat-form" class="flex items-center space-x-3">
+                    <label for="file-input" class="cursor-pointer text-gray-500 hover:text-blue-600 transition">
+                        <i data-lucide="paperclip" class="w-6 h-6"></i>
+                    </label>
+                    <input type="file" id="file-input" accept="*/*" class="hidden">
+
+                    <input type="text" id="message-input" placeholder="Type a message..." class="flex-grow p-3 border border-gray-300 rounded-lg focus:ring-blue-500 focus:border-blue-500 outline-none transition" aria-label="Message input">
+
+                    <button type="submit" class="p-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition flex items-center justify-center flex-shrink-0">
+                        <i data-lucide="send" class="w-5 h-5"></i>
+                    </button>
+                </form>
+            </div>
+
         </div>
     </div>
-    
-    <!-- 3. スクリプトの読み込みとロジック -->
-    <script src="component/header-component.js" type="module"></script> 
-    
-    <script>
-        lucide.createIcons(); // Lucide Iconsを初期化
+</div>
 
-        const messagesArea = document.getElementById('messages-area');
-        const chatHeader = document.getElementById('chat-header');
-        const chatForm = document.getElementById('chat-form');
-        const chatList = document.getElementById('chat-list');
-        const chatWindow = document.getElementById('chat-window');
-        const chatItems = document.querySelectorAll('.chat-item');
-        const fileInput = document.getElementById('file-input');
+<script src="component/header-component.js" type="module"></script>
 
-        let currentChatId = '1'; // 初期表示チャットID
+<script>
+    lucide.createIcons(); // Lucide Iconsを初期化
 
-        // ----------------------------------------------------------------
-        // 1. チャットデータ (実際のアプリではFirestoreから取得)
-        // ----------------------------------------------------------------
-        const CHAT_DATA = {
-            '1': {
-                title: 'AI Learning Platform Team',
-                members: 'Sarah Chen, Mike Johnson, Lisa Park, You',
-                avatar: 'https://placehold.co/32x32/f8bbd0/fff?text=AI',
-                messages: [
-                    { type: 'other', sender: 'Sarah Chen', avatar: 'https://placehold.co/32x32/66bb6a/fff?text=SC', text: "Hey team! I've finished the user authentication module. Ready for review.", time: '10:30 AM' },
-                    { type: 'user', sender: 'You', avatar: 'https://placehold.co/32x32/3f51b5/fff?text=Y', text: "Awesome work Sarah! I'll take a look at it this afternoon.", time: '10:32 AM' },
-                    { type: 'other', sender: 'Lisa Park', avatar: 'https://placehold.co/32x32/ff8a65/fff?text=LP', text: "Should we schedule a demo for the stakeholders next week? We need to ensure all features are stable and documented before the big presentation.", time: '10:40 AM' },
-                    { type: 'user', sender: 'You', avatar: 'https://placehold.co/32x32/3f51b5/fff?text=Y', text: "That sounds like a great idea! Let me check everyone's availability. I'm thinking Tuesday would be best to give Mike time to finish his documentation. Also, I've added a few more test cases to the repository, please check them out.", time: '10:42 AM' },
-                    { type: 'other', sender: 'Mike Johnson', avatar: 'https://placehold.co/32x32/4fc3f7/fff?text=MJ', text: "I've started on the data pipeline documentation. Will upload the first draft by EOD. I'll focus on the ingestion and transformation steps first.", time: '11:15 AM' },
-                    { type: 'other', sender: 'Sarah Chen', avatar: 'https://placehold.co/32x32/66bb6a/fff?text=SC', text: "Got it. I'll review the test cases and push a small bug fix for the mobile layout later tonight.", time: '11:20 AM' },
-                    { type: 'user', sender: 'You', avatar: 'https://placehold.co/32x32/3f51b5/fff?text=Y', text: "Perfect. Let's aim to sync up again tomorrow morning to finalize the demo plan.", time: '11:25 AM' },
-                    { type: 'other', sender: 'Lisa Park', avatar: 'https://placehold.co/32x32/ff8a65/fff?text=LP', text: "Sounds good to me!", time: '11:26 AM' },
-                    // スクロールテスト用のダミーメッセージ
-                    { type: 'other', sender: 'Mike Johnson', avatar: 'https://placehold.co/32x32/4fc3f7/fff?text=MJ', text: "Dummy message 1 for testing fixed height scroll.", time: '11:27 AM' },
-                    { type: 'user', sender: 'You', avatar: 'https://placehold.co/32x32/3f51b5/fff?text=Y', text: "Dummy message 2. Ensuring the message area does not expand the chat window.", time: '11:28 AM' },
-                    { type: 'other', sender: 'Sarah Chen', avatar: 'https://placehold.co/32x32/66bb6a/fff?text=SC', text: "Dummy message 3. The scroll should be contained within the messages-area div.", time: '11:29 AM' },
-                    { type: 'user', sender: 'You', avatar: 'https://placehold.co/32x32/3f51b5/fff?text=Y', text: "Dummy message 4. Testing long content inside the fixed frame.", time: '11:30 AM' },
-                    { type: 'other', sender: 'Lisa Park', avatar: 'https://placehold.co/32x32/ff8a65/fff?text=LP', text: "Dummy message 5. Scroll test complete. Looks good!", time: '11:31 AM' },
-                    { type: 'user', sender: 'You', avatar: 'https://placehold.co/32x32/3f51b5/fff?text=Y', text: "Final message to ensure proper bottom alignment.", time: '11:32 AM' },
-                ]
-            },
-            '2': {
-                title: 'Sarah Chen',
-                members: 'You, Sarah Chen',
-                avatar: 'https://placehold.co/32x32/66bb6a/fff?text=SC',
-                messages: [
-                    { type: 'user', sender: 'You', avatar: 'https://placehold.co/32x32/3f51b5/fff?text=Y', text: "Sarah, do you have a few minutes to discuss the API spec for the new feature?", time: '9:00 AM' },
-                    { type: 'other', sender: 'Sarah Chen', avatar: 'https://placehold.co/32x32/66bb6a/fff?text=SC', text: "Sure! Can we meet at 2 PM today? I have a block free then.", time: '9:05 AM' },
-                ]
-            },
-            '3': {
-                title: 'Sustainable Energy',
-                members: 'Project Manager, You, R&D Lead',
-                avatar: 'https://placehold.co/32x32/ff8a65/fff?text=SE',
-                messages: [
-                    { type: 'other', sender: 'R&D Lead', avatar: 'https://placehold.co/32x32/4fc3f7/fff?text=RD', text: "The prototype power output is 15% higher than projected. Great news!", time: 'yesterday' },
-                    { type: 'user', sender: 'You', avatar: 'https://placehold.co/32x32/3f51b5/fff?text=Y', text: "That's fantastic! How did the stress tests go?", time: 'yesterday' },
-                    { type: 'other', sender: 'Project Manager', avatar: 'https://placehold.co/32x32/f8bbd0/fff?text=PM', text: "The stress tests were conclusive. The report is attached.", time: '3 hours ago' },
-                ]
-            },
-            '4': {
-                title: 'David Kim',
-                members: 'You, David Kim',
-                avatar: 'https://placehold.co/32x32/4fc3f7/fff?text=DK',
-                messages: [
-                    { type: 'other', sender: 'David Kim', avatar: 'https://placehold.co/32x32/4fc3f7/fff?text=DK', text: "Thanks for the code review on the latest pull request. Your suggestions were very helpful.", time: '1 day ago' },
-                ]
-            }
-        };
+    const messagesArea = document.getElementById('messages-area');
+    const chatHeader = document.getElementById('chat-header');
+    const chatForm = document.getElementById('chat-form');
+    const chatList = document.getElementById('chat-list');
+    const chatWindow = document.getElementById('chat-window');
+    // chatItemsは動的に生成されるため、querySelectorAallはここでは使わない
+    const fileInput = document.getElementById('file-input');
 
-        // ----------------------------------------------------------------
-        // 2. チャット画面のレンダリング関数
-        // ----------------------------------------------------------------
-        function renderChatWindow(chatId) {
-            const chat = CHAT_DATA[chatId];
-            if (!chat) return;
+    let currentChatId = null; // 初期チャットIDはなし
 
-            // 1. ヘッダーの更新
-            chatHeader.innerHTML = `
-                <div class="flex items-center">
-                    <!-- モバイル用戻るボタン (CSSで制御) -->
-                    <button id="back-to-list" class="back-btn mr-3 p-2 hidden text-gray-600 hover:text-gray-900 rounded-full transition">
-                        <i data-lucide="arrow-left" class="w-5 h-5"></i>
-                    </button>
-                    <div class="flex flex-col">
-                        <h2 class="text-lg font-semibold text-gray-800">${chat.title}</h2>
-                        <p class="text-xs text-gray-500">${chat.members}</p>
-                    </div>
-                </div>
-                <!-- アクションボタン -->
-                <div class="flex space-x-4 text-gray-500">
-                    <button class="hover:text-blue-500 p-2 rounded-full transition"><i data-lucide="phone" class="w-5 h-5"></i></button>
-                    <button class="hover:text-blue-500 p-2 rounded-full transition"><i data-lucide="video" class="w-5 h-5"></i></button>
-                    <button class="hover:text-blue-500 p-2 rounded-full transition"><i data-lucide="more-vertical" class="w-5 h-5"></i></button>
-                </div>
-            `;
+    // ----------------------------------------------------------------
+    // 1. チャットデータ (静的データを削除)
+    // ----------------------------------------------------------------
+    // const CHAT_DATA = { ... };
+    // 上記の巨大な静的オブジェクトは削除されました。
+    // 今後はAPIからデータを取得します。
 
-            // 2. メッセージエリアの更新
-            messagesArea.innerHTML = ''; // 一旦クリア
-            
-            chat.messages.forEach(msg => {
-                const messageHtml = msg.type === 'user' 
-                    ? `
-                    <div class="flex justify-end">
-                        <div class="max-w-xs md:max-w-md lg:max-w-lg">
-                            <div class="message-bubble user p-3 text-sm">
-                                ${msg.text}
-                            </div>
-                            <span class="text-xs text-gray-400 mt-1 block text-right">${msg.time}</span>
-                        </div>
-                        <img src="${msg.avatar}" alt="${msg.sender}" class="w-8 h-8 rounded-full object-cover ml-3 mt-1 flex-shrink-0" onerror="this.onerror=null; this.src='https://placehold.co/32x32/f0f0f0/666?text=Y'">
-                    </div>
-                    `
-                    : `
-                    <div class="flex justify-start">
-                        <img src="${msg.avatar}" alt="${msg.sender}" class="w-8 h-8 rounded-full object-cover mr-3 mt-1 flex-shrink-0" onerror="this.onerror=null; this.src='https://placehold.co/32x32/f0f0f0/666?text=U'">
-                        <div class="max-w-xs md:max-w-md lg:max-w-lg">
-                            <p class="text-xs font-semibold text-gray-600 mb-1">${msg.sender}</p>
-                            <div class="message-bubble other p-3 text-sm">
-                                ${msg.text}
-                            </div>
-                            <span class="text-xs text-gray-400 mt-1 block">${msg.time}</span>
-                        </div>
-                    </div>
-                    `;
-                messagesArea.innerHTML += messageHtml;
-            });
+    // ----------------------------------------------------------------
+    // 2. チャット画面のレンダリング関数 (内容はAPI連携後に実装)
+    // ----------------------------------------------------------------
+    function renderChatWindow(chatId) {
+        // この関数は、APIから取得したデータを使って
+        // chatHeader と messagesArea を更新するように変更する必要があります。
 
-            // 3. アイコンを再初期化（ヘッダーとメッセージに含まれる可能性があるため）
-            lucide.createIcons();
-            
-            // 4. スクロールを最下部に
-            messagesArea.scrollTop = messagesArea.scrollHeight;
+        // APIからデータを取得するロジック（ダミー）
+        console.log(`APIからチャット(id: ${chatId})のデータを取得し、描画します...`);
 
-            // 5. モバイル戻るボタンにイベントリスナーを再設定
-            const newBackButton = document.getElementById('back-to-list');
-            if (newBackButton) {
-                newBackButton.addEventListener('click', handleBackToList);
-            }
+        // (... API呼び出しとDOM操作のロジック ...)
+
+        // ダミーの描画（実際のAPI連携で置き換える）
+        // chatHeader.innerHTML = `...`;
+        // messagesArea.innerHTML = `...`;
+
+        // 3. アイコンを再初期化
+        lucide.createIcons();
+
+        // 4. スクロールを最下部に
+        messagesArea.scrollTop = messagesArea.scrollHeight;
+
+        // 5. モバイル戻るボタンにイベントリスナーを再設定
+        const newBackButton = document.getElementById('back-to-list');
+        if (newBackButton) {
+            newBackButton.addEventListener('click', handleBackToList);
+        }
+    }
+
+    // ( ... 他の関数 (handleBackToList, isMobile, フォーム送信ロジックなど) は
+    // API連携に合わせて修正が必要ですが、骨格は残します ... )
+
+    // ----------------------------------------------------------------
+    // 3. イベント処理とレスポンシブ制御
+    // ----------------------------------------------------------------
+
+    const isMobile = () => window.innerWidth <= 767;
+
+    // モバイルでの「戻る」ボタンの処理
+    function handleBackToList() {
+        if (isMobile()) {
+            chatWindow.classList.remove('active');
+            chatList.style.display = 'flex';
+            chatWindow.style.display = 'none';
+        }
+    }
+
+    // ★注意: チャットアイテムは動的に生成されるため、
+    // イベントリスナーは chatList (親要素) に対する「イベント委任」で設定する必要があります。
+    chatList.addEventListener('click', (e) => {
+        const item = e.target.closest('.chat-item'); // クリックされたchat-itemを探す
+        if (!item) return; // chat-item以外がクリックされた場合は無視
+
+        const chatId = item.getAttribute('data-chat-id');
+        currentChatId = chatId;
+
+        // 1. リストのハイライトを更新
+        document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active-chat', 'bg-gray-100'));
+        item.classList.add('active-chat', 'bg-gray-100');
+
+        // 2. チャットウィンドウの内容を更新
+        renderChatWindow(chatId); // APIデータを取得して描画する関数を呼び出す
+
+        // 3. モバイルの場合の表示切り替え
+        if (isMobile()) {
+            chatList.style.display = 'none';
+            chatWindow.classList.add('active');
+            chatWindow.style.display = 'flex';
         }
 
-        // ----------------------------------------------------------------
-        // 3. イベント処理とレスポンシブ制御
-        // ----------------------------------------------------------------
-
-        const isMobile = () => window.innerWidth <= 767; // メディアクエリと一致させるため767pxに変更
-
-        // モバイルでの「戻る」ボタンの処理
-        function handleBackToList() {
-            if (isMobile()) {
-                chatWindow.classList.remove('active');
-                // モバイルでは、チャットリストを表示
-                chatList.style.display = 'flex'; 
-                chatWindow.style.display = 'none';
-            }
+        // 4. 未読件数を消す (デモ)
+        const unreadCount = item.querySelector('.unread-count');
+        if (unreadCount && !unreadCount.classList.contains('hidden')) {
+            unreadCount.textContent = '0';
+            unreadCount.classList.add('hidden');
         }
-        
-        // トークアイテムクリック時の処理
-        chatItems.forEach(item => {
-            item.addEventListener('click', () => {
-                const chatId = item.getAttribute('data-chat-id');
-                currentChatId = chatId; // 現在のチャットIDを更新
+    });
 
-                // 1. リストのハイライトを更新
-                document.querySelectorAll('.chat-item').forEach(i => i.classList.remove('active-chat', 'bg-gray-100'));
-                item.classList.add('active-chat', 'bg-gray-100');
-                
-                // 2. チャットウィンドウの内容を更新
-                renderChatWindow(chatId);
+    // フォーム送信ロジック (API連携が必要)
+    chatForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        // ...
+        // ここにAPI (WebSocket) にメッセージを送信するロジックを追加する
+        // ...
+    });
 
-                // 3. モバイルの場合の表示切り替え
-                if (isMobile()) {
-                    chatList.style.display = 'none';
-                    chatWindow.classList.add('active'); // activeクラスが full-screen 表示を制御
-                    chatWindow.style.display = 'flex'; // 表示に切り替え
-                }
+    // ( ... ファイル入力のデモ処理、リサイズ処理 ...)
 
-                // 4. 未読件数を消す (デモ)
-                const unreadCount = item.querySelector('.unread-count');
-                if (unreadCount && !unreadCount.classList.contains('hidden')) {
-                    unreadCount.textContent = '0';
-                    unreadCount.classList.add('hidden');
-                }
-            });
-        });
+    // ページロード時の初期化
+    document.addEventListener('DOMContentLoaded', () => {
+        // ★APIを呼び出してチャットリストを描画する関数をここに追加する
+        // loadChatList();
 
-        // フォーム送信ロジック (デモ用)
-        chatForm.addEventListener('submit', function(e) {
-            e.preventDefault();
-            const input = document.getElementById('message-input');
-            const messageText = input.value.trim();
-            const now = new Date();
-            const timeString = now.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false }); // 日本語表記
+        // 初期チャットは選択されていない状態にする
+        if (isMobile()) {
+            chatList.style.display = 'flex';
+            chatWindow.style.display = 'none';
+        } else {
+            chatList.style.display = 'flex';
+            chatWindow.style.display = 'flex'; // デスクトップでは右側も表示
+        }
+    });
 
-            if (messageText) {
-                // 1. 新しい自分のメッセージを作成
-                const newMessage = document.createElement('div');
-                newMessage.className = 'flex justify-end';
-                newMessage.innerHTML = `
-                    <div class="max-w-xs md:max-w-md lg:max-w-lg">
-                        <div class="message-bubble user p-3 text-sm">
-                            ${messageText}
-                        </div>
-                        <span class="text-xs text-gray-400 mt-1 block text-right">${timeString}</span>
-                    </div>
-                    <img src="https://placehold.co/32x32/3f51b5/fff?text=Y" alt="You" class="w-8 h-8 rounded-full object-cover ml-3 mt-1 flex-shrink-0" onerror="this.onerror=null; this.src='https://placehold.co/32x32/f0f0f0/666?text=Y'">
-                `;
-                
-                // 2. メッセージエリアに追加
-                messagesArea.appendChild(newMessage);
-                
-                // 3. スクロール
-                messagesArea.scrollTop = messagesArea.scrollHeight;
-                
-                // 4. 入力フィールドをクリア
-                input.value = '';
-                
-                // 5. (オプショナル) データ構造にメッセージを追加
-                CHAT_DATA[currentChatId].messages.push({
-                    type: 'user',
-                    sender: 'You',
-                    avatar: 'https://placehold.co/32x32/3f51b5/fff?text=Y',
-                    text: messageText,
-                    time: timeString
-                });
-            }
-        });
-
-        // ファイル入力のデモ処理
-        fileInput.addEventListener('change', () => {
-            if (fileInput.files.length > 0) {
-                // ファイルが選択されたことを通知する代わりに、入力フィールドにファイル名を表示
-                document.getElementById('message-input').value = `[File attached: ${fileInput.files[0].name}]`;
-                fileInput.value = ''; // フォーム送信を防ぐためにクリア
-            }
-        });
-
-        // 画面サイズ変更時の対応 (デスクトップ <-> モバイル切り替え時)
-        window.addEventListener('resize', () => {
-            if (window.innerWidth > 767) {
-                // デスクトップに戻ったら両方を表示
-                chatList.style.display = 'flex'; // flex-col のため flex を使用
-                chatWindow.classList.remove('active');
-                chatWindow.style.display = 'flex';
-            } else {
-                // モバイルの場合、現在アクティブなウィンドウに基づいて表示を制御
-                if (chatWindow.classList.contains('active')) {
-                    chatList.style.display = 'none';
-                    chatWindow.style.display = 'flex';
-                } else {
-                    chatList.style.display = 'flex';
-                    chatWindow.style.display = 'none';
-                }
-            }
-        });
-
-        // ページロード時の初期化
-        document.addEventListener('DOMContentLoaded', () => {
-            // 初期チャットをレンダリング (ID='1')
-            renderChatWindow(currentChatId);
-
-            // 初回ロード時にモバイルであればチャットウィンドウを非表示
-            if (isMobile()) {
-                chatList.style.display = 'flex'; // flex-col のため flex を使用
-                chatWindow.style.display = 'none';
-            } else {
-                // デスクトップの場合、常に表示
-                chatList.style.display = 'flex';
-                chatWindow.style.display = 'flex';
-            }
-        });
-
-    </script>
+</script>
 </body>
 </html>
