@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>認証中...</title>
+</head>
+<body>
+<p>ログイン処理中です。しばらくお待ちください...</p>
+
+<script>
+    // 1. URLから 'token' パラメータを取得します
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+
+    if (token) {
+        // 2. トークンを localStorage (ブラウザの保存領域) に保存します
+        localStorage.setItem('accessToken', token);
+
+        // 3. profile.html にリダイレクト (転送) します
+        window.location.href = '/public/profile.html';
+    } else {
+        // トークンが取得できなかった場合
+        console.error('認証に失敗しました。トークンがありません。');
+        window.location.href = '/public/login.html?error=auth_failed';
+    }
+</script>
+</body>
+</html>

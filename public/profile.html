@@ -3,154 +3,144 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>プロフィール - Alex Johnson</title>
+    <title>プロフィール - BuildUp</title>
     <link rel="stylesheet" href="styles/profile.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 
-    <!-- 1. HTMLの<body>内でヘッダーを呼び出す -->
-    <build-up-header></build-up-header>
+<build-up-header></build-up-header>
 
-    <!-- 2. <body>の最後にモジュールとしてJSを読み込む -->
-    <script src="component/header-component.js" type="module"></script>
+<script src="component/header-component.js" type="module"></script>
 
-    <div class="main-content">
+<div class="main-content">
 
-        <div class="profile-card">
-            <img src="images/profile_placeholder.jpg" alt="Alex Johnsonのプロフィール画像" class="profile-img">
-            <div class="profile-info">
-                <h1>Alex Johnson</h1>
-                <p>Full Stack Developer & Product Designer</p>
-                <span>📍 San Francisco, CA</span>
+    <div class="profile-card">
+        <img src="images/profile_placeholder.jpg" alt="プロフィール画像" class="profile-img" id="profile-avatar">
+
+        <div class="profile-info" id="profile-info-container">
+            <h1 id="profile-name">読み込み中...</h1>
+            <p id="profile-bio"></p>
+        </div>
+
+        <button class="edit-btn" id="edit-profile-btn">✍️ Edit Profile</button>
+    </div>
+
+    <div class="tabs">
+        <a href="#" class="active">Overview</a>
+        <a href="#">Projects</a>
+        <a href="#">Skills</a>
+        <a href="#">Achievements</a>
+    </div>
+
+    <div class="profile-layout">
+
+        <div class="left-column">
+
+            <div id="overview-content" class="tab-content active">
+                <div class="section-card about-section">
+                    <h3>About</h3>
+                    <p id="profile-about-text"></p>
+                </div>
             </div>
-            <button class="edit-btn">✍️ Edit Profile</button>
+
+            <div id="projects-content" class="tab-content hidden">
+                <div class="project-list" id="profile-projects-list">
+                </div>
+            </div>
         </div>
 
-        <div class="tabs">
-            <a href="#" class="active">Overview</a>
-            <a href="#">Projects</a>
-            <a href="#">Skills</a>
-            <a href="#">Achievements</a>
+        <div class="right-column">
+            <div class="section-card contact-info" id="profile-contact-info">
+                <h3>Contact Information</h3>
+                <div class="info-item" id="contact-email"></div>
+                <div class="info-item" id="contact-github"></div>
+            </div>
+
+            <div class="section-card quick-stats" id="profile-stats">
+                <h3>Quick Stats</h3>
+            </div>
         </div>
+    </div>
+</div>
 
-        <div class="profile-layout">
-
-            <div class="left-column">
-
-                <div id="overview-content" class="tab-content active">
-                    <div class="section-card about-section">
-                        <h3>About</h3>
-                        <p>Passionate about creating innovative solutions that make a positive impact. I love collaborating with diverse teams to bring ideas to life.</p>
-                    </div>
-                </div>
-
-                <div id="projects-content" class="tab-content hidden">
-                    <div class="project-list">
-
-                        <div class="project-card-item">
-                            <img src="images/project_thumb_ai.jpg" alt="AI Platform Thumbnail" class="project-thumbnail">
-                            <div class="project-details">
-                                <h4>AI-Powered Learning Platform</h4>
-                                <p>Lead Developer</p>
-                                <span>👤 5 members</span>
-                            </div>
-                            <span class="project-status status-active">Active</span>
-                        </div>
-
-                        <div class="project-card-item">
-                            <img src="images/project_thumb_garden.jpg" alt="Garden Network Thumbnail" class="project-thumbnail">
-                            <div class="project-details">
-                                <h4>Community Garden Network</h4>
-                                <p>UI/UX Designer</p>
-                                <span>👤 6 members</span>
-                            </div>
-                            <span class="project-status status-completed">Completed</span>
-                        </div>
-
-                    </div>
-                </div>
-                </div> <div class="right-column">
-                <div class="section-card contact-info">
-                    <h3>Contact Information</h3>
-                    <div class="info-item"><i class="fa-solid fa-envelope"></i> alex.johnson@email.com</div>
-                    <div class="info-item"><i class="fa-solid fa-globe"></i> <a href="#">alexjohnson.dev</a></div>
-                    <div class="info-item"><i class="fa-brands fa-github"></i> <a href="#">/alexjohnson</a></div>
-                    <div class="info-item"><strong>💼</strong> <a href="#">/alexjohnson</a></div>
-                </div>
-
-                <div class="section-card quick-stats">
-                    <h3>Quick Stats</h3>
-                    <div class="stat-item">Projects Joined<span class="stat-value">12</span></div>
-                    <div class="stat-item">Projects Completed<span class="stat-value">8</span></div>
-                    <div class="stat-item">Collaborations<span class="stat-value">45</span></div>
-                    <div class="stat-item">Rating<span class="stat-value rating-stars">4.9 ⭐⭐⭐⭐⭐</span></div>
-                </div>
-            </div> </div> </div>
-
-    <script src="scripts/tab_switcher.js" defer></script>
+<script src="scripts/tab_switcher.js" defer></script>
 
 
-    <script>
-        // --- API呼び出しの設定 ---
-        const API_BASE_URL = 'http://localhost:8080/api/v1';
+<script>
+    // --- API呼び出しの設定 ---
+    const API_BASE_URL = 'http://localhost:8080/api/v1';
 
-        // ★重要★: ここに、あなたが受け取ったアクセストークンを貼り付けてください。
-        const YOUR_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjMjk2N2RlZS02NGExLTQ1Y2ItODVkZC04NmUwZTFkZjk4N2UiLCJleHAiOjE3NjU1MTY3OTUsImlhdCI6MTc2MjkyNDc5NX0.Srb78VBFWaDKFIEfd_bDmsH0zzGbwMimIn3plso4vO0";
+    // 1. localStorageから保存されたトークンを取得
+    const token = localStorage.getItem('accessToken');
 
-        // --- APIを呼び出す関数 ---
-        async function fetchMyInfo() {
+    // --- APIを呼び出す関数 ---
+    async function fetchMyInfo(tokenToUse) {
 
-            const endpoint = `${API_BASE_URL}/auth/me`;
-            console.log("リクエストを送信中...", endpoint);
+        const endpoint = `${API_BASE_URL}/auth/me`;
+        console.log("リクエストを送信中...", endpoint);
 
-            try {
-                const response = await fetch(endpoint, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Bearer ${YOUR_ACCESS_TOKEN}`,
-                        'Content-Type': 'application/json'
-                    }
-                });
-
-                if (response.ok) {
-                    const userData = await response.json();
-                    console.log("✅ 認証成功！ ユーザー情報:", userData);
-
-                    // --- 取得した情報をHTMLに反映させる (profile.html専用) ---
-                    if (document.getElementById('profile-name')) {
-                        document.getElementById('profile-name').textContent = userData.handle;
-                    }
-                    if (document.getElementById('profile-bio')) {
-                        document.getElementById('profile-bio').textContent = userData.bio;
-                    }
-                    if (document.getElementById('profile-about-text')) {
-                        document.getElementById('profile-about-text').textContent = userData.bio;
-                    }
-                    if (document.getElementById('contact-email')) {
-                        document.getElementById('contact-email').textContent = `📧 ${userData.email}`;
-                    }
-                    if (document.getElementById('contact-github')) {
-                        document.getElementById('contact-github').textContent = `🐙 ${userData.github_login}`;
-                    }
-                    if (document.getElementById('profile-avatar')) {
-                        document.getElementById('profile-avatar').src = userData.avatar_url;
-                    }
-
-                } else {
-                    const errorData = await response.json();
-                    console.error(
-                        `❌ 認証失敗 (ステータス: ${response.status})`,
-                        errorData
-                    );
+        try {
+            const response = await fetch(endpoint, {
+                method: 'GET',
+                headers: {
+                    // localStorageから取得したトークンを使用
+                    'Authorization': `Bearer ${tokenToUse}`,
+                    'Content-Type': 'application/json'
                 }
-            } catch (error) {
-                console.error("ネットワークエラーが発生しました:", error);
-            }
-        }
+            });
 
-        // --- 関数の実行 ---
-        fetchMyInfo();
-    </script>
+            if (response.ok) {
+                const userData = await response.json();
+                console.log("✅ 認証成功！ ユーザー情報:", userData);
+
+                // --- 取得した情報をHTMLに反映させる (IDが存在するので成功する) ---
+                if (document.getElementById('profile-name')) {
+                    document.getElementById('profile-name').textContent = userData.handle;
+                }
+                if (document.getElementById('profile-bio')) {
+                    document.getElementById('profile-bio').textContent = userData.bio || "自己紹介が設定されていません"; // bioがnullの場合の対策
+                }
+                if (document.getElementById('profile-about-text')) {
+                    document.getElementById('profile-about-text').textContent = userData.bio || "自己紹介が設定されていません";
+                }
+                if (document.getElementById('contact-email')) {
+                    // Font Awesomeのアイコンも動的に追加
+                    document.getElementById('contact-email').innerHTML = `<i class="fa-solid fa-envelope"></i> ${userData.email}`;
+                }
+                if (document.getElementById('contact-github')) {
+                    document.getElementById('contact-github').innerHTML = `<i class="fa-brands fa-github"></i> <a href="https://github.com/${userData.github_login}" target="_blank" rel="noopener noreferrer">/${userData.github_login}</a>`;
+                }
+                if (document.getElementById('profile-avatar')) {
+                    document.getElementById('profile-avatar').src = userData.avatar_url;
+                }
+
+            } else {
+                // トークンが無効だった場合 (例: 有効期限切れ)
+                const errorData = await response.json();
+                console.error(
+                    `❌ 認証失敗 (ステータス: ${response.status})`,
+                    errorData
+                );
+                // ログインページに戻す
+                localStorage.removeItem('accessToken'); // 無効なトークンを削除
+                window.location.href = '/public/login.html?error=invalid_token';
+            }
+        } catch (error) {
+            console.error("ネットワークエラーが発生しました:", error);
+        }
+    }
+
+    // --- 実行ロジック ---
+    if (token) {
+        // トークンがlocalStorageに存在する場合、プロフィール情報を取得
+        fetchMyInfo(token);
+    } else {
+        // トークンが存在しない（未ログイン）場合
+        console.log("トークンが見つかりません。ログインページにリダイレクトします。");
+        // ログインページにリダイレクト
+        window.location.href = '/public/login.html';
+    }
+</script>
 </body>
 </html>
