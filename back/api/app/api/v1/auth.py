@@ -4,6 +4,7 @@ from typing import Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
+from sqlalchemy.exc import IntegrityError
 from datetime import datetime
 
 from app.database import get_db
@@ -17,6 +18,51 @@ from app.schemas.user import UserResponse
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+
+def _generate_unique_handle(db: Session, base_handle: str) -> str:
+    """
+    Generate a unique user handle by appending an incrementing suffix when necessary.
+
+    Args:
+        db: Database session
+        base_handle: Preferred handle (typically GitHub login)
+
+    Returns:
+        Unique handle string
+    """
+    candidate = base_handle
+    suffix = 1
+
+    while db.query(User.id).filter(User.handle == candidate).first():
+        candidate = f"{base_handle}-{suffix}"
+        suffix += 1
+
+    return candidate
+
+
+def _locate_existing_user(
+    db: Session,
+    github_login: str,
+    primary_email: Optional[str]
+) -> Optional[User]:
+    """
+    Attempt to locate an existing user that should be linked to the GitHub account.
+
+    Args:
+        db: Database session
+        github_login: GitHub username
+        primary_email: Primary GitHub email (may be None)
+
+    Returns:
+        Existing user instance or None
+    """
+    if primary_email:
+        user = db.query(User).filter(User.email == primary_email).first()
+        if user:
+            return user
+
+    return db.query(User).filter(User.github_login == github_login).first()
 
 
 @router.get("/github/login")
@@ -79,39 +125,52 @@ async def github_callback(
             OAuthAccount.provider == "github",
             OAuthAccount.provider_account_id == github_id
         ).first()
-        
+
         if oauth_account:
-            # Update existing OAuth account
-            oauth_account.access_token = access_token
+            # Existing OAuth link: refresh token & user metadata
             user = oauth_account.user
-            
-            # Update user info
-            user.github_login = github_login
-            user.avatar_url = github_user.get("avatar_url")
-            if primary_email and not user.email:
-                user.email = primary_email
-            user.updated_at = datetime.utcnow()
+            oauth_account.access_token = access_token
         else:
-            # Create new user
-            user = User(
-                handle=github_login,
-                email=primary_email,
-                avatar_url=github_user.get("avatar_url"),
-                bio=github_user.get("bio"),
-                github_login=github_login
-            )
-            db.add(user)
-            db.flush()
-            
-            # Create OAuth account
-            oauth_account = OAuthAccount(
-                user_id=user.id,
-                provider="github",
-                provider_account_id=github_id,
-                access_token=access_token
-            )
-            db.add(oauth_account)
-        
+            # Either reuse an existing user (matched by email/github_login) or create a new one
+            user = _locate_existing_user(db, github_login=github_login, primary_email=primary_email)
+
+            if user:
+                oauth_account = OAuthAccount(
+                    user_id=user.id,
+                    provider="github",
+                    provider_account_id=github_id,
+                    access_token=access_token
+                )
+                db.add(oauth_account)
+            else:
+                handle = _generate_unique_handle(db, github_login)
+                user = User(
+                    handle=handle,
+                    email=primary_email,
+                    avatar_url=github_user.get("avatar_url"),
+                    bio=github_user.get("bio"),
+                    github_login=github_login
+                )
+                db.add(user)
+                db.flush()
+
+                oauth_account = OAuthAccount(
+                    user_id=user.id,
+                    provider="github",
+                    provider_account_id=github_id,
+                    access_token=access_token
+                )
+                db.add(oauth_account)
+
+        # Harmonise user profile with the latest GitHub data
+        user.github_login = github_login
+        user.avatar_url = github_user.get("avatar_url")
+        if github_user.get("bio"):
+            user.bio = github_user.get("bio")
+        if primary_email and (user.email is None):
+            user.email = primary_email
+        user.updated_at = datetime.utcnow()
+
         # Create audit log
         audit_log = AuditLog(
             user_id=user.id,
@@ -120,10 +179,25 @@ async def github_callback(
             payload={"provider": "github", "github_login": github_login}
         )
         db.add(audit_log)
-        
-        db.commit()
+        try:
+            db.commit()
+        except IntegrityError as commit_error:
+            db.rollback()
+            logger.exception(
+                "GitHub OAuth commit failed",
+                extra={
+                    "github_login": github_login,
+                    "github_id": github_id,
+                    "primary_email": primary_email
+                }
+            )
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail="Failed to reconcile GitHub account with existing user data"
+            ) from commit_error
+
         db.refresh(user)
-        
+
         # Create JWT token
         jwt_token = create_access_token(data={"sub": str(user.id)})
         
@@ -133,8 +207,15 @@ async def github_callback(
             user=UserResponse.from_orm(user)
         )
         
-    except Exception as e:
-        logger.error(f"GitHub OAuth error: {str(e)}")
+    except HTTPException:
+        raise
+    except Exception:
+        logger.exception(
+            "GitHub OAuth unexpected error",
+            extra={
+                "github_login": github_user.get("login") if 'github_user' in locals() else None
+            }
+        )
         db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
