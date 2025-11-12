@@ -86,8 +86,71 @@
                     <div class="stat-item">Collaborations<span class="stat-value">45</span></div>
                     <div class="stat-item">Rating<span class="stat-value rating-stars">4.9 ⭐⭐⭐⭐⭐</span></div>
                 </div>
-            </div> </div> </div> <script src="js/HeaderComponent.js" type="module"></script>
+            </div> </div> </div>
 
     <script src="scripts/tab_switcher.js" defer></script>
+
+
+    <script>
+        // --- API呼び出しの設定 ---
+        const API_BASE_URL = 'http://localhost:8080/api/v1';
+
+        // ★重要★: ここに、あなたが受け取ったアクセストークンを貼り付けてください。
+        const YOUR_ACCESS_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjMjk2N2RlZS02NGExLTQ1Y2ItODVkZC04NmUwZTFkZjk4N2UiLCJleHAiOjE3NjU1MTY3OTUsImlhdCI6MTc2MjkyNDc5NX0.Srb78VBFWaDKFIEfd_bDmsH0zzGbwMimIn3plso4vO0";
+
+        // --- APIを呼び出す関数 ---
+        async function fetchMyInfo() {
+
+            const endpoint = `${API_BASE_URL}/auth/me`;
+            console.log("リクエストを送信中...", endpoint);
+
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${YOUR_ACCESS_TOKEN}`,
+                        'Content-Type': 'application/json'
+                    }
+                });
+
+                if (response.ok) {
+                    const userData = await response.json();
+                    console.log("✅ 認証成功！ ユーザー情報:", userData);
+
+                    // --- 取得した情報をHTMLに反映させる (profile.html専用) ---
+                    if (document.getElementById('profile-name')) {
+                        document.getElementById('profile-name').textContent = userData.handle;
+                    }
+                    if (document.getElementById('profile-bio')) {
+                        document.getElementById('profile-bio').textContent = userData.bio;
+                    }
+                    if (document.getElementById('profile-about-text')) {
+                        document.getElementById('profile-about-text').textContent = userData.bio;
+                    }
+                    if (document.getElementById('contact-email')) {
+                        document.getElementById('contact-email').textContent = `📧 ${userData.email}`;
+                    }
+                    if (document.getElementById('contact-github')) {
+                        document.getElementById('contact-github').textContent = `🐙 ${userData.github_login}`;
+                    }
+                    if (document.getElementById('profile-avatar')) {
+                        document.getElementById('profile-avatar').src = userData.avatar_url;
+                    }
+
+                } else {
+                    const errorData = await response.json();
+                    console.error(
+                        `❌ 認証失敗 (ステータス: ${response.status})`,
+                        errorData
+                    );
+                }
+            } catch (error) {
+                console.error("ネットワークエラーが発生しました:", error);
+            }
+        }
+
+        // --- 関数の実行 ---
+        fetchMyInfo();
+    </script>
 </body>
 </html>
