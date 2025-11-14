@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>プロフィール - BuildUp</title>
+    <!-- 外部CSSの参照（変更なし） -->
     <link rel="stylesheet" href="styles/profile.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 </head>
 <body>
 
+<!-- HTML構造は一切変更なし -->
 <build-up-header></build-up-header>
 
 <script src="component/header-component.js" type="module"></script>
@@ -71,10 +73,9 @@
     // --- API呼び出しの設定 ---
     const API_BASE_URL = 'http://localhost:8080/api/v1';
 
-    // 1. localStorageから保存されたトークンを取得
-    const token = localStorage.getItem('accessToken');
+    // (既存の `const token = ...` は削除)
 
-    // --- APIを呼び出す関数 ---
+    // --- APIを呼び出す関数 (変更なし) ---
     async function fetchMyInfo(tokenToUse) {
 
         const endpoint = `${API_BASE_URL}/auth/me`;
@@ -84,7 +85,7 @@
             const response = await fetch(endpoint, {
                 method: 'GET',
                 headers: {
-                    // localStorageから取得したトークンを使用
+                    // 渡されたトークンを使用
                     'Authorization': `Bearer ${tokenToUse}`,
                     'Content-Type': 'application/json'
                 }
@@ -106,7 +107,7 @@
                 }
                 if (document.getElementById('contact-email')) {
                     // Font Awesomeのアイコンも動的に追加
-                    document.getElementById('contact-email').innerHTML = `<i class="fa-solid fa-envelope"></i> ${userData.email}`;
+                    document.getElementById('contact-email').innerHTML = `<i class="fa-solid fa-envelope"></i> ${userData.email || 'メール未設定'}`;
                 }
                 if (document.getElementById('contact-github')) {
                     document.getElementById('contact-github').innerHTML = `<i class="fa-brands fa-github"></i> <a href="https://github.com/${userData.github_login}" target="_blank" rel="noopener noreferrer">/${userData.github_login}</a>`;
@@ -131,15 +132,43 @@
         }
     }
 
-    // --- 実行ロジック ---
+    // --- 実行ロジック (★★★ ここが変更点 ★★★) ---
+
+    // 1. URLハッシュからトークンを読み取る試み
+    function getTokenFromHash() {
+        // window.location.hash は "#access_token=..." のような文字列を返す
+        const hash = window.location.hash.substring(1); // 先頭の # を削除
+        const params = new URLSearchParams(hash);
+        return params.get('access_token');
+    }
+
+    let token = getTokenFromHash();
+
     if (token) {
-        // トークンがlocalStorageに存在する場合、プロフィール情報を取得
+        // 1a. ハッシュにトークンが見つかった場合 (OAuthリダイレクト直後)
+        console.log("URLハッシュからトークンを取得しました。");
+        // トークンをlocalStorageに保存
+        localStorage.setItem('accessToken', token);
+        // URLからハッシュを削除してクリーンにする
+        window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+
+        // トークンを使ってプロフィール情報を取得
         fetchMyInfo(token);
+
     } else {
-        // トークンが存在しない（未ログイン）場合
-        console.log("トークンが見つかりません。ログインページにリダイレクトします。");
-        // ログインページにリダイレクト
-        window.location.href = '/public/login.html';
+        // 1b. ハッシュにトークンがない場合、localStorageを確認 (通常の訪問)
+        console.log("URLハッシュにトークンなし。localStorageを確認します。");
+        token = localStorage.getItem('accessToken');
+
+        if (token) {
+            // トークンがlocalStorageに存在する場合、プロフィール情報を取得
+            fetchMyInfo(token);
+        } else {
+            // トークンがどこにも存在しない（未ログイン）場合
+            console.log("トークンが見つかりません。ログインページにリダイレクトします。");
+            // ログインページにリダイレクト
+            window.location.href = '/public/login.html';
+        }
     }
 </script>
 </body>
