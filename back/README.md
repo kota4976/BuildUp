@@ -194,9 +194,20 @@ docker-compose up -d
 - `GET /api/v1/matches/me/matches` - マッチ一覧
 - `GET /api/v1/matches/{id}/conversation` - 会話履歴
 
+### グループチャット
+
+- `POST /api/v1/group-chats` - グループチャット作成（プロジェクトオーナーのみ）
+- `GET /api/v1/group-chats` - 自分のグループチャット一覧
+- `GET /api/v1/group-chats/{id}` - グループチャット詳細・メッセージ取得
+- `PATCH /api/v1/group-chats/{id}` - グループチャット更新
+- `POST /api/v1/group-chats/{id}/members` - メンバー追加
+- `DELETE /api/v1/group-chats/{id}/members/{user_id}` - メンバー削除
+- `GET /api/v1/group-chats/projects/{project_id}/group-conversation` - プロジェクトのグループチャット取得
+
 ### WebSocket
 
-- `WS /ws/chat?conversation_id={id}&token={jwt}` - チャット
+- `WS /ws/chat?conversation_id={id}&token={jwt}` - 1対1チャット
+- `WS /ws/group-chat?group_conversation_id={id}&token={jwt}` - グループチャット
 
 #### メッセージフォーマット
 

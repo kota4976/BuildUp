@@ -32,6 +32,8 @@ class User(Base):
     received_offers = relationship("Offer", foreign_keys="Offer.receiver_id", back_populates="receiver")
     favorites = relationship("Favorite", back_populates="user", cascade="all, delete-orphan")
     sent_messages = relationship("Message", foreign_keys="Message.sender_id", back_populates="sender")
+    group_memberships = relationship("GroupMember", back_populates="user", cascade="all, delete-orphan")
+    group_messages = relationship("GroupMessage", foreign_keys="GroupMessage.sender_id", back_populates="sender")
 
 
 class OAuthAccount(Base):

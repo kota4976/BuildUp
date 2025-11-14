@@ -7,7 +7,8 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker, Session
 
 # Set test database URL before importing app
-os.environ["DATABASE_URL"] = "postgresql://localhost:5432/buildup_test"
+# Use port 5433 for Docker test database
+os.environ["DATABASE_URL"] = os.environ.get("DATABASE_URL", "postgresql://buildup:password@localhost:5433/buildup_test")
 os.environ["JWT_SECRET"] = "test-secret-key-for-testing-only"
 os.environ["GITHUB_CLIENT_ID"] = "test_client_id"
 os.environ["GITHUB_CLIENT_SECRET"] = "test_client_secret"
