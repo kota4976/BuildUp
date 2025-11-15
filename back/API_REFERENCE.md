@@ -638,9 +638,193 @@ GET /matches/{match_id}/conversation
 
 ---
 
+## グループチャット
+
+#### グループチャット作成
+
+```
+POST /group-chats
+```
+
+🔒 **認証必要**（プロジェクトオーナーのみ）
+
+**リクエストボディ**:
+
+```json
+{
+  "project_id": "uuid",
+  "name": "Project Team Chat"
+}
+```
+
+**レスポンス**: 201 Created
+
+```json
+{
+  "id": "uuid",
+  "project_id": "uuid",
+  "name": "Project Team Chat",
+  "created_at": "2025-11-12T12:00:00Z",
+  "updated_at": "2025-11-12T12:00:00Z",
+  "members": [
+    {
+      "user_id": "uuid",
+      "role": "owner",
+      "joined_at": "2025-11-12T12:00:00Z"
+    }
+  ]
+}
+```
+
+---
+
+#### 自分のグループチャット一覧
+
+```
+GET /group-chats
+```
+
+🔒 **認証必要**
+
+**レスポンス**: 200 OK
+
+```json
+[
+  {
+    "id": "uuid",
+    "project_id": "uuid",
+    "name": "Project Team Chat",
+    "created_at": "2025-11-12T12:00:00Z",
+    "updated_at": "2025-11-12T12:00:00Z",
+    "members": [...]
+  }
+]
+```
+
+---
+
+#### グループチャット詳細・メッセージ取得
+
+```
+GET /group-chats/{group_conversation_id}
+```
+
+🔒 **認証必要**（メンバーのみ）
+
+**クエリパラメータ**:
+- `limit` (optional, default: 50): 最大メッセージ数
+- `before_id` (optional): このメッセージIDより前のメッセージを取得
+
+**レスポンス**: 200 OK
+
+```json
+{
+  "id": "uuid",
+  "project_id": "uuid",
+  "name": "Project Team Chat",
+  "created_at": "2025-11-12T12:00:00Z",
+  "updated_at": "2025-11-12T12:00:00Z",
+  "members": [
+    {
+      "user_id": "uuid",
+      "role": "owner",
+      "joined_at": "2025-11-12T12:00:00Z"
+    }
+  ],
+  "messages": [
+    {
+      "id": 1,
+      "group_conversation_id": "uuid",
+      "sender_id": "uuid",
+      "body": "Hello team!",
+      "created_at": "2025-11-12T12:00:00Z"
+    }
+  ],
+  "has_more": false
+}
+```
+
+---
+
+#### グループチャット更新
+
+```
+PATCH /group-chats/{group_conversation_id}
+```
+
+🔒 **認証必要**（オーナーのみ）
+
+**リクエストボディ**:
+
+```json
+{
+  "name": "Updated Team Chat Name"
+}
+```
+
+**レスポンス**: 200 OK（更新されたグループチャット）
+
+---
+
+#### メンバー追加
+
+```
+POST /group-chats/{group_conversation_id}/members
+```
+
+🔒 **認証必要**（オーナーのみ）
+
+**リクエストボディ**:
+
+```json
+{
+  "user_id": "uuid"
+}
+```
+
+**レスポンス**: 200 OK
+
+```json
+{
+  "message": "Member added successfully"
+}
+```
+
+---
+
+#### メンバー削除
+
+```
+DELETE /group-chats/{group_conversation_id}/members/{user_id}
+```
+
+🔒 **認証必要**（オーナー、または自分自身を削除する場合）
+
+**レスポンス**: 200 OK
+
+```json
+{
+  "message": "Member removed successfully"
+}
+```
+
+---
+
+#### プロジェクトのグループチャット取得
+
+```
+GET /group-chats/projects/{project_id}/group-conversation
+```
+
+🔒 **認証必要**（メンバーのみ）
+
+**レスポンス**: 200 OK（グループチャット情報）
+
+---
+
 ## WebSocket
 
-#### チャット接続
+#### チャット接続（1対1）
 
 ```
 WS /ws/chat?conversation_id={uuid}&token={jwt}
@@ -666,6 +850,53 @@ WS /ws/chat?conversation_id={uuid}&token={jwt}
   "sender_id": "uuid",
   "body": "Hello!",
   "created_at": "2025-11-06T12:00:00Z"
+}
+```
+
+**Ping/Pong**:
+
+送信:
+```json
+{
+  "type": "ping"
+}
+```
+
+受信:
+```json
+{
+  "type": "pong"
+}
+```
+
+---
+
+#### グループチャット接続
+
+```
+WS /ws/group-chat?group_conversation_id={uuid}&token={jwt}
+```
+
+🔒 **認証必要**（クエリパラメータでJWT、メンバーのみ）
+
+**送信メッセージ**:
+
+```json
+{
+  "type": "message",
+  "body": "Hello team!"
+}
+```
+
+**受信メッセージ**:
+
+```json
+{
+  "type": "message",
+  "id": 123,
+  "sender_id": "uuid",
+  "body": "Hello team!",
+  "created_at": "2025-11-12T12:00:00Z"
 }
 ```
 

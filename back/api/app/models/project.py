@@ -28,6 +28,7 @@ class Project(Base):
     applications = relationship("Application", back_populates="project", cascade="all, delete-orphan")
     offers = relationship("Offer", back_populates="project", cascade="all, delete-orphan")
     matches = relationship("Match", back_populates="project", cascade="all, delete-orphan")
+    group_conversation = relationship("GroupConversation", back_populates="project", uselist=False, cascade="all, delete-orphan")
 
 
 class ProjectSkill(Base):
