@@ -195,6 +195,8 @@
 
 <script src="scripts/tab_switcher.js" defer></script>
 
+<script src="scripts/authHandler.js"></script>
+
 
 <script>
     // --- API呼び出しの設定 ---
@@ -235,7 +237,7 @@
                     `❌ 認証失敗 (ステータス: ${response.status})`,
                     errorData
                 );
-                localStorage.removeItem('accessToken');
+                localStorage.removeItem('access_token');
                 window.location.href = '/public/login.html?error=invalid_token';
             }
         } catch (error) {
@@ -358,7 +360,7 @@
     if (saveBtn) {
         saveBtn.addEventListener('click', () => {
             const newBio = bioTextarea.value;
-            const currentToken = localStorage.getItem('accessToken');
+            const currentToken = localStorage.getItem('access_token');
             if (currentToken) {
                 updateBio(currentToken, newBio);
             } else {
@@ -384,7 +386,7 @@
         // 1a. ハッシュにトークンが見つかった場合 (OAuthリダイレクト直後)
         console.log("URLハッシュからトークンを取得しました。");
         // トークンをlocalStorageに保存
-        localStorage.setItem('accessToken', token);
+        localStorage.setItem('access_token', token);
         // URLからハッシュを削除してクリーンにする
         window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
 
@@ -394,7 +396,7 @@
     } else {
         // 1b. ハッシュにトークンがない場合、localStorageを確認 (通常の訪問)
         console.log("URLハッシュにトークンなし。localStorageを確認します。");
-        token = localStorage.getItem('accessToken');
+        token = localStorage.getItem('access_token');
 
         if (token) {
             // トークンがlocalStorageに存在する場合、プロフィール情報を取得

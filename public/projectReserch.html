@@ -9,92 +9,75 @@
 </head>
 <body>
 
-    <build-up-header></build-up-header>
-    <script src="component/header-component.js" type="module"></script>
+<build-up-header></build-up-header>
+<script src="component/header-component.js" type="module"></script>
 
-    <div class="main-content">
+<div class="main-content">
 
-        <div class="page-header">
-            <h1>Discover Projects</h1>
-            <p>Find exciting projects to join and collaborate on</p>
+    <div class="page-header">
+        <h1>Discover Projects</h1>
+        <p>Find exciting projects to join and collaborate on</p>
+    </div>
+
+    <div class="project-discovery-layout">
+
+        <div class="filter-sidebar">
+            <h2>Filters</h2>
+            <div class="search-box">
+                <input type="text" placeholder="Search projects..." class="search-input" id="search-input">
+            </div>
+
+            <div class="filter-group category-filter">
+                <h3>Category</h3>
+            </div>
+            <div class="filter-group skill-filter">
+                <h3>Skills</h3>
+            </div>
         </div>
 
-        <div class="project-discovery-layout">
+        <div class="project-results">
+            <div class="results-header">
+                <span class="result-count" id="result-count">... projects found</span>
+                <button class="create-project-btn">+ Create Project</button>
+            </div>
 
-            <div class="filter-sidebar">
+            <div class="project-grid" id="project-grid">
+            </div>
+        </div>
+    </div>
+</div>
 
-                <h2>Filters</h2>
+<div id="create-project-modal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn">&times;</span>
+        <h2>Create New Project</h2>
+        <form id="create-project-form">
+            <div class="form-group">
+                <label for="project-title">Project Title</label>
+                <input type="text" id="project-title" name="title" required>
+            </div>
+            <div class="form-group">
+                <label for="project-description">Description</label>
+                <textarea id="project-description" name="description" rows="5" required></textarea>
+            </div>
 
-                <div class="search-box">
-                    <input type="text" placeholder="Search projects..." class="search-input">
+            <div class="form-group">
+                <h3>Required Skills</h3>
+                <div id="skills-container">
                 </div>
+                <button type="button" id="add-skill-btn">+ Add Skill</button>
+            </div>
 
-                <div class="filter-group category-filter">
-                    <h3>Category</h3>
-                    <label><input type="radio" name="category" checked> All Categories</label>
-                    <label><input type="radio" name="category"> Web Development</label>
-                    <label><input type="radio" name="category"> Mobile Apps</label>
-                    <label><input type="radio" name="category"> AI/ML</label>
-                    <label><input type="radio" name="category"> Design</label>
-                    <label><input type="radio" name="category"> Business</label>
-                </div>
+            <div id="form-error" class="error-message" style="display: none;"></div>
 
-                <div class="filter-group skill-filter">
-                    <h3>Skills</h3>
-                    <div class="skill-tags">
-                        <span class="skill-tag active">React</span>
-                        <span class="skill-tag">Node.js</span>
-                        <span class="skill-tag">Python</span>
-                        <span class="skill-tag">Design</span>
-                        <span class="skill-tag">Marketing</span>
-                        </div>
-                </div>
+            <button type="submit" class="submit-btn">Create Project</button>
+        </form>
+    </div>
+</div>
+<script src="scripts/tab_switcher.js" defer></script>
+<script src="scripts/projectCreate.js"></script>
 
-                </div> <div class="project-results">
+<script src="scripts/projectList.js"></script>
 
-                <div class="results-header">
-                    <span class="result-count">6 projects found</span>
-                    <button class="create-project-btn">+ Create Project</button>
-                </div>
-
-                <div class="project-grid">
-
-                    <div class="project-card">
-                        <img src="images/project_thumb_ai_platform.jpg" alt="AI Platform" class="card-image">
-                        <div class="card-content">
-                            <div class="card-meta">
-                                <span class="card-status recruiting">Recruiting</span>
-                                <span class="card-date">2024-01-15</span>
-                            </div>
-                            <h4>AI-Powered Learning Platform</h4>
-                            <p>Building an innovative educational platform using machine learning to personalize learning experiences for students worldwide.</p>
-
-                            <div class="card-skills">
-                                <span class="skill-badge">React</span>
-                                <span class="skill-badge">Node.js</span>
-                                <span class="skill-badge">AI/ML</span>
-                                </div>
-                        </div>
-                    </div>
-
-                    <div class="project-card">
-                        <img src="images/project_thumb_energy_app.jpg" alt="Energy App" class="card-image">
-                        <div class="card-content">
-                            <div class="card-meta">
-                                <span class="card-status recruiting">Recruiting</span>
-                                <span class="card-date">2024-01-12</span>
-                            </div>
-                            <h4>Sustainable Energy App</h4>
-                            <p>Mobile application for tracking and optimizing renewable energy usage in smart homes and communities.</p>
-
-                            <div class="card-skills">
-                                <span class="skill-badge">Mobile</span>
-                                <span class="skill-badge">Design</span>
-                                <span class="skill-badge">Marketing</span>
-                                </div>
-                        </div>
-                    </div>
-
-                    </div> </div> </div> </div> </body>
-    <script src="scripts/tab_switcher.js" defer></script>
+</body>
 </html>

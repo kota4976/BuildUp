@@ -110,8 +110,8 @@ class BuildUpHeader extends HTMLElement {
                             <img src="images/BuildUp-logo.jpg" alt="BuildUp Logo" class="logo-img">
                         </a>
                         <nav class="nav-menu">
-                            <a href="#" class="nav-link">プロジェクト</a>
-                            <a href="#" class="nav-link">メッセージ</a>
+                            <a href="/public/projectReserch.html" class="nav-link">プロジェクト</a>
+                            <a href="/public/chat.html" class="nav-link">メッセージ</a>
                             <a href="#" class="nav-link">応募管理</a>
                         </nav>
                     </div>
