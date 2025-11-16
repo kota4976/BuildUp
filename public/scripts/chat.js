@@ -4,10 +4,11 @@
  */
 
 // API設定
-const API_BASE_URL = window.location.origin + '/api/v1';
-// WebSocket URLを動的に構築（プロトコルに応じてws/wssを切り替え）
+const API_HOST_PORT = 'localhost:8080';
+const API_BASE_URL = `http://${API_HOST_PORT}/api/v1`;
+// WebSocket URLも修正
 const WS_PROTOCOL = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-const WS_BASE_URL = `${WS_PROTOCOL}//${window.location.host}/ws`;
+const WS_BASE_URL = `${WS_PROTOCOL}//${API_HOST_PORT}/ws`;
 
 // グローバル変数
 let currentUser = null;
@@ -21,7 +22,8 @@ let userCache = {}; // ユーザー情報のキャッシュ
  * JWTトークンを取得
  */
 function getAuthToken() {
-    return localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+    // ▼▼▼ [修正] 'auth_token' -> 'access_token' に変更 ▼▼▼
+    return localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
 }
 
 /**
@@ -43,7 +45,8 @@ async function getCurrentUser() {
         if (!response.ok) {
             if (response.status === 401) {
                 // 認証エラーの場合、ログインページにリダイレクト
-                window.location.href = '/login.html';
+                // ▼▼▼ [修正] ログインページのパスを '/public/' に修正 ▼▼▼
+                window.location.href = '/public/login.html';
                 return null;
             }
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -52,7 +55,8 @@ async function getCurrentUser() {
         return await response.json();
     } catch (error) {
         console.error('現在のユーザー情報の取得に失敗しました:', error);
-        showError('認証に失敗しました。ログインしてください。');
+        // ▼▼▼ [修正] ログインページのパスを '/public/' に修正 ▼▼▼
+        showError('認証に失敗しました。 <a href="/public/login.html">ログイン</a> してください。');
         return null;
     }
 }
@@ -66,7 +70,11 @@ async function getUserInfo(userId) {
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}/users/${userId}`);
+        // ▼▼▼ [修正] バックエンドの /users/{id} API を呼び出す ▼▼▼
+        const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+            // ▼▼▼ [追加] 認証ヘッダーを追加 ▼▼▼
+            headers: { 'Authorization': `Bearer ${getAuthToken()}` }
+        });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -101,7 +109,8 @@ async function fetchMatches() {
 
         if (!response.ok) {
             if (response.status === 401) {
-                window.location.href = '/login.html';
+                // ▼▼▼ [修正] ログインページのパスを '/public/' に修正 ▼▼▼
+                window.location.href = '/public/login.html';
                 return [];
             }
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -134,7 +143,8 @@ async function fetchConversation(matchId) {
 
         if (!response.ok) {
             if (response.status === 401) {
-                window.location.href = '/login.html';
+                // ▼▼▼ [修正] ログインページのパスを '/public/' に修正 ▼▼▼
+                window.location.href = '/public/login.html';
                 return null;
             }
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -170,12 +180,11 @@ async function renderMatchList(matches) {
         try {
             // 相手のユーザーIDを取得
             const otherUserId = match.user_a === currentUser.id ? match.user_b : match.user_a;
-            
+
             // ユーザー情報を取得
             const otherUser = await getUserInfo(otherUserId);
 
             // 会話履歴を取得（最新1件のみ）
-            // エラーが発生した場合は、lastMessageをnullにする
             let lastMessage = null;
             try {
                 const conversation = await fetchConversation(match.id);
@@ -183,14 +192,12 @@ async function renderMatchList(matches) {
                     lastMessage = conversation.messages[conversation.messages.length - 1];
                 }
             } catch (error) {
-                // 会話履歴の取得に失敗した場合も、マッチリストは表示する
                 console.warn(`会話履歴の取得に失敗しました (match_id: ${match.id}):`, error);
             }
 
             return { match, otherUser, lastMessage };
         } catch (error) {
             console.error(`マッチ情報の取得に失敗しました (match_id: ${match.id}):`, error);
-            // エラーが発生した場合は、基本的な情報のみを返す
             const otherUserId = match.user_a === currentUser.id ? match.user_b : match.user_a;
             return {
                 match,
@@ -244,8 +251,8 @@ async function renderMatchList(matches) {
                 timeString = createdAt.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' });
             }
 
-            previewText = lastMessage.body.length > 30 
-                ? lastMessage.body.substring(0, 30) + '...' 
+            previewText = lastMessage.body.length > 30
+                ? lastMessage.body.substring(0, 30) + '...'
                 : lastMessage.body;
         }
 
@@ -316,7 +323,7 @@ async function selectMatch(match, otherUser) {
         </div>
     `;
     chatHeaderActions.classList.remove('hidden');
-    
+
     // アイコンを再初期化
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
@@ -399,7 +406,7 @@ async function appendMessage(message, isOwnMessage = null) {
     const createdAt = new Date(message.created_at);
     const timeString = createdAt.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false });
 
-            const messageHtml = isOwnMessage
+    const messageHtml = isOwnMessage
         ? `
         <div class="flex justify-end mb-4 group" data-message-id="${message.id}">
             <div class="max-w-xs md:max-w-md lg:max-w-lg flex flex-col items-end">
@@ -450,10 +457,10 @@ async function appendMessage(message, isOwnMessage = null) {
 function updateMatchPreview(matchId, message) {
     const previewElement = document.getElementById(`match-preview-${matchId}`);
     const timeElement = document.getElementById(`match-time-${matchId}`);
-    
+
     if (previewElement) {
-        const previewText = message.body.length > 30 
-            ? message.body.substring(0, 30) + '...' 
+        const previewText = message.body.length > 30
+            ? message.body.substring(0, 30) + '...'
             : message.body;
         previewElement.textContent = previewText;
     }
@@ -514,7 +521,7 @@ function connectWebSocket(conversationId) {
 
         websocket.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            
+
             if (data.type === 'message') {
                 // メッセージを受信
                 appendMessage(data);
@@ -609,15 +616,22 @@ function handleBackToList() {
  * 初期化
  */
 async function init() {
+
+    // ▼▼▼ [削除] ログイン直後のトークン処理 (不要なため) ▼▼▼
+    // const hash = window.location.hash.substring(1);
+    // ... (中略) ...
+    // history.replaceState(null, '', window.location.pathname + window.location.search);
+    // ▲▲▲ トークン処理ここまで ▲▲▲
+
     // 現在のユーザー情報を取得
     currentUser = await getCurrentUser();
     if (!currentUser) {
-        return;
+        return; // getCurrentUser内でリダイレクト処理済み
     }
 
     // マッチ一覧を取得
     matches = await fetchMatches();
-    
+
     // マッチ一覧をレンダリング
     await renderMatchList(matches);
 
@@ -664,4 +678,3 @@ async function init() {
 
 // ページロード時に初期化
 document.addEventListener('DOMContentLoaded', init);
-
