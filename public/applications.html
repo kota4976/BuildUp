@@ -8,249 +8,16 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
+    <link rel="stylesheet" href="styles/applications.css" />
     <style>
-        /* --------------------------------------------------
-         * 全体設定
-         * -------------------------------------------------- */
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f4f7f9;
-            color: #333;
-            margin: 0;
-            padding: 0;
+        /* ヘッダーとの隙間調整 */
+        build-up-header {
+            position: sticky;
+            top: 0;
+            z-index: 50;
         }
-
         .main-content {
-            padding: 30px 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        /* --------------------------------------------------
-         * タブナビゲーション
-         * -------------------------------------------------- */
-        .tabs {
-            display: flex;
-            border-bottom: 2px solid #e5e7eb;
-            margin-bottom: 30px;
-        }
-
-        .tabs button {
-            padding: 10px 20px;
-            text-decoration: none;
-            color: #6b7280;
-            font-weight: 500;
-            position: relative;
-            transition: color 0.2s;
-            background: none;
-            border: none;
-            cursor: pointer;
-            outline: none;
-        }
-
-        .tabs button:hover {
-            color: #3b82f6;
-        }
-
-        .tabs .active-tab {
-            color: #3f51b5;
-            font-weight: 600;
-        }
-
-        .tabs .active-tab::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background-color: #3f51b5;
-        }
-
-        /* --------------------------------------------------
-         * 応募カード (スタイルは動的生成のために残す)
-         * -------------------------------------------------- */
-        .application-card {
-            background-color: white;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
-            margin-bottom: 20px;
-            transition: transform 0.2s;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .application-card:hover {
-            transform: translateY(-2px);
-        }
-
-        .card-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            border-bottom: 1px solid #f3f4f6;
-            padding-bottom: 15px;
-            margin-bottom: 15px;
-        }
-
-        .project-info h3 {
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: #1f2937;
-            margin: 0;
-        }
-
-        .project-info p {
-            font-size: 0.875rem;
-            color: #6b7280;
-            margin: 2px 0 0 0;
-        }
-
-        .status-badge {
-            padding: 4px 10px;
-            border-radius: 9999px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            flex-shrink: 0;
-            margin-left: 10px;
-        }
-
-        /* ステータスバッジの色 */
-        .status-pending {
-            background-color: #fef3c7;
-            color: #f59e0b;
-        }
-        .status-accepted {
-            background-color: #d1fae5;
-            color: #10b981;
-        }
-        .status-rejected {
-            background-color: #fee2e2;
-            color: #ef4444;
-        }
-
-        /* 応募者/プロジェクトオーナー情報 */
-        .applicant-info {
-            display: flex;
-            align-items: center;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #f3f4f6;
-            padding-bottom: 15px;
-        }
-
-        .applicant-info img {
-            width: 40px;
-            height: 40px;
-            border-radius: 9999px;
-            object-fit: cover;
-            margin-right: 15px;
-            flex-shrink: 0;
-        }
-
-        .applicant-details h4 {
-            font-size: 0.9375rem;
-            font-weight: 600;
-            margin: 0;
-        }
-
-        .applicant-details p {
-            font-size: 0.8125rem;
-            color: #9ca3af;
-            margin: 0;
-        }
-
-        /* メッセージ/詳細情報 */
-        .application-message {
-            padding-bottom: 15px;
-            margin-bottom: 15px;
-            border-bottom: 1px solid #f3f4f6;
-            font-style: italic;
-            color: #4b5563;
-        }
-
-        /* アクションボタン */
-        .card-footer {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            padding-top: 15px;
-        }
-
-        .action-btn {
-            padding: 8px 16px;
-            border-radius: 8px;
-            font-weight: 600;
-            transition: background-color 0.2s, opacity 0.2s;
-            display: flex;
-            align-items: center;
-        }
-
-        .action-btn i {
-            margin-right: 5px;
-        }
-
-        .btn-primary {
-            background-color: #3b82f6;
-            color: white;
-            border: none;
-        }
-        .btn-primary:hover {
-            background-color: #2563eb;
-        }
-
-        .btn-secondary {
-            background-color: #f3f4f6;
-            color: #4b5563;
-            border: 1px solid #e5e7eb;
-        }
-        .btn-secondary:hover {
-            background-color: #e5e7eb;
-        }
-
-        .btn-secondary.text-red-600:hover {
-            background-color: #fee2e2;
-        }
-
-        /* --------------------------------------------------
-         * モバイル対応
-         * -------------------------------------------------- */
-        @media (max-width: 768px) {
-            .main-content {
-                padding: 20px 10px;
-            }
-
-            .card-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .status-badge {
-                margin-top: 10px;
-                margin-left: 0;
-            }
-
-            .applicant-info {
-                flex-wrap: wrap;
-                padding-bottom: 10px;
-            }
-
-            .applicant-info span.text-sm {
-                width: 100%;
-                margin-top: 10px;
-                text-align: right;
-            }
-
-            .card-footer {
-                flex-direction: column;
-                justify-content: flex-start;
-                gap: 8px;
-            }
-
-            .action-btn {
-                width: 100%;
-                justify-content: center;
-            }
+            padding-top: 80px; /* ヘッダーの高さ分調整 */
         }
     </style>
 </head>
@@ -263,73 +30,38 @@
     <h1 class="text-3xl font-bold text-gray-800 mb-6">応募管理</h1>
 
     <div class="tabs">
-        <button id="tab-received" class="active-tab" data-tab="received">応募されたプロジェクト</button>
-        <button id="tab-submitted" data-tab="submitted">応募したプロジェクト</button>
+        <button id="tab-received" class="active-tab" data-type="received">応募されたプロジェクト</button>
+        <button id="tab-submitted" data-type="submitted">応募したプロジェクト</button>
     </div>
 
-    <div id="tab-content">
+    <div id="tab-content-wrapper">
 
         <div id="received-content" class="tab-content">
+            <div class="application-list" id="received-list">
+            </div>
+            <p class="text-gray-500 hidden text-center mt-10" id="no-received-apps">応募されたプロジェクトはありません。</p>
+        </div>
 
-            <p class="text-gray-500 hidden" id="no-received-apps">応募されたプロジェクトはありません。</p>
+        <div id="submitted-content" class="tab-content hidden">
+            <div class="application-list" id="submitted-list">
+            </div>
+            <p class="text-gray-500 hidden text-center mt-10" id="no-submitted-apps">応募したプロジェクトはありません。</p>
+        </div>
 
-        </div> <div id="submitted-content" class="tab-content hidden">
+        <div class="text-center p-10 hidden" id="loading-indicator">
+            <i data-lucide="loader" class="w-6 h-6 animate-spin text-blue-500 mx-auto"></i>
+            <p class="text-sm text-gray-500 mt-2">データを読み込み中...</p>
+        </div>
+        <div class="text-center p-10 hidden" id="general-error-message">
+            <p class="text-sm text-red-600">データの読み込み中にエラーが発生しました。</p>
+        </div>
 
-        <p class="text-gray-500 hidden" id="no-submitted-apps">応募したプロジェクトはありません。</p>
+    </div> </div>
 
-    </div> </div> </div> <script src="component/header-component.js" type="module"></script>
-
+<script src="component/header-component.js" type="module"></script>
+<script src="scripts/applications.js" type="module"></script>
 <script>
-    // ----------------------------------------------------------------
-    // タブ切り替えロジック
-    // ----------------------------------------------------------------
-    document.addEventListener('DOMContentLoaded', () => {
-        const tabReceived = document.getElementById('tab-received');
-        const tabSubmitted = document.getElementById('tab-submitted');
-        const receivedContent = document.getElementById('received-content');
-        const submittedContent = document.getElementById('submitted-content');
-
-        // タブをクリックしたときの処理
-        function switchTab(targetTab, targetContent, otherTab, otherContent) {
-            // タブのアクティブクラスを切り替える
-            targetTab.classList.add('active-tab');
-            otherTab.classList.remove('active-tab');
-
-            // コンテンツの表示/非表示を切り替える
-            targetContent.classList.remove('hidden');
-            otherContent.classList.add('hidden');
-
-            // ★ APIデータをロードする関数を呼び出す
-            // loadApplications(targetTab.dataset.tab);
-        }
-
-        // 初期化
-        if (tabReceived && receivedContent) {
-            tabReceived.classList.add('active-tab');
-            receivedContent.classList.remove('hidden');
-            // ★ 初期ロード
-            // loadApplications('received');
-        }
-        if (tabSubmitted && submittedContent) {
-            tabSubmitted.classList.remove('active-tab');
-            submittedContent.classList.add('hidden');
-        }
-
-
-        tabReceived.addEventListener('click', () => {
-            switchTab(tabReceived, receivedContent, tabSubmitted, submittedContent);
-            if (typeof lucide !== 'undefined') { lucide.createIcons(); }
-        });
-
-        tabSubmitted.addEventListener('click', () => {
-            switchTab(tabSubmitted, submittedContent, tabReceived, receivedContent);
-            if (typeof lucide !== 'undefined') { lucide.createIcons(); }
-        });
-
-        // 初回ロード時にアイコンを再初期化
-        if (typeof lucide !== 'undefined') { lucide.createIcons(); }
-    });
-
+    lucide.createIcons(); // Lucide Iconsを初期化
 </script>
 </body>
 </html>

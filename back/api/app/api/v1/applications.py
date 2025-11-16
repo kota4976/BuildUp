@@ -1,7 +1,8 @@
 """Application endpoints"""
 import logging
-from fastapi import APIRouter, Depends, HTTPException, status
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException, status, Query
+from sqlalchemy.orm import Session, joinedload
+from sqlalchemy import or_, and_ # and_ を追加
 from datetime import datetime
 
 from app.database import get_db
@@ -20,6 +21,47 @@ from app.schemas.common import SuccessResponse
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+
+@router.get("/me", response_model=ApplicationListResponse)
+async def get_my_applications(
+        type: str = Query(..., description="Filter type: 'received' or 'submitted'"),
+        current_user: User = Depends(get_current_user),
+        db: Session = Depends(get_db)
+):
+    """
+    Get applications related to the current user (received by their projects or submitted by them).
+
+    Args:
+        type: 'received' (as project owner) or 'submitted' (as applicant)
+
+    Returns:
+        List of applications
+    """
+
+    # 応募者とプロジェクトオーナーの情報を eager load するための基本クエリ
+    q = db.query(Application).options(
+        joinedload(Application.applicant),
+        joinedload(Application.project).joinedload(Project.owner) # プロジェクトオーナー情報も取得
+    )
+
+    if type == "received":
+        # 応募されたプロジェクト (current_user がプロジェクトオーナー)
+        q = q.join(Project).filter(Project.owner_id == current_user.id)
+    elif type == "submitted":
+        # 応募したプロジェクト (current_user が応募者)
+        q = q.filter(Application.applicant_id == current_user.id)
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid type parameter. Must be 'received' or 'submitted'."
+        )
+
+    applications = q.order_by(Application.created_at.desc()).all()
+
+    # スキーマに変換して返す
+    return ApplicationListResponse(
+        applications=[ApplicationResponse.from_orm(app) for app in applications]
+    )
 
 @router.post("/{application_id}/accept", response_model=SuccessResponse)
 async def accept_application(

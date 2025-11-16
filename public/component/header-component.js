@@ -142,7 +142,7 @@ class BuildUpHeader extends HTMLElement {
                         <nav class="nav-menu">
                             <a href="/public/projectReserch.html" class="nav-link">プロジェクト</a>
                             <a href="/public/chat.html" class="nav-link">メッセージ</a>
-                            <a href="#" class="nav-link">応募管理</a>
+                            <a href="/public/applications.html" class="nav-link">応募管理</a>
                         </nav>
                     </div>
                     
