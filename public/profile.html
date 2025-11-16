@@ -4,135 +4,27 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>プロフィール - BuildUp</title>
-    <!-- 外部CSSの参照（変更なし） -->
     <link rel="stylesheet" href="styles/profile.css">
+    <link rel="stylesheet" href="styles/profile-components.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
-    <!-- ★★★ 編集モーダルのためのスタイルを追加 ★★★ -->
     <style>
-        /* モーダル背景 */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.6);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1000;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-        .modal-overlay.visible {
-            opacity: 1;
-            visibility: visible;
-        }
 
-        /* モーダル本体 */
-        .modal-content {
-            background-color: white;
-            padding: 24px;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
-            transform: translateY(-30px);
-            transition: transform 0.3s ease;
-        }
-        .modal-overlay.visible .modal-content {
-            transform: translateY(0);
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #eee;
-            padding-bottom: 12px;
-            margin-bottom: 16px;
-        }
-        .modal-header h2 {
-            margin: 0;
-            font-size: 1.25rem;
-        }
-        .modal-close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5rem;
-            cursor: pointer;
-            color: #888;
-        }
-
-        /* モーダルフォーム */
-        .modal-body label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-        }
-        .modal-body textarea {
-            width: 100%;
-            min-height: 150px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 12px;
-            font-size: 1rem;
-            font-family: inherit;
-            resize: vertical;
-            box-sizing: border-box; /* 境界線とパディングを幅に含める */
-        }
-
-        .modal-footer {
-            text-align: right;
-            margin-top: 16px;
-        }
-        .modal-save-btn {
-            background-color: #3f51b5; /* プライマリカラー (仮) */
-            color: white;
-            border: none;
-            border-radius: 8px;
-            padding: 10px 16px;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background-color 0.2s ease;
-        }
-        .modal-save-btn:hover {
-            background-color: #4f60c8; /* ホバー時の色 (仮) */
-        }
-        .modal-save-btn:disabled {
-            background-color: #ccc;
-            cursor: not-allowed;
-        }
-
-        /* メッセージ表示用 */
-        #modal-error-message {
-            color: red;
-            font-size: 0.9rem;
-            margin-top: 10px;
-            display: none;
-        }
     </style>
 </head>
 <body>
 
-<!-- HTML構造は一切変更なし -->
 <build-up-header></build-up-header>
-
 <script src="component/header-component.js" type="module"></script>
 
 <div class="main-content">
 
     <div class="profile-card">
         <img src="images/profile_placeholder.jpg" alt="プロフィール画像" class="profile-img" id="profile-avatar">
-
         <div class="profile-info" id="profile-info-container">
             <h1 id="profile-name">読み込み中...</h1>
             <p id="profile-bio"></p>
         </div>
-
         <button class="edit-btn" id="edit-profile-btn">✍️ Edit Profile</button>
     </div>
 
@@ -158,24 +50,31 @@
                 <div class="project-list" id="profile-projects-list">
                 </div>
             </div>
+
+            <div id="skills-content" class="tab-content hidden">
+                <div class="section-card">
+                    <div class="skills-header">
+                        <h3>Skills</h3>
+                        <button class="edit-btn" id="edit-skills-btn">✍️ Edit Skills</button>
+                    </div>
+                    <div class="skill-list" id="profile-skills-list">
+                        ...
+                    </div>
+                </div>
+            </div>
+
+        </div> <div class="right-column">
+        <div class="section-card contact-info" id="profile-contact-info">
+            <h3>Contact Information</h3>
+            <div class="info-item" id="contact-email"></div>
+            <div class="info-item" id="contact-github"></div>
         </div>
-
-        <div class="right-column">
-            <div class="section-card contact-info" id="profile-contact-info">
-                <h3>Contact Information</h3>
-                <div class="info-item" id="contact-email"></div>
-                <div class="info-item" id="contact-github"></div>
-            </div>
-
-            <div class="section-card quick-stats" id="profile-stats">
-                <h3>Quick Stats</h3>
-            </div>
+        <div class="section-card quick-stats" id="profile-stats">
+            <h3>Quick Stats</h3>
         </div>
     </div>
-</div>
 
-<!-- ★★★ 編集モーダルのHTMLを追加 ★★★ -->
-<div class="modal-overlay" id="edit-profile-modal">
+    </div> </div> <div class="modal-overlay" id="edit-profile-modal">
     <div class="modal-content">
         <div class="modal-header">
             <h2>プロフィールを編集</h2>
@@ -192,222 +91,32 @@
     </div>
 </div>
 
+<div class="modal-overlay" id="edit-skills-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>スキルを編集</h2>
+            <button class="modal-close-btn" id="skills-modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <label for="skill-search-input">スキルを検索して追加</label>
+            <input type="text" id="skill-search-input" placeholder="例: React, Python...">
+            <div id="skill-search-results">
+            </div>
+            <h4 class="selected-skills-title">現在のスキル</h4>
+            <div id="selected-skills-list">
+            </div>
+            <div id="skill-modal-error" class="error-message" style="display: none;"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-save-btn" id="skills-modal-save-btn">保存する</button>
+        </div>
+    </div>
+</div>
+
 
 <script src="scripts/tab_switcher.js" defer></script>
 
-<script src="scripts/authHandler.js"></script>
+<script src="scripts/profile.js" defer></script>
 
-
-<script>
-    // --- API呼び出しの設定 ---
-    const API_BASE_URL = 'http://localhost:8080/api/v1';
-
-    // --- ★★★ グローバル変数で現在のBioを保持 ★★★ ---
-    let currentUserBio = "";
-
-    // --- APIを呼び出す関数 (fetchMyInfo) ---
-    async function fetchMyInfo(tokenToUse) {
-
-        const endpoint = `${API_BASE_URL}/auth/me`;
-        console.log("リクエストを送信中...", endpoint);
-
-        try {
-            const response = await fetch(endpoint, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${tokenToUse}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (response.ok) {
-                const userData = await response.json();
-                console.log("✅ 認証成功！ ユーザー情報:", userData);
-
-                // ★★★ グローバル変数にBioを保存
-                currentUserBio = userData.bio || "";
-
-                // --- 取得した情報をHTMLに反映させる ---
-                updateProfileUI(userData);
-
-            } else {
-                // (エラーハンドリングは変更なし)
-                const errorData = await response.json();
-                console.error(
-                    `❌ 認証失敗 (ステータス: ${response.status})`,
-                    errorData
-                );
-                localStorage.removeItem('access_token');
-                window.location.href = '/public/login.html?error=invalid_token';
-            }
-        } catch (error) {
-            console.error("ネットワークエラーが発生しました:", error);
-        }
-    }
-
-    // --- ★★★ UI更新ロジックを関数化 ★★★ ---
-    // (情報を更新する箇所が複数になるため、関数にまとめます)
-    function updateProfileUI(userData) {
-        const bioText = userData.bio || "自己紹介が設定されていません";
-
-        if (document.getElementById('profile-name')) {
-            document.getElementById('profile-name').textContent = userData.handle;
-        }
-        if (document.getElementById('profile-bio')) {
-            document.getElementById('profile-bio').textContent = bioText;
-        }
-        if (document.getElementById('profile-about-text')) {
-            document.getElementById('profile-about-text').textContent = bioText;
-        }
-        if (document.getElementById('contact-email')) {
-            document.getElementById('contact-email').innerHTML = `<i class="fa-solid fa-envelope"></i> ${userData.email || 'メール未設定'}`;
-        }
-        if (document.getElementById('contact-github')) {
-            document.getElementById('contact-github').innerHTML = `<i class="fa-brands fa-github"></i> <a href="https://github.com/${userData.github_login}" target="_blank" rel="noopener noreferrer">/${userData.github_login}</a>`;
-        }
-        if (document.getElementById('profile-avatar')) {
-            document.getElementById('profile-avatar').src = userData.avatar_url;
-        }
-    }
-
-
-    // --- ★★★ Bio更新APIを呼び出す関数を追加 ★★★ ---
-    async function updateBio(tokenToUse, newBio) {
-        // users.pyのPATCH /me を呼び出す (user.pyのUserUpdateスキーマを使用)
-        // main.pyで /users で登録されていると想定
-        const endpoint = `${API_BASE_URL}/users/me`;
-        const saveButton = document.getElementById('modal-save-btn');
-        const errorMessage = document.getElementById('modal-error-message');
-
-        saveButton.disabled = true;
-        saveButton.textContent = "保存中...";
-        errorMessage.style.display = 'none';
-
-        try {
-            const response = await fetch(endpoint, {
-                method: 'PATCH',
-                headers: {
-                    'Authorization': `Bearer ${tokenToUse}`,
-                    'Content-Type': 'application/json'
-                },
-                // user.py の UserUpdate スキーマに合わせて "bio" を送信
-                body: JSON.stringify({
-                    "bio": newBio
-                })
-            });
-
-            if (response.ok) {
-                const updatedUserData = await response.json();
-                console.log("✅ Bio更新成功！", updatedUserData);
-
-                // UIとグローバル変数を更新
-                currentUserBio = updatedUserData.bio;
-                updateProfileUI(updatedUserData);
-
-                // モーダルを閉じる
-                closeEditModal();
-
-            } else {
-                const errorData = await response.json();
-                console.error(`❌ Bio更新失敗 (ステータス: ${response.status})`, errorData);
-                errorMessage.textContent = `エラー: ${errorData.detail || '保存に失敗しました。'}`;
-                errorMessage.style.display = 'block';
-            }
-
-        } catch (error) {
-            console.error("ネットワークエラーが発生しました:", error);
-            errorMessage.textContent = "ネットワークエラーが発生しました。";
-            errorMessage.style.display = 'block';
-        } finally {
-            saveButton.disabled = false;
-            saveButton.textContent = "保存する";
-        }
-    }
-
-    // --- ★★★ モーダル関連のロジックを追加 ★★★ ---
-    const modal = document.getElementById('edit-profile-modal');
-    const editBtn = document.getElementById('edit-profile-btn');
-    const closeBtn = document.getElementById('modal-close-btn');
-    const saveBtn = document.getElementById('modal-save-btn');
-    const bioTextarea = document.getElementById('bio-textarea');
-
-    // モーダルを開く
-    function openEditModal() {
-        bioTextarea.value = currentUserBio; // 現在のBioをセット
-        modal.classList.add('visible');
-    }
-    // モーダルを閉じる
-    function closeEditModal() {
-        modal.classList.remove('visible');
-    }
-
-    // イベントリスナー
-    if (editBtn) {
-        editBtn.addEventListener('click', openEditModal);
-    }
-    if (closeBtn) {
-        closeBtn.addEventListener('click', closeEditModal);
-    }
-    // モーダル背景クリックで閉じる
-    if (modal) {
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                closeEditModal();
-            }
-        });
-    }
-    // 保存ボタンクリック
-    if (saveBtn) {
-        saveBtn.addEventListener('click', () => {
-            const newBio = bioTextarea.value;
-            const currentToken = localStorage.getItem('access_token');
-            if (currentToken) {
-                updateBio(currentToken, newBio);
-            } else {
-                // (念のため) トークンがない場合はログインへ
-                window.location.href = '/public/login.html';
-            }
-        });
-    }
-
-
-    // --- 実行ロジック (変更なし) ---
-
-    // 1. URLハッシュからトークンを読み取る試み
-    function getTokenFromHash() {
-        const hash = window.location.hash.substring(1); // 先頭の # を削除
-        const params = new URLSearchParams(hash);
-        return params.get('access_token');
-    }
-
-    let token = getTokenFromHash();
-
-    if (token) {
-        // 1a. ハッシュにトークンが見つかった場合 (OAuthリダイレクト直後)
-        console.log("URLハッシュからトークンを取得しました。");
-        // トークンをlocalStorageに保存
-        localStorage.setItem('access_token', token);
-        // URLからハッシュを削除してクリーンにする
-        window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
-
-        // トークンを使ってプロフィール情報を取得
-        fetchMyInfo(token);
-
-    } else {
-        // 1b. ハッシュにトークンがない場合、localStorageを確認 (通常の訪問)
-        console.log("URLハッシュにトークンなし。localStorageを確認します。");
-        token = localStorage.getItem('access_token');
-
-        if (token) {
-            // トークンがlocalStorageに存在する場合、プロフィール情報を取得
-            fetchMyInfo(token);
-        } else {
-            // トークンがどこにも存在しない（未ログイン）場合
-            console.log("トークンが見つかりません。ログインページにリダイレクトします。");
-            // ログインページにリダイレクト
-            window.location.href = '/public/login.html';
-        }
-    }
-</script>
 </body>
 </html>

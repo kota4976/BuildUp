@@ -105,7 +105,7 @@ class BuildUpHeader extends HTMLElement {
             <header class="navbar">
                 <div class="navbar-container">
                     <div class="nav-left">
-                        <a href="#" class="logo">
+                        <a href="/public/index.html" class="logo">
                             <!-- 💡 画像パスは、親ドキュメントからの相対パス -->
                             <img src="images/BuildUp-logo.jpg" alt="BuildUp Logo" class="logo-img">
                         </a>
