@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     # Application
     app_name: str = "BuildUp"
     app_env: str = "development"
-    cors_origins: str = "http://localhost,http://localhost:80"
+    cors_origins: str = "http://localhost,http://localhost:80,http://localhost:5500,127.0.0.1:5500"
     
     # Server
     api_host: str = "127.0.0.1"

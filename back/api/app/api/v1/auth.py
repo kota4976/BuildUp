@@ -1,6 +1,7 @@
 """Authentication endpoints"""
 import logging
 from typing import Optional
+import urllib.parse
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
@@ -80,7 +81,7 @@ async def github_login(state: Optional[str] = Query(None)):
     return RedirectResponse(url=auth_url)
 
 
-@router.get("/github/callback", response_model=TokenResponse)
+@router.get("/github/callback")
 async def github_callback(
     code: str = Query(...),
     state: Optional[str] = Query(None),
@@ -200,12 +201,20 @@ async def github_callback(
 
         # Create JWT token
         jwt_token = create_access_token(data={"sub": str(user.id)})
-        
-        return TokenResponse(
-            access_token=jwt_token,
-            token_type="bearer",
-            user=UserResponse.from_orm(user)
-        )
+
+        FRONTEND_PROFILE_URL = "http://localhost:5500/public/profile.html"
+
+        # トークンをURLハッシュ（#）として渡す準備
+        fragment_data = {
+            "access_token": jwt_token,
+            "token_type": "bearer",
+        }
+
+        # データをURLエンコード
+        fragment_string = urllib.parse.urlencode(fragment_data)
+
+        redirect_url = f"{FRONTEND_PROFILE_URL}#{fragment_string}"
+        return RedirectResponse(url=redirect_url)
         
     except HTTPException:
         raise

@@ -1,27 +1,29 @@
 /**
  * チャット機能のJavaScript
  * APIとWebSocketに接続してリアルタイムチャットを実現
+ * (チャット作成ロジックは外部ファイルに分離されています)
  */
 
 // API設定
-const API_BASE_URL = window.location.origin + '/api/v1';
-// WebSocket URLを動的に構築（プロトコルに応じてws/wssを切り替え）
+const API_HOST_PORT = 'localhost:8080';
+const API_BASE_URL = `http://${API_HOST_PORT}/api/v1`;
+// WebSocket URLも修正
 const WS_PROTOCOL = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-const WS_BASE_URL = `${WS_PROTOCOL}//${window.location.host}/ws`;
+const WS_BASE_URL = `${WS_PROTOCOL}//${API_HOST_PORT}/ws`;
 
-// グローバル変数
-let currentUser = null;
+// グローバル変数 (exportを追加)
+export let currentUser = null;
 let currentMatchId = null;
 let currentConversationId = null;
 let websocket = null;
-let matches = [];
-let userCache = {}; // ユーザー情報のキャッシュ
+export let matches = []; // 外部（chatCreate.js）で更新されるためexport
+export let userCache = {}; // 外部（chatCreate.js）で利用されるためexport
 
 /**
- * JWTトークンを取得
+ * JWTトークンを取得 (exportを追加)
  */
-function getAuthToken() {
-    return localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
+export function getAuthToken() {
+    return localStorage.getItem('access_token') || sessionStorage.getItem('access_token');
 }
 
 /**
@@ -42,8 +44,7 @@ async function getCurrentUser() {
 
         if (!response.ok) {
             if (response.status === 401) {
-                // 認証エラーの場合、ログインページにリダイレクト
-                window.location.href = '/login.html';
+                window.location.href = '/public/login.html';
                 return null;
             }
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -52,21 +53,24 @@ async function getCurrentUser() {
         return await response.json();
     } catch (error) {
         console.error('現在のユーザー情報の取得に失敗しました:', error);
-        showError('認証に失敗しました。ログインしてください。');
+        // グローバルな showError を直接呼び出す
+        showError('認証に失敗しました。 <a href="/public/login.html">ログイン</a> してください。');
         return null;
     }
 }
 
 /**
- * ユーザー情報を取得（キャッシュ付き）
+ * ユーザー情報を取得（キャッシュ付き） (exportを追加)
  */
-async function getUserInfo(userId) {
+export async function getUserInfo(userId) {
     if (userCache[userId]) {
         return userCache[userId];
     }
 
     try {
-        const response = await fetch(`${API_BASE_URL}/users/${userId}`);
+        const response = await fetch(`${API_BASE_URL}/users/${userId}`, {
+            headers: { 'Authorization': `Bearer ${getAuthToken()}` }
+        });
         if (!response.ok) {
             throw new Error(`HTTP error! status: ${response.status}`);
         }
@@ -75,6 +79,8 @@ async function getUserInfo(userId) {
         return user;
     } catch (error) {
         console.error('ユーザー情報の取得に失敗しました:', error);
+        // グローバルな showError を直接呼び出す
+        showError('ユーザー情報の取得に失敗しました。');
         return {
             id: userId,
             handle: 'Unknown User',
@@ -82,6 +88,8 @@ async function getUserInfo(userId) {
         };
     }
 }
+
+// ---------------------------------------------------------------------
 
 /**
  * マッチ一覧を取得
@@ -101,7 +109,7 @@ async function fetchMatches() {
 
         if (!response.ok) {
             if (response.status === 401) {
-                window.location.href = '/login.html';
+                window.location.href = '/public/login.html';
                 return [];
             }
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -111,6 +119,7 @@ async function fetchMatches() {
         return data.matches || [];
     } catch (error) {
         console.error('マッチ一覧の取得に失敗しました:', error);
+        // グローバルな showError を直接呼び出す
         showError('マッチ一覧の取得に失敗しました。');
         return [];
     }
@@ -134,7 +143,7 @@ async function fetchConversation(matchId) {
 
         if (!response.ok) {
             if (response.status === 401) {
-                window.location.href = '/login.html';
+                window.location.href = '/public/login.html';
                 return null;
             }
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -143,15 +152,16 @@ async function fetchConversation(matchId) {
         return await response.json();
     } catch (error) {
         console.error('会話履歴の取得に失敗しました:', error);
+        // グローバルな showError を直接呼び出す
         showError('会話履歴の取得に失敗しました。');
         return null;
     }
 }
 
 /**
- * マッチ一覧をレンダリング
+ * マッチ一覧をレンダリング (exportを追加)
  */
-async function renderMatchList(matches) {
+export async function renderMatchList(matches) {
     const container = document.getElementById('message-container');
     const loading = document.getElementById('chat-list-loading');
     const error = document.getElementById('chat-list-error');
@@ -168,34 +178,56 @@ async function renderMatchList(matches) {
     // 各マッチに対して会話履歴を取得してプレビューを表示
     const matchPromises = matches.map(async (match) => {
         try {
-            // 相手のユーザーIDを取得
-            const otherUserId = match.user_a === currentUser.id ? match.user_b : match.user_a;
-            
-            // ユーザー情報を取得
-            const otherUser = await getUserInfo(otherUserId);
+            // グループチャットかどうかを判定
+            if (match.is_group_chat) {
+                // グループチャットの場合
+                const groupInfo = match.group_info || {};
+                let lastMessage = null;
 
-            // 会話履歴を取得（最新1件のみ）
-            // エラーが発生した場合は、lastMessageをnullにする
-            let lastMessage = null;
-            try {
-                const conversation = await fetchConversation(match.id);
-                if (conversation && conversation.messages && conversation.messages.length > 0) {
-                    lastMessage = conversation.messages[conversation.messages.length - 1];
+                try {
+                    const conversation = await fetchConversation(match.id);
+                    if (conversation && conversation.messages && conversation.messages.length > 0) {
+                        lastMessage = conversation.messages[conversation.messages.length - 1];
+                    }
+                } catch (error) {
+                    console.warn(`会話履歴の取得に失敗しました (match_id: ${match.id}):`, error);
                 }
-            } catch (error) {
-                // 会話履歴の取得に失敗した場合も、マッチリストは表示する
-                console.warn(`会話履歴の取得に失敗しました (match_id: ${match.id}):`, error);
-            }
 
-            return { match, otherUser, lastMessage };
+                return {
+                    match,
+                    isGroup: true,
+                    groupInfo,
+                    lastMessage
+                };
+            } else {
+                // ダイレクトチャットの場合
+                const otherUserId = match.user_a === currentUser.id ? match.user_b : match.user_a;
+                const otherUser = await getUserInfo(otherUserId);
+                let lastMessage = null;
+
+                try {
+                    const conversation = await fetchConversation(match.id);
+                    if (conversation && conversation.messages && conversation.messages.length > 0) {
+                        lastMessage = conversation.messages[conversation.messages.length - 1];
+                    }
+                } catch (error) {
+                    console.warn(`会話履歴の取得に失敗しました (match_id: ${match.id}):`, error);
+                }
+
+                return {
+                    match,
+                    isGroup: false,
+                    otherUser,
+                    lastMessage
+                };
+            }
         } catch (error) {
             console.error(`マッチ情報の取得に失敗しました (match_id: ${match.id}):`, error);
-            // エラーが発生した場合は、基本的な情報のみを返す
-            const otherUserId = match.user_a === currentUser.id ? match.user_b : match.user_a;
             return {
                 match,
+                isGroup: false,
                 otherUser: {
-                    id: otherUserId,
+                    id: 'unknown',
                     handle: 'Unknown User',
                     avatar_url: 'https://placehold.co/48x48/f0f0f0/666?text=U'
                 },
@@ -215,15 +247,25 @@ async function renderMatchList(matches) {
     });
 
     // マッチアイテムを作成
-    matchDataList.forEach(({ match, otherUser, lastMessage }) => {
+    matchDataList.forEach((data) => {
+        const { match, isGroup, otherUser, groupInfo, lastMessage } = data;
+
         const matchItem = document.createElement('div');
         matchItem.className = 'chat-item flex items-center px-5 py-4 cursor-pointer hover:bg-gray-50 transition-all duration-200';
         matchItem.setAttribute('data-match-id', match.id);
-        matchItem.setAttribute('data-user-id', otherUser.id);
+
+        if (!isGroup) {
+            matchItem.setAttribute('data-user-id', otherUser.id);
+        }
 
         // 時刻をフォーマット
         let timeString = '-';
-        let previewText = 'チャットを開始';
+        let previewText = isGroup ? 'グループチャットを開始' : 'チャットを開始';
+        let displayName = isGroup ? groupInfo.name : (otherUser.handle || 'Unknown User');
+        let avatarUrl = isGroup
+            ? (groupInfo.avatar_url || 'https://placehold.co/48x48/f0f0f0/666?text=G')
+            : (otherUser.avatar_url || 'https://placehold.co/48x48/f0f0f0/666?text=U');
+
         if (lastMessage) {
             const createdAt = new Date(lastMessage.created_at);
             const now = new Date();
@@ -244,31 +286,36 @@ async function renderMatchList(matches) {
                 timeString = createdAt.toLocaleDateString('ja-JP', { month: 'short', day: 'numeric' });
             }
 
-            previewText = lastMessage.body.length > 30 
-                ? lastMessage.body.substring(0, 30) + '...' 
+            previewText = lastMessage.body.length > 30
+                ? lastMessage.body.substring(0, 30) + '...'
                 : lastMessage.body;
         }
 
         matchItem.innerHTML = `
             <div class="relative flex-shrink-0">
-                <img src="${otherUser.avatar_url || 'https://placehold.co/48x48/f0f0f0/666?text=U'}" 
-                     alt="${otherUser.handle}" 
-                     class="w-14 h-14 rounded-full object-cover mr-4 border-2 border-gray-200"
-                     onerror="this.onerror=null; this.src='https://placehold.co/48x48/f0f0f0/666?text=U'">
-                <div class="absolute bottom-0 right-3 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+                <img src="${avatarUrl}" 
+                     alt="${displayName}" 
+                     class="w-14 h-14 rounded-full object-cover mr-4 border-2 border-gray-200 ${isGroup ? 'group-avatar' : ''}"
+                     onerror="this.onerror=null; this.src='https://placehold.co/48x48/f0f0f0/666?text=${isGroup ? 'G' : 'U'}'">
+                ${!isGroup ? '<div class="absolute bottom-0 right-3 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>' : ''}
             </div>
             <div class="flex-grow min-w-0">
                 <div class="flex justify-between items-center mb-1">
-                    <h2 class="text-sm font-semibold text-gray-900 truncate">${otherUser.handle || 'Unknown User'}</h2>
+                    <h2 class="text-sm font-semibold text-gray-900 truncate">${displayName}</h2>
                     <span class="text-xs text-gray-500 flex-shrink-0 ml-2" id="match-time-${match.id}">${timeString}</span>
                 </div>
                 <p class="text-xs text-gray-600 truncate" id="match-preview-${match.id}">${escapeHtml(previewText)}</p>
+                ${isGroup ? '<p class="text-xs text-gray-400 mt-1">グループ</p>' : ''}
             </div>
         `;
 
         // クリックイベント
         matchItem.addEventListener('click', () => {
-            selectMatch(match, otherUser);
+            if (isGroup) {
+                selectGroupChat(match, groupInfo);
+            } else {
+                selectMatch(match, otherUser);
+            }
         });
 
         container.appendChild(matchItem);
@@ -276,9 +323,9 @@ async function renderMatchList(matches) {
 }
 
 /**
- * マッチを選択
+ * マッチを選択（ダイレクトチャット） (exportを追加)
  */
-async function selectMatch(match, otherUser) {
+export async function selectMatch(match, otherUser) {
     // 既存のWebSocket接続を閉じる
     if (websocket) {
         websocket.close();
@@ -316,7 +363,75 @@ async function selectMatch(match, otherUser) {
         </div>
     `;
     chatHeaderActions.classList.remove('hidden');
-    
+
+    // アイコンを再初期化
+    if (typeof lucide !== 'undefined') {
+        lucide.createIcons();
+    }
+
+    // モバイルの場合の表示切り替え
+    if (window.innerWidth <= 767) {
+        document.getElementById('chat-list').style.display = 'none';
+        document.getElementById('chat-window').classList.add('active');
+        document.getElementById('chat-window').style.display = 'flex';
+    }
+
+    // 会話履歴を取得
+    const conversation = await fetchConversation(match.id);
+    if (!conversation) {
+        return;
+    }
+
+    currentConversationId = conversation.id;
+
+    // メッセージをレンダリング
+    renderMessages(conversation.messages);
+
+    // メッセージ入力エリアを表示
+    document.getElementById('message-input-area').classList.remove('hidden');
+
+    // WebSocket接続
+    connectWebSocket(conversation.id);
+}
+
+/**
+ * グループチャットを選択 (exportを追加)
+ */
+export async function selectGroupChat(match, groupInfo) {
+    // 既存のWebSocket接続を閉じる
+    if (websocket) {
+        websocket.close();
+        websocket = null;
+    }
+
+    currentMatchId = match.id;
+
+    // アクティブなマッチのハイライトを更新
+    document.querySelectorAll('.chat-item').forEach(item => {
+        item.classList.remove('active-chat', 'bg-gray-100');
+    });
+    const selectedItem = document.querySelector(`[data-match-id="${match.id}"]`);
+    if (selectedItem) {
+        selectedItem.classList.add('active-chat', 'bg-gray-100');
+    }
+
+    // チャットヘッダーを更新
+    const chatHeader = document.getElementById('chat-header-content');
+    const chatHeaderActions = document.getElementById('chat-header-actions');
+    chatHeader.innerHTML = `
+        <div class="flex items-center space-x-3 flex-1 min-w-0">
+            <img src="${groupInfo.avatar_url || 'https://placehold.co/40x40/f0f0f0/666?text=G'}" 
+                 alt="${groupInfo.name}" 
+                 class="w-10 h-10 rounded-full object-cover border-2 border-gray-200 flex-shrink-0 shadow-sm"
+                 onerror="this.onerror=null; this.src='https://placehold.co/40x40/f0f0f0/666?text=G'">
+            <div class="flex flex-col min-w-0 flex-1">
+                <h2 class="text-lg font-semibold text-gray-800 truncate">${groupInfo.name}</h2>
+                <p class="text-xs text-gray-500">グループ • ${groupInfo.member_count || 0} メンバー</p>
+            </div>
+        </div>
+    `;
+    chatHeaderActions.classList.remove('hidden');
+
     // アイコンを再初期化
     if (typeof lucide !== 'undefined') {
         lucide.createIcons();
@@ -399,7 +514,7 @@ async function appendMessage(message, isOwnMessage = null) {
     const createdAt = new Date(message.created_at);
     const timeString = createdAt.toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit', hour12: false });
 
-            const messageHtml = isOwnMessage
+    const messageHtml = isOwnMessage
         ? `
         <div class="flex justify-end mb-4 group" data-message-id="${message.id}">
             <div class="max-w-xs md:max-w-md lg:max-w-lg flex flex-col items-end">
@@ -450,10 +565,10 @@ async function appendMessage(message, isOwnMessage = null) {
 function updateMatchPreview(matchId, message) {
     const previewElement = document.getElementById(`match-preview-${matchId}`);
     const timeElement = document.getElementById(`match-time-${matchId}`);
-    
+
     if (previewElement) {
-        const previewText = message.body.length > 30 
-            ? message.body.substring(0, 30) + '...' 
+        const previewText = message.body.length > 30
+            ? message.body.substring(0, 30) + '...'
             : message.body;
         previewElement.textContent = previewText;
     }
@@ -508,18 +623,15 @@ function connectWebSocket(conversationId) {
 
         websocket.onopen = () => {
             console.log('WebSocket接続が開きました');
-            // 接続確認のためpingを送信
             sendPing();
         };
 
         websocket.onmessage = (event) => {
             const data = JSON.parse(event.data);
-            
+
             if (data.type === 'message') {
-                // メッセージを受信
                 appendMessage(data);
             } else if (data.type === 'pong') {
-                // Pongを受信（接続確認）
                 console.log('Pongを受信しました');
             } else if (data.type === 'error') {
                 console.error('WebSocketエラー:', data.message);
@@ -534,7 +646,6 @@ function connectWebSocket(conversationId) {
 
         websocket.onclose = () => {
             console.log('WebSocket接続が閉じました');
-            // 再接続を試みる（3秒後）
             if (currentConversationId) {
                 setTimeout(() => {
                     if (currentConversationId === conversationId) {
@@ -583,7 +694,7 @@ function sendMessage(messageText) {
 }
 
 /**
- * エラーを表示
+ * エラーを表示 (exportを削除し、グローバル定義に委ねる)
  */
 function showError(message) {
     const errorDiv = document.getElementById('chat-list-error');
@@ -605,10 +716,16 @@ function handleBackToList() {
     }
 }
 
+// ---------------------------------------------------------------------
+// 以下のDOM操作/ロジック関数は削除または外部ファイルへ移動:
+// displayUserSearchResults, renderSelectedMembers, initChatCreationModal
+// ---------------------------------------------------------------------
+
+
 /**
- * 初期化
+ * 初期化 (exportを追加)
  */
-async function init() {
+export async function init() {
     // 現在のユーザー情報を取得
     currentUser = await getCurrentUser();
     if (!currentUser) {
@@ -617,9 +734,11 @@ async function init() {
 
     // マッチ一覧を取得
     matches = await fetchMatches();
-    
+
     // マッチ一覧をレンダリング
     await renderMatchList(matches);
+
+    // 以前ここに initChatCreationModal() があったが、外部ファイルに分離された
 
     // フォーム送信イベント
     const chatForm = document.getElementById('chat-form');
@@ -661,7 +780,3 @@ async function init() {
         document.getElementById('chat-window').style.display = 'none';
     }
 }
-
-// ページロード時に初期化
-document.addEventListener('DOMContentLoaded', init);
-

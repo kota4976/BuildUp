@@ -25,6 +25,53 @@ from app.schemas.common import SuccessResponse
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+@router.get("/search", response_model=List[UserResponse])
+async def search_users(
+        q: str,
+        db: Session = Depends(get_db),
+        current_user: User = Depends(get_current_user),  # 認証済みユーザーのみアクセス可能とする
+        limit: int = 10
+):
+    """
+    Search users by handle or name.
+
+    Args:
+        q: Search query string (handle or name)
+        db: Database session
+        current_user: Current authenticated user
+        limit: Maximum number of results
+
+    Returns:
+        List of matching users (UserResponse schema)
+    """
+    if len(q) < 2:
+        return [] # 短すぎるクエリは拒否
+
+    # 大文字・小文字を区別しない部分一致検索
+    search_pattern = f"%{q}%"
+
+    # 1. 認証ユーザーIDと検索クエリをログに出力
+    logger.info(f"Searching for: {q}. Current User ID: {current_user.id}")
+
+    # 2. 実際に実行されるSQLクエリをログに出力 (DEBUGレベル)
+    # NOTE: db.query(User).filter(...) の後の .statement.compile(...) を利用します
+    # ただし、完全なクエリをログに出すには、SQLAlchemyの機能を正しく使う必要があります。
+    # ここでは簡易的なログ出力にとどめます。
+
+    query_filter = User.deleted_at.is_(None) & (User.handle.ilike(search_pattern))
+
+    # 検索ロジックの実行
+    users = db.query(User).filter(
+        query_filter
+    ).limit(limit).all()
+
+    # 3. データベースから返されたユーザー数を出力
+    logger.info(f"Found {len(users)} users.")
+
+    # --- 👆 ここまでデバッグロギングを追加 ---
+
+    # UserResponse スキーマのリストに変換して返す
+    return [UserResponse.from_orm(user) for user in users]
 
 @router.get("/{user_id}", response_model=UserDetailResponse)
 async def get_user(
@@ -33,11 +80,11 @@ async def get_user(
 ):
     """
     Get user by ID with skills and repositories
-    
+
     Args:
         user_id: User ID
         db: Database session
-    
+
     Returns:
         User detail information
     """
@@ -48,13 +95,13 @@ async def get_user(
         User.id == user_id,
         User.deleted_at.is_(None)
     ).first()
-    
+
     if not user:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="User not found"
         )
-    
+
     # Format response
     skills = [
         UserSkillSchema(
@@ -64,16 +111,16 @@ async def get_user(
         )
         for us in user.user_skills
     ]
-    
+
     repos = [
         GitHubRepoSchema.from_orm(repo)
         for repo in user.github_repos
     ]
-    
+
     user_response = UserDetailResponse.from_orm(user)
     user_response.skills = skills
     user_response.repos = repos
-    
+
     return user_response
 
 
@@ -85,12 +132,12 @@ async def update_current_user(
 ):
     """
     Update current user profile
-    
+
     Args:
         user_update: User update data
         current_user: Current authenticated user
         db: Database session
-    
+
     Returns:
         Updated user information
     """
@@ -99,9 +146,9 @@ async def update_current_user(
         current_user.bio = user_update.bio
     if user_update.avatar_url is not None:
         current_user.avatar_url = user_update.avatar_url
-    
+
     current_user.updated_at = datetime.utcnow()
-    
+
     # Create audit log
     audit_log = AuditLog(
         user_id=current_user.id,
@@ -110,10 +157,10 @@ async def update_current_user(
         payload=user_update.dict(exclude_unset=True)
     )
     db.add(audit_log)
-    
+
     db.commit()
     db.refresh(current_user)
-    
+
     return UserResponse.from_orm(current_user)
 
 
@@ -125,12 +172,12 @@ async def update_user_skills(
 ):
     """
     Update current user's skills
-    
+
     Args:
         skills: List of skills with levels
         current_user: Current authenticated user
         db: Database session
-    
+
     Returns:
         Success message
     """
@@ -138,7 +185,7 @@ async def update_user_skills(
     db.query(UserSkill).filter(
         UserSkill.user_id == current_user.id
     ).delete()
-    
+
     # Add new skills
     for skill_data in skills:
         # Verify skill exists
@@ -148,21 +195,21 @@ async def update_user_skills(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Skill with id {skill_data.skill_id} not found"
             )
-        
+
         # Validate level
         if skill_data.level < 1 or skill_data.level > 5:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Skill level must be between 1 and 5"
             )
-        
+
         user_skill = UserSkill(
             user_id=current_user.id,
             skill_id=skill_data.skill_id,
             level=skill_data.level
         )
         db.add(user_skill)
-    
+
     # Create audit log
     audit_log = AuditLog(
         user_id=current_user.id,
@@ -171,9 +218,9 @@ async def update_user_skills(
         payload={"skills": [s.dict() for s in skills]}
     )
     db.add(audit_log)
-    
+
     db.commit()
-    
+
     return SuccessResponse(message="Skills updated successfully")
 
 
@@ -184,11 +231,11 @@ async def sync_github_repos(
 ):
     """
     Sync GitHub repositories for current user
-    
+
     Args:
         current_user: Current authenticated user
         db: Database session
-    
+
     Returns:
         Success message
     """
@@ -198,25 +245,25 @@ async def sync_github_repos(
         OAuthAccount.user_id == current_user.id,
         OAuthAccount.provider == "github"
     ).first()
-    
+
     if not oauth_account:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="GitHub account not linked"
         )
-    
+
     try:
         # Fetch repos from GitHub
         repos = await GitHubService.get_user_repos(
             oauth_account.access_token,
             current_user.github_login
         )
-        
+
         # Delete existing repos
         db.query(GitHubRepo).filter(
             GitHubRepo.user_id == current_user.id
         ).delete()
-        
+
         # Add new repos
         for repo_data in repos:
             repo = GitHubRepo(
@@ -228,7 +275,7 @@ async def sync_github_repos(
                 last_pushed_at=repo_data.get("pushed_at")
             )
             db.add(repo)
-        
+
         # Create audit log
         audit_log = AuditLog(
             user_id=current_user.id,
@@ -237,13 +284,13 @@ async def sync_github_repos(
             payload={"repo_count": len(repos)}
         )
         db.add(audit_log)
-        
+
         db.commit()
-        
+
         return SuccessResponse(
             message=f"Successfully synced {len(repos)} repositories"
         )
-        
+
     except Exception as e:
         logger.error(f"Failed to sync repos: {str(e)}")
         db.rollback()

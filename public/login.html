@@ -1,434 +1,119 @@
 <!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ログイン - BuildUp</title>
-    <!-- Tailwind CSS CDNを読み込み -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome Iconsを読み込み (GitHubアイコン用) -->
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
-    />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 
     <style>
-      /* CSSカスタムスタイル (Tailwindでカバーしきれない部分の補完とテーマカラー設定) */
-      :root {
-        --primary-color: #3f51b5; /* BuildUp Primary Blue (indigo-600に近い色) */
-        --primary-hover: #4f60c8;
-        --bg-light: #f4f7f9;
-      }
+        /* CSSカスタムスタイル (Tailwindでカバーしきれない部分の補完とテーマカラー設定) */
+        :root {
+            --primary-color: #3f51b5; /* BuildUp Primary Blue (indigo-600に近い色) */
+            --primary-hover: #4f60c8;
+            --bg-light: #f4f7f9;
+        }
 
-      /* カスタムカラークラスの定義 */
-      .bg-primary {
-        background-color: var(--primary-color);
-      }
-      .hover\:bg-primary-hover:hover {
-        background-color: var(--primary-hover);
-      }
-      .text-primary {
-        color: var(--primary-color);
-      }
-      .focus\:ring-primary:focus {
-        --tw-ring-color: var(--primary-color);
-      }
+        /* カスタムカラークラスの定義 */
+        .bg-primary { background-color: var(--primary-color); }
+        .hover\:bg-primary-hover:hover { background-color: var(--primary-hover); }
+        .text-primary { color: var(--primary-color); }
+        .focus\:ring-primary:focus { --tw-ring-color: var(--primary-color); }
 
-      body {
-        font-family: "Inter", sans-serif;
-        background-color: var(--bg-light);
-        min-height: 100vh;
-        margin: 0;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
-      }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-light);
+            min-height: 100vh;
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
 
-      /* ロゴの元のスタイル指定を維持（画像パスへの依存） */
-      .logo-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 20px;
-      }
-      .logo-container img {
-        max-width: 250px; /* 元のCSSの最大幅を維持 */
-        height: auto;
-        display: block;
-        margin: 0 auto;
-      }
+        /* ロゴの元のスタイル指定を維持（画像パスへの依存） */
+        .logo-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+        .logo-container img {
+            max-width: 250px; /* 元のCSSの最大幅を維持 */
+            height: auto;
+            display: block;
+            margin: 0 auto;
+        }
 
-      /* ソーシャルボタンの調整 */
-      .social-login-grid {
-        display: flex;
-        gap: 10px;
-      }
+        /* ソーシャルボタンの調整 */
+        .social-login-grid {
+            display: flex;
+            gap: 10px;
+        }
 
-      .social-btn {
-        flex: 1; /* flex: 1を維持して幅を均等に */
-        transition: all 0.2s ease-in-out;
-      }
-
-      /* デモモードのヒント */
-      .demo-hint {
-        color: #d97706; /* amber-700 */
-        border-color: #fcd34d; /* amber-300 */
-      }
+        .social-btn {
+            flex: 1; /* flex: 1を維持して幅を均等に */
+            transition: all 0.2s ease-in-out;
+        }
     </style>
-  </head>
-  <body class="min-h-screen flex items-center justify-center p-4">
-    <!-- ログインコンテナ -->
-    <div
-      id="login-container"
-      class="w-full max-w-md bg-white p-8 sm:p-10 rounded-xl shadow-2xl border border-gray-200"
-    >
-      <div class="header text-center mb-8">
-        <!-- BuildUpロゴ (元のHTMLを復元: 画像を使用) -->
+</head>
+<body class="min-h-screen flex items-center justify-center p-4">
+
+<div id="login-container" class="w-full max-w-md bg-white p-8 sm:p-10 rounded-xl shadow-2xl border border-gray-200">
+
+    <div class="header text-center mb-8">
         <div class="logo-container">
-          <img src="images/BuildUp-logo.jpg" alt="BuildUp ロゴ" />
+            <img src="images/BuildUp-logo.jpg" alt="BuildUp ロゴ">
         </div>
 
         <h1 class="text-2xl font-bold text-gray-900 mb-1">ログイン</h1>
         <p class="text-sm text-gray-500">アカウントにサインインしてください</p>
-      </div>
-
-      <!-- デモモード表示 -->
-      <div
-        id="demo-mode-warning"
-        class="hidden bg-yellow-100 border demo-hint text-amber-700 px-4 py-2 rounded-md relative mb-4 text-sm"
-        role="alert"
-      >
-        <strong class="font-bold">デモモード: </strong>
-        <span class="block sm:inline"
-          >認証設定がないため、認証はスキップされます。</span
-        >
-      </div>
-
-      <!-- メッセージボックス (エラー表示用) -->
-      <div
-        id="message-box"
-        class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md relative mb-4"
-        role="alert"
-      >
-        <strong class="font-bold">エラー: </strong>
-        <span id="error-message" class="block sm:inline"></span>
-      </div>
-
-      <form id="login-form">
-        <!-- メールアドレス -->
-        <div class="mb-5 text-left">
-          <label
-            for="email"
-            class="block text-sm font-semibold text-gray-700 mb-2"
-            >メールアドレス</label
-          >
-          <input
-            type="email"
-            id="email"
-            placeholder="your@email.com"
-            required
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition duration-150"
-          />
-        </div>
-
-        <!-- パスワード -->
-        <div class="mb-4 text-left">
-          <label
-            for="password"
-            class="block text-sm font-semibold text-gray-700 mb-2"
-            >パスワード</label
-          >
-          <input
-            type="password"
-            id="password"
-            placeholder="パスワードを入力"
-            required
-            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition duration-150"
-          />
-        </div>
-
-        <div class="flex items-center justify-between mb-6 text-sm">
-          <!-- ログイン状態を保持 -->
-          <label class="flex items-center text-gray-600 font-normal">
-            <input
-              type="checkbox"
-              id="remember-me"
-              class="focus:ring-primary h-4 w-4 text-primary border-gray-300 rounded mr-1"
-            />
-            ログイン状態を保持
-          </label>
-          <!-- パスワードを忘れた方 -->
-          <a
-            href="#"
-            class="forgot-password text-primary hover:underline font-medium transition duration-150"
-            >パスワードを忘れた方</a
-          >
-        </div>
-
-        <!-- ログインボタン -->
-        <button
-          type="submit"
-          id="submit-btn"
-          class="login-btn w-full text-white font-semibold py-3 rounded-xl shadow-lg transition duration-200 transform hover:scale-[1.01] hover:shadow-xl bg-primary hover:bg-primary-hover"
-        >
-          ログイン
-        </button>
-      </form>
-
-      <!-- 区切り線 -->
-      <div class="relative flex items-center justify-center my-8">
-        <div class="flex-grow border-t border-gray-300"></div>
-        <span class="flex-shrink mx-4 text-gray-400 text-sm">または</span>
-        <div class="flex-grow border-t border-gray-300"></div>
-      </div>
-
-      <!-- ソーシャルログイン (GitHubのみ) -->
-      <div class="social-login-grid">
-        <!-- GitHubログインボタン -->
-        <button
-          id="github-btn"
-          class="social-btn w-full flex items-center justify-center py-3 border border-gray-300 rounded-xl bg-white text-gray-700 font-medium hover:bg-gray-50 transition duration-150"
-        >
-          <!-- Font AwesomeのGitHubアイコンを使用 -->
-          <i class="fab fa-github text-lg mr-3"></i>
-          <span>GitHubでログイン (デモ)</span>
-        </button>
-      </div>
-
-      <!-- 新規登録リンク -->
-      <p class="signup-link text-center mt-8 text-gray-600 text-sm">
-        アカウントをお持ちでない方は
-        <a
-          href="signup.html"
-          class="font-bold text-primary hover:underline transition duration-150"
-          >新規登録</a
-        >
-      </p>
     </div>
 
-    <!-- Firebase SDKの読み込みとロジック -->
-    <script type="module">
-      let isFirebaseReady = false;
+    <div id="message-box" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md relative mb-4" role="alert">
+        <strong class="font-bold">エラー: </strong>
+        <span id="error-message" class="block sm:inline"></span>
+    </div>
 
-      // グローバル変数からFirebase設定を読み込み
-      const firebaseConfig =
-        typeof __firebase_config !== "undefined"
-          ? JSON.parse(__firebase_config)
-          : {};
-      const initialAuthToken =
-        typeof __initial_auth_token !== "undefined"
-          ? __initial_auth_token
-          : null;
 
-      // Firebaseの初期化と認証を試みる関数
-      async function attemptFirebaseInit() {
-        // Firebase設定が有効なオブジェクトであることを確認
-        if (
-          Object.keys(firebaseConfig).length === 0 ||
-          !firebaseConfig.apiKey
-        ) {
-          console.warn(
-            "Firebase config is missing or incomplete. Running in DEMO MODE."
-          );
-          document
-            .getElementById("demo-mode-warning")
-            .classList.remove("hidden");
-          return false; // Firebaseは利用不可
-        }
+    <div class="social-login-grid mt-8">
+        <button id="github-btn" class="social-btn w-full flex items-center justify-center py-3 border border-gray-300 rounded-xl bg-white text-gray-700 font-medium hover:bg-gray-50 transition duration-150">
+            <i class="fab fa-github text-lg mr-3"></i> <span>GitHubでログイン</span>
+        </button>
+    </div>
 
-        try {
-          // Firebase SDKを動的にインポート
-          const { initializeApp } = await import(
-            "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js"
-          );
-          const {
-            getAuth,
-            signInWithEmailAndPassword,
-            signInWithCustomToken,
-            signInAnonymously,
-          } = await import(
-            "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"
-          );
-          const { setLogLevel } = await import(
-            "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js"
-          );
+    <p class="signup-link text-center mt-8 text-gray-600 text-sm">
+        アカウントをお持ちでない方は
+        <a href="signup.html" class="font-bold text-primary hover:underline transition duration-150">新規登録</a>
+    </p>
+</div>
 
-          setLogLevel("debug");
+<script type="module">
+    // APIリファレンスに基づく設定
+    const API_BASE_URL = 'http://localhost:8080/api/v1';
 
-          const app = initializeApp(firebaseConfig);
-          const auth = getAuth(app);
+    // --- UI要素の取得 ---
+    const githubBtn = document.getElementById('github-btn');
 
-          // 認証処理
-          if (initialAuthToken) {
-            await signInWithCustomToken(auth, initialAuthToken);
-          } else {
-            await signInAnonymously(auth);
-          }
-
-          console.log(
-            "Firebase Initialization successful. Running in LIVE MODE."
-          );
-          window.firebaseAuth = auth; // 認証オブジェクトをグローバルに保持
-          return true; // Firebaseは利用可能
-        } catch (error) {
-          console.error(
-            "Firebase Initialization Error. Switching to DEMO MODE:",
-            error
-          );
-          document
-            .getElementById("demo-mode-warning")
-            .classList.remove("hidden");
-          return false; // Firebaseは利用不可
-        }
-      }
-
-      // --- 共通UIヘルパー関数 (変更なし) ---
-      function showErrorMessage(message) {
-        const msgBox = document.getElementById("message-box");
-        const msgText = document.getElementById("error-message");
-        msgText.textContent = message;
-        msgBox.classList.remove("hidden");
-      }
-
-      function customAlert(message) {
-        const existingAlert = document.getElementById("custom-alert");
-        if (existingAlert) existingAlert.remove();
-
-        const box = document.createElement("div");
-        box.id = "custom-alert";
-        box.className =
-          "fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50";
-        box.innerHTML = `
-                <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm text-center">
-                    <p class="text-lg font-semibold mb-4">${message}</p>
-                    <button id="alert-ok-btn" class="text-white px-4 py-2 rounded-lg bg-primary hover:bg-primary-hover transition duration-150">OK</button>
-                </div>
-            `;
-        document.body.appendChild(box);
-
-        box.querySelector("#alert-ok-btn").onclick = () => box.remove();
-        return box;
-      }
-
-      // --- ログイン処理 ---
-      async function handleLogin(e) {
+    // --- GitHubログインボタンの処理 ---
+    function handleGithubLogin(e) {
         e.preventDefault();
-        document.getElementById("message-box").classList.add("hidden");
 
-        const email = document.getElementById("email").value;
-        const password = document.getElementById("password").value;
-        const submitBtn = document.getElementById("submit-btn");
+        // APIリファレンスに従い、GitHub認証ページにリダイレクト
+        const githubLoginUrl = `${API_BASE_URL}/auth/github/login`;
 
-        submitBtn.disabled = true;
-        submitBtn.textContent = isFirebaseReady
-          ? "ログイン処理中..."
-          : "デモ遷移中...";
+        // ユーザーをGitHubの認証ページに遷移させる
+        window.location.href = githubLoginUrl;
+    }
 
-        try {
-          if (isFirebaseReady) {
-            // --- LIVE MODE: Firebase認証を実行 ---
-            const auth = window.firebaseAuth;
-            const { signInWithEmailAndPassword } = await import(
-              "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js"
-            );
-            const userCredential = await signInWithEmailAndPassword(
-              auth,
-              email,
-              password
-            );
-            console.log(
-              "Login successful (LIVE MODE):",
-              userCredential.user.uid
-            );
-
-            const alertBox = customAlert(
-              `ログインに成功しました！ようこそ、${userCredential.user.email}さん。`
-            );
-
-            alertBox.querySelector("#alert-ok-btn").onclick = () => {
-              alertBox.remove();
-              window.location.href = "index.html";
-            };
-          } else {
-            // --- DEMO MODE: 固定の認証情報でスキップ ---
-            // 実際には認証しないため、入力値に関わらず成功として扱う
-            if (email && password) {
-              console.log(
-                "Login successful (DEMO MODE): Skipping authentication."
-              );
-
-              // 2秒の遅延を入れて、処理中のUIを見せる
-              await new Promise((resolve) => setTimeout(resolve, 2000));
-
-              const alertBox = customAlert(
-                `デモモードでログインに成功しました！ようこそ、${email}さん。`
-              );
-
-              alertBox.querySelector("#alert-ok-btn").onclick = () => {
-                alertBox.remove();
-                window.location.href = "index.html"; // デモページへ遷移
-              };
-            } else {
-              showErrorMessage(
-                "メールアドレスとパスワードを入力してください。"
-              );
-            }
-          }
-        } catch (error) {
-          console.error("Login Error:", error.code, error.message);
-
-          let userMessage = "ログインに失敗しました。";
-          if (
-            error.code === "auth/user-not-found" ||
-            error.code === "auth/wrong-password"
-          ) {
-            userMessage = "メールアドレスまたはパスワードが正しくありません。";
-          } else if (error.code === "auth/invalid-email") {
-            userMessage = "無効なメールアドレス形式です。";
-          } else {
-            userMessage = `ログインに失敗しました: ${error.message}`;
-          }
-
-          showErrorMessage(userMessage);
-        } finally {
-          submitBtn.disabled = false;
-          submitBtn.textContent = "ログイン";
-        }
-      }
-
-      // --- GitHubボタン処理 (デモモードのみ有効) ---
-      function handleGithubDemo(e) {
-        e.preventDefault();
-        if (!isFirebaseReady) {
-          // GitHubボタンが押された場合もデモモードとして遷移
-          customAlert(
-            "GitHub認証はデモモードでスキップされ、トップページに遷移します。"
-          );
-          setTimeout(() => {
-            window.location.href = "index.html";
-          }, 1000);
-        }
-      }
-
-      // 初期化とイベントリスナーの設定
-      window.onload = async () => {
-        isFirebaseReady = await attemptFirebaseInit();
-
-        const form = document.getElementById("login-form");
-        if (form) {
-          form.addEventListener("submit", handleLogin);
-        }
-
-        const githubBtn = document.getElementById("github-btn");
+    // --- 初期化とイベントリスナーの設定 ---
+    window.onload = () => {
+        // GitHubボタンにイベントリスナーを設定
         if (githubBtn) {
-          githubBtn.addEventListener("click", handleGithubDemo);
-          if (isFirebaseReady) {
-            // LIVE MODEでのGitHubログイン処理を実装する場合はここに記述
-            // 現状はデモモードのみにフォーカスするため、ここではスキップ
-          }
+            githubBtn.addEventListener('click', handleGithubLogin);
         }
-      };
-    </script>
-  </body>
+    };
+</script>
+</body>
 </html>

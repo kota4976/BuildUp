@@ -4,26 +4,23 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>新規登録 - BuildUp</title>
-    <!-- Tailwind CSS CDNを読み込み -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Font Awesome Iconsを読み込み (ソーシャルアイコン用) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    
+
     <style>
-        /* CSSカスタムスタイル (Tailwindでカバーしきれない部分の補完とテーマカラー設定) */
+        /* CSSカスタムスタイル (login.htmlと共通化) */
         :root {
             --primary-color: #3f51b5; /* BuildUp Primary Blue */
             --primary-hover: #4f60c8;
             --bg-light: #f4f7f9;
         }
 
-        /* カスタムカラークラスの定義 */
         .bg-primary { background-color: var(--primary-color); }
         .hover\:bg-primary-hover:hover { background-color: var(--primary-hover); }
         .text-primary { color: var(--primary-color); }
         .focus\:ring-primary:focus { --tw-ring-color: var(--primary-color); }
         .logo-text { color: var(--primary-color); }
-        
+
         body {
             font-family: 'Inter', sans-serif;
             background-color: var(--bg-light);
@@ -35,7 +32,6 @@
             padding: 20px;
         }
 
-        /* ロゴコンテナのスタイル (login.htmlと統一) */
         .logo-container {
             display: flex;
             align-items: center;
@@ -43,289 +39,81 @@
             margin-bottom: 20px;
         }
         .logo-container img {
-            max-width: 250px; /* 元のCSSの最大幅を維持 */
-            height: auto; 
-            display: block; 
-            margin: 0 auto; 
+            max-width: 250px;
+            height: auto;
+            display: block;
+            margin: 0 auto;
         }
 
-        /* ボタン無効時のスタイル */
-        .create-account-btn:disabled {
-            background-color: #9ca3af !important; /* gray-400 */
-            cursor: not-allowed;
-            box-shadow: none;
-        }
-        
-        /* 利用規約チェックボックスのカスタムスタイル */
-        input[type="checkbox"]:checked {
-            background-color: var(--primary-color);
-            border-color: var(--primary-color);
+        .social-btn {
+            flex: 1;
+            transition: all 0.2s ease-in-out;
         }
     </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex items-center justify-center font-inter p-4">
 
-    <!-- サインアップコンテナ -->
-    <div id="signup-container" class="w-full max-w-md bg-white p-8 sm:p-10 rounded-xl shadow-2xl border border-gray-200">
-        
-        <div class="header text-center mb-8">
-            <!-- BuildUpロゴ (画像を使用) -->
-            <div class="logo-container mb-6">
-                <img src="images/BuildUp-logo.jpg" alt="BuildUp ロゴ">
-            </div>
+<div id="signup-container" class="w-full max-w-md bg-white p-8 sm:p-10 rounded-xl shadow-2xl border border-gray-200">
 
-            <h1 class="text-2xl font-bold text-gray-900 mb-1">新規登録</h1>
-            <p class="text-sm text-gray-500">アカウントを作成してプロジェクトを始めましょう</p>
-        </div>
-        
-        <!-- メッセージボックス (エラー表示用) -->
-        <div id="message-box" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md relative mb-4" role="alert">
-            <strong class="font-bold">エラー: </strong>
-            <span id="error-message" class="block sm:inline"></span>
+    <div class="header text-center mb-8">
+        <div class="logo-container mb-6">
+            <img src="images/BuildUp-logo.jpg" alt="BuildUp ロゴ">
         </div>
 
-        <form id="signup-form">
-            
-            <!-- お名前 -->
-            <div class="mb-5">
-                <label for="name" class="block text-sm font-semibold text-gray-700 mb-2 text-left">お名前</label>
-                <input type="text" id="name" name="name" placeholder="山田太郎" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition duration-150">
-            </div>
-
-            <!-- メールアドレス -->
-            <div class="mb-5">
-                <label for="email" class="block text-sm font-semibold text-gray-700 mb-2 text-left">メールアドレス</label>
-                <input type="email" id="email" name="email" placeholder="your@email.com" required
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition duration-150">
-            </div>
-
-            <!-- パスワード -->
-            <div class="mb-5">
-                <label for="password" class="block text-sm font-semibold text-gray-700 mb-2 text-left">パスワード</label>
-                <input type="password" id="password" name="password" placeholder="8文字以上のパスワード" required minlength="8"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition duration-150">
-            </div>
-
-            <!-- パスワード確認 -->
-            <div class="mb-6">
-                <label for="confirm-password" class="block text-sm font-semibold text-gray-700 mb-2 text-left">パスワード確認</label>
-                <input type="password" id="confirm-password" name="confirm-password" placeholder="パスワードを再入力" required minlength="8"
-                        class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition duration-150">
-            </div>
-
-            <!-- 利用規約同意チェックボックス -->
-            <div class="flex items-start mb-6 text-sm">
-                <div class="flex items-center h-5">
-                    <input type="checkbox" id="terms" required class="focus:ring-primary h-4 w-4 text-primary border-gray-300 rounded mt-0.5">
-                </div>
-                <div class="ml-3 text-gray-600 text-left">
-                    <label for="terms" class="font-medium">
-                        <a href="terms_of_service.html" target="_blank" class="text-primary hover:underline font-medium transition duration-150">利用規約</a>と
-                        <a href="privacy_policy.html" target="_blank" class="text-primary hover:underline font-medium transition duration-150">プライバシーポリシー</a>に同意します
-                    </label>
-                </div>
-            </div>
-
-            <!-- アカウント作成ボタン -->
-            <button type="submit" id="submit-btn" 
-                    class="create-account-btn w-full text-white font-semibold py-3 rounded-xl shadow-lg transition duration-200 transform hover:scale-[1.01] hover:shadow-xl bg-primary hover:bg-primary-hover" disabled>
-                アカウントを作成
-            </button>
-        </form>
-
-        <!-- 区切り線 -->
-        <div class="relative flex items-center justify-center my-8">
-            <div class="flex-grow border-t border-gray-300"></div>
-            <span class="flex-shrink mx-4 text-gray-400 text-sm">または</span>
-            <div class="flex-grow border-t border-gray-300"></div>
-        </div>
-
-        <!-- ソーシャルログイン -->
-        <div class="social-login-grid">
-            <!-- GitHubログインボタン -->
-            <button class="social-btn w-full flex items-center justify-center py-3 border border-gray-300 rounded-xl bg-white text-gray-700 font-medium hover:bg-gray-50 transition duration-150" disabled>
-                <i class="fab fa-github text-lg mr-3"></i> <span>GitHubで登録 (認証無効)</span>
-            </button>
-        </div>
-        
-        <!-- ログインリンク -->
-        <p class="login-link text-center mt-8 text-gray-600 text-sm">
-            すでにアカウントをお持ちの方は
-            <a href="login.html" class="font-bold text-primary hover:underline transition duration-150">ログイン</a>
-        </p>
+        <h1 class="text-2xl font-bold text-gray-900 mb-1">新規登録</h1>
+        <p class="text-sm text-gray-500">GitHubアカウントで登録してください</p>
     </div>
 
-    <!-- Firebase SDKの読み込みとロジック -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, updateProfile, signInWithCustomToken, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    <div id="message-box" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md relative mb-4" role="alert">
+        <strong class="font-bold">エラー: </strong>
+        <span id="error-message" class="block sm:inline"></span>
+    </div>
 
-        setLogLevel('debug'); 
-        
-        // グローバル変数からFirebase設定を読み込み
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-        
-        let app, auth;
+    <div class="social-login-grid mt-8">
+        <button id="github-btn" class="social-btn w-full flex items-center justify-center py-3 border border-gray-300 rounded-xl bg-white text-gray-700 font-medium hover:bg-gray-50 transition duration-150">
+            <i class="fab fa-github text-lg mr-3"></i> <span>GitHubで登録</span>
+        </button>
+    </div>
 
-        // エラーメッセージを表示するヘルパー関数
-        function showErrorMessage(message) {
-            const msgBox = document.getElementById('message-box');
-            const msgText = document.getElementById('error-message');
-            msgText.textContent = message;
-            msgBox.classList.remove('hidden');
+    <div class="relative flex items-center justify-center my-8">
+        <div class="flex-grow border-t border-gray-300"></div>
+        <span class="flex-shrink mx-4 text-gray-400 text-sm">または</span>
+        <div class="flex-grow border-t border-gray-300"></div>
+    </div>
+
+
+    <p class="login-link text-center text-gray-600 text-sm">
+        すでにアカウントをお持ちの方は
+        <a href="login.html" class="font-bold text-primary hover:underline transition duration-150">ログイン</a>
+    </p>
+</div>
+
+<script type="module">
+    // APIリファレンスに基づく設定
+    const API_BASE_URL = 'http://localhost:8080/api/v1';
+
+    // --- UI要素の取得 ---
+    const githubBtn = document.getElementById('github-btn');
+
+    // --- GitHubログインボタンの処理 ---
+    function handleGithubSignup(e) {
+        e.preventDefault();
+
+        // APIリファレンスに従い、GitHub認証ページにリダイレクト
+        // (ログインと新規登録のエンドポイントは共通)
+        const githubLoginUrl = `${API_BASE_URL}/auth/github/login`;
+
+        // ユーザーをGitHubの認証ページに遷移させる
+        window.location.href = githubLoginUrl;
+    }
+
+    // --- 初期化とイベントリスナーの設定 ---
+    window.onload = () => {
+        // GitHubボタンにイベントリスナーを設定
+        if (githubBtn) {
+            githubBtn.addEventListener('click', handleGithubSignup);
         }
-        
-        // window.alertの代替となるカスタムメッセージボックス
-        function customAlert(message) {
-            // 既にalertが表示されている場合は削除
-            const existingAlert = document.getElementById('custom-alert');
-            if (existingAlert) existingAlert.remove();
-            
-            const box = document.createElement('div');
-            box.id = 'custom-alert';
-            box.className = 'fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50';
-            box.innerHTML = `
-                <div class="bg-white p-6 rounded-lg shadow-xl max-w-sm text-center">
-                    <p class="text-lg font-semibold mb-4">${message}</p>
-                    <button id="alert-ok-btn" class="create-account-btn text-white px-4 py-2 rounded-lg bg-primary hover:bg-primary-hover transition duration-150">OK</button>
-                </div>
-            `;
-            document.body.appendChild(box);
-            
-            // OKボタンを取得して返却 (イベントリスナーを外側で設定できるように)
-            const okButton = box.querySelector('#alert-ok-btn');
-            okButton.onclick = () => box.remove(); // デフォルトの閉じる動作
-            return { alertBox: box, okButton: okButton };
-        }
-
-        // Firebaseの初期化と匿名認証
-        async function initializeFirebase() {
-             // 設定がなければ致命的なエラーとし、機能しないことをコンソールに通知
-            if (Object.keys(firebaseConfig).length === 0 || !firebaseConfig.apiKey) {
-                console.error("Firebase config is missing. Signup functionality is disabled.");
-                showErrorMessage("システムの初期化中にエラーが発生しました。認証機能は利用できません。");
-                return;
-            }
-
-            try {
-                app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                    console.log("Custom token sign-in successful.");
-                } else {
-                    await signInAnonymously(auth);
-                    console.log("Anonymous sign-in successful.");
-                }
-
-            } catch (error) {
-                console.error("Firebase Initialization or Auth Error:", error);
-                showErrorMessage("システムの初期化中にエラーが発生しました。");
-            }
-        }
-
-        // フォーム検証とボタン状態の更新
-        function checkFormValidity() {
-            const form = document.getElementById('signup-form');
-            const submitBtn = document.getElementById('submit-btn');
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirm-password').value;
-            const isTermsChecked = document.getElementById('terms').checked;
-            
-            // パスワードが一致しているかのカスタム検証
-            const isPasswordMatch = password === confirmPassword && password.length >= 8;
-            
-            // HTMLの組み込みバリデーションとカスタム検証の両方を確認
-            const isFormValid = form.checkValidity() && isPasswordMatch && isTermsChecked;
-            submitBtn.disabled = !isFormValid;
-        }
-
-        // 新規登録処理
-        async function handleSignup(e) {
-            e.preventDefault();
-            document.getElementById('message-box').classList.add('hidden'); // エラーメッセージをリセット
-
-            // authオブジェクトが存在しない（初期化に失敗した）場合は処理を停止
-            if (!auth) {
-                 showErrorMessage("認証機能が初期化されていないため、登録できません。");
-                 return;
-            }
-            
-            const name = document.getElementById('name').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const confirmPassword = document.getElementById('confirm-password').value;
-            const submitBtn = document.getElementById('submit-btn');
-
-            if (password !== confirmPassword) {
-                showErrorMessage('パスワードが一致していません。');
-                return;
-            }
-
-            submitBtn.disabled = true;
-            submitBtn.textContent = '登録処理中...';
-
-            try {
-                // FirebaseでEメールとパスワードを使用してユーザーを作成
-                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                
-                // ユーザープロフィール (表示名) を更新
-                await updateProfile(userCredential.user, {
-                    displayName: name
-                });
-
-                console.log("Signup successful:", userCredential.user.uid);
-                
-                // 成功時の処理: ログイン後の画面へリダイレクト
-                const { alertBox, okButton } = customAlert(`新規登録に成功しました！ようこそ、${name}さん。`); 
-                
-                // 成功後、カスタムアラートが閉じられたらindex.htmlへリダイレクト
-                okButton.onclick = () => {
-                    alertBox.remove();
-                    window.location.href = 'index.html'; 
-                };
-
-            } catch (error) {
-                console.error("Signup Error:", error.code, error.message);
-                
-                let userMessage = '新規登録に失敗しました。';
-                if (error.code === 'auth/email-already-in-use') {
-                    userMessage = 'このメールアドレスは既に使用されています。';
-                } else if (error.code === 'auth/weak-password') {
-                    userMessage = 'パスワードは最低6文字以上で設定してください。';
-                } else if (error.code === 'auth/invalid-email') {
-                    userMessage = '無効なメールアドレス形式です。';
-                } else {
-                    userMessage = `新規登録に失敗しました: ${error.message}`;
-                }
-                
-                showErrorMessage(userMessage);
-
-            } finally {
-                // エラー発生後も、フォームの検証に基づいてボタンの状態を更新
-                checkFormValidity(); 
-                submitBtn.textContent = 'アカウントを作成';
-            }
-        }
-
-        // 初期化とイベントリスナーの設定
-        window.onload = async () => {
-            await initializeFirebase();
-            
-            const form = document.getElementById('signup-form');
-            if (form) {
-                // フォームの入力内容が変わるたびにボタンの状態をチェック
-                form.addEventListener('input', checkFormValidity);
-                form.addEventListener('submit', handleSignup);
-            }
-            
-            // 初回チェック
-            checkFormValidity();
-        };
-    </script>
+    };
+</script>
 </body>
 </html>
