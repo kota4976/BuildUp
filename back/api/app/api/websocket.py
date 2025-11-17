@@ -154,6 +154,39 @@ async def websocket_chat(
                     # Respond to ping
                     await websocket.send_json({"type": "pong"})
                 
+                # WebRTCシグナリングメッセージの処理
+                elif message_type in ["offer", "answer", "ice-candidate", "reject", "end"]:
+                    # WebRTCシグナリングメッセージを相手に転送
+                    target_user_id = data.get("target_user_id")
+                    if not target_user_id:
+                        await websocket.send_json({
+                            "type": "error",
+                            "message": "target_user_id is required for signaling messages"
+                        })
+                        continue
+                    
+                    # 送信者情報を追加
+                    signaling_data = {
+                        "type": message_type,
+                        "sender_id": str(current_user.id),
+                        "sender_name": current_user.handle or "Unknown",
+                        "conversation_id": conversation_id
+                    }
+                    
+                    # メッセージタイプに応じたデータを追加
+                    if message_type == "offer":
+                        signaling_data["sdp"] = data.get("sdp")
+                        signaling_data["is_video"] = data.get("is_video", True)
+                    elif message_type == "answer":
+                        signaling_data["sdp"] = data.get("sdp")
+                    elif message_type == "ice-candidate":
+                        signaling_data["candidate"] = data.get("candidate")
+                    
+                    # 相手にシグナリングメッセージを送信
+                    await manager.send_to_user(target_user_id, signaling_data)
+                    
+                    logger.info(f"Signaling message {message_type} sent from {current_user.id} to {target_user_id}")
+                
                 else:
                     await websocket.send_json({
                         "type": "error",
@@ -269,6 +302,39 @@ async def websocket_group_chat(
                 elif message_type == "ping":
                     # Respond to ping
                     await websocket.send_json({"type": "pong"})
+                
+                # WebRTCシグナリングメッセージの処理（グループチャット用）
+                elif message_type in ["offer", "answer", "ice-candidate", "reject", "end"]:
+                    # WebRTCシグナリングメッセージを相手に転送
+                    target_user_id = data.get("target_user_id")
+                    if not target_user_id:
+                        await websocket.send_json({
+                            "type": "error",
+                            "message": "target_user_id is required for signaling messages"
+                        })
+                        continue
+                    
+                    # 送信者情報を追加
+                    signaling_data = {
+                        "type": message_type,
+                        "sender_id": str(current_user.id),
+                        "sender_name": current_user.handle or "Unknown",
+                        "conversation_id": group_conversation_id
+                    }
+                    
+                    # メッセージタイプに応じたデータを追加
+                    if message_type == "offer":
+                        signaling_data["sdp"] = data.get("sdp")
+                        signaling_data["is_video"] = data.get("is_video", True)
+                    elif message_type == "answer":
+                        signaling_data["sdp"] = data.get("sdp")
+                    elif message_type == "ice-candidate":
+                        signaling_data["candidate"] = data.get("candidate")
+                    
+                    # 相手にシグナリングメッセージを送信
+                    await manager.send_to_user(target_user_id, signaling_data)
+                    
+                    logger.info(f"Group signaling message {message_type} sent from {current_user.id} to {target_user_id}")
                 
                 else:
                     await websocket.send_json({

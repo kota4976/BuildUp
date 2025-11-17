@@ -4,6 +4,9 @@
  * (チャット作成ロジックは外部ファイルに分離されています)
  */
 
+// WebRTCマネージャーをインポート
+import { webrtcManager } from './webrtc.js';
+
 // API設定
 // nginx経由でアクセスするため相対パスを使用
 const API_BASE_URL = '/api/v1';
@@ -19,6 +22,15 @@ let currentIsGroupChat = false;  // 現在のチャットがグループチャ�
 let websocket = null;
 export let matches = []; // 外部（chatCreate.js）で更新されるためexport
 export let userCache = {}; // 外部（chatCreate.js）で利用されるためexport
+let currentOtherUserId = null;  // 現在のチャット相手のユーザーID
+let currentPartnerName = null;  // 現在のチャット相手の名前
+
+/**
+ * 現在のWebSocket接続を取得（WebRTC用）
+ */
+window.getCurrentWebSocket = function() {
+    return websocket;
+};
 
 /**
  * JWTトークンを取得 (exportを追加)
@@ -386,6 +398,8 @@ export async function selectMatch(match, otherUser) {
     }
 
     currentMatchId = match.id;
+    currentOtherUserId = otherUser.id;
+    currentPartnerName = otherUser.handle || 'Unknown User';
 
     // アクティブなマッチのハイライトを更新
     document.querySelectorAll('.chat-item').forEach(item => {
@@ -698,6 +712,10 @@ function connectWebSocket(conversationId, isGroupChat = false) {
             } else if (data.type === 'error') {
                 console.error('WebSocketエラー:', data.message);
                 showError(data.message);
+            } 
+            // WebRTCシグナリングメッセージの処理
+            else if (['offer', 'answer', 'ice-candidate', 'reject', 'end'].includes(data.type)) {
+                webrtcManager.handleSignalingMessage(data);
             }
         };
 
@@ -783,6 +801,99 @@ function handleBackToList() {
 // displayUserSearchResults, renderSelectedMembers, initChatCreationModal
 // ---------------------------------------------------------------------
 
+
+/**
+ * 通話ボタンの初期化 (exportを追加)
+ */
+export function initCallButtons() {
+    // ヘッダーの音声通話ボタン
+    const audioCallButtons = document.querySelectorAll('[data-lucide="phone"]');
+    audioCallButtons.forEach(button => {
+        // 親要素がボタンの場合のみイベントを追加
+        const parentButton = button.closest('button');
+        if (parentButton && parentButton.id !== 'accept-call' && parentButton.id !== 'reject-call') {
+            parentButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                startAudioCall();
+            });
+        }
+    });
+
+    // ヘッダーのビデオ通話ボタン
+    const videoCallButtons = document.querySelectorAll('[data-lucide="video"]');
+    videoCallButtons.forEach(button => {
+        // 親要素がボタンの場合のみイベントを追加
+        const parentButton = button.closest('button');
+        if (parentButton && parentButton.id !== 'toggle-video') {
+            parentButton.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                startVideoCall();
+            });
+        }
+    });
+    
+    console.log('通話ボタンの初期化が完了しました');
+}
+
+/**
+ * 音声通話を開始
+ */
+function startAudioCall() {
+    if (!currentConversationId || !currentOtherUserId || !currentPartnerName) {
+        alert('チャットを選択してください。');
+        return;
+    }
+
+    if (!websocket || websocket.readyState !== WebSocket.OPEN) {
+        alert('チャット接続が確立されていません。');
+        return;
+    }
+
+    console.log('音声通話を開始:', {
+        conversationId: currentConversationId,
+        partnerId: currentOtherUserId,
+        partnerName: currentPartnerName
+    });
+
+    webrtcManager.startCall(
+        currentConversationId,
+        currentOtherUserId,
+        currentPartnerName,
+        false, // 音声のみ
+        websocket
+    );
+}
+
+/**
+ * ビデオ通話を開始
+ */
+function startVideoCall() {
+    if (!currentConversationId || !currentOtherUserId || !currentPartnerName) {
+        alert('チャットを選択してください。');
+        return;
+    }
+
+    if (!websocket || websocket.readyState !== WebSocket.OPEN) {
+        alert('チャット接続が確立されていません。');
+        return;
+    }
+
+    console.log('ビデオ通話を開始:', {
+        conversationId: currentConversationId,
+        partnerId: currentOtherUserId,
+        partnerName: currentPartnerName
+    });
+
+    webrtcManager.startCall(
+        currentConversationId,
+        currentOtherUserId,
+        currentPartnerName,
+        true, // ビデオあり
+        websocket
+    );
+}
 
 /**
  * 初期化 (exportを追加)
