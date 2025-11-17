@@ -90,7 +90,8 @@
 
 <script type="module">
     // APIリファレンスに基づく設定
-    const API_BASE_URL = 'http://localhost:8080/api/v1';
+    // nginx経由でアクセスするため相対パスを使用
+    const API_BASE_URL = '/api/v1';
 
     // --- UI要素の取得 ---
     const githubBtn = document.getElementById('github-btn');

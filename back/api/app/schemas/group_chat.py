@@ -6,9 +6,15 @@ from app.models.group_chat import MemberRole
 
 
 class GroupConversationCreate(BaseModel):
-    """Schema for creating a group conversation"""
+    """Schema for creating a project-based group conversation"""
     project_id: UUID4
     name: str = Field(..., min_length=1, max_length=200)
+
+
+class GeneralGroupCreate(BaseModel):
+    """Schema for creating a general group conversation (not project-based)"""
+    name: str = Field(..., min_length=1, max_length=200)
+    member_ids: List[UUID4] = Field(..., min_items=1, description="Initial member IDs")
 
 
 class GroupMemberResponse(BaseModel):
@@ -36,7 +42,7 @@ class GroupMessageResponse(BaseModel):
 class GroupConversationResponse(BaseModel):
     """Group conversation response schema"""
     id: UUID4
-    project_id: UUID4
+    project_id: Optional[UUID4] = None  # Optional: None for general groups
     name: str
     created_at: datetime
     updated_at: datetime
@@ -49,7 +55,7 @@ class GroupConversationResponse(BaseModel):
 class GroupConversationDetailResponse(BaseModel):
     """Detailed group conversation with messages"""
     id: UUID4
-    project_id: UUID4
+    project_id: Optional[UUID4] = None  # Optional: None for general groups
     name: str
     created_at: datetime
     updated_at: datetime

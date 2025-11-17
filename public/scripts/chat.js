@@ -5,16 +5,17 @@
  */
 
 // API設定
-const API_HOST_PORT = 'localhost:8080';
-const API_BASE_URL = `http://${API_HOST_PORT}/api/v1`;
-// WebSocket URLも修正
+// nginx経由でアクセスするため相対パスを使用
+const API_BASE_URL = '/api/v1';
+// WebSocket URLも相対パスを使用
 const WS_PROTOCOL = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-const WS_BASE_URL = `${WS_PROTOCOL}//${API_HOST_PORT}/ws`;
+const WS_BASE_URL = `${WS_PROTOCOL}//${window.location.host}/ws`;
 
 // グローバル変数 (exportを追加)
 export let currentUser = null;
 let currentMatchId = null;
 let currentConversationId = null;
+let currentIsGroupChat = false;  // 現在のチャットがグループチャットかどうか
 let websocket = null;
 export let matches = []; // 外部（chatCreate.js）で更新されるためexport
 export let userCache = {}; // 外部（chatCreate.js）で利用されるためexport
@@ -44,7 +45,7 @@ async function getCurrentUser() {
 
         if (!response.ok) {
             if (response.status === 401) {
-                window.location.href = '/public/login.html';
+                window.location.href = '/login.html';
                 return null;
             }
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -54,7 +55,7 @@ async function getCurrentUser() {
     } catch (error) {
         console.error('現在のユーザー情報の取得に失敗しました:', error);
         // グローバルな showError を直接呼び出す
-        showError('認証に失敗しました。 <a href="/public/login.html">ログイン</a> してください。');
+        showError('認証に失敗しました。 <a href="/login.html">ログイン</a> してください。');
         return null;
     }
 }
@@ -92,7 +93,7 @@ export async function getUserInfo(userId) {
 // ---------------------------------------------------------------------
 
 /**
- * マッチ一覧を取得
+ * マッチ（1対1）とグループチャット一覧を取得
  */
 async function fetchMatches() {
     try {
@@ -101,41 +102,93 @@ async function fetchMatches() {
             throw new Error('認証トークンがありません');
         }
 
-        const response = await fetch(`${API_BASE_URL}/matches/me/matches`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        });
+        const headers = { 'Authorization': `Bearer ${token}` };
 
-        if (!response.ok) {
-            if (response.status === 401) {
-                window.location.href = '/public/login.html';
-                return [];
-            }
-            throw new Error(`HTTP error! status: ${response.status}`);
+        const [matchesResponse, groupsResponse] = await Promise.all([
+            fetch(`${API_BASE_URL}/matches/me/matches`, { headers }),
+            fetch(`${API_BASE_URL}/group-chats`, { headers })
+        ]);
+
+        if (matchesResponse.status === 401 || groupsResponse.status === 401) {
+            window.location.href = '/login.html';
+            return [];
         }
 
-        const data = await response.json();
-        return data.matches || [];
+        if (!matchesResponse.ok) {
+            throw new Error(`マッチ一覧の取得に失敗しました (status: ${matchesResponse.status})`);
+        }
+
+        const matchesData = await matchesResponse.json();
+        const directMatches = (matchesData.matches || []).map(match => ({
+            ...match,
+            is_group_chat: false
+        }));
+
+        if (!groupsResponse.ok) {
+            const message = await extractErrorMessage(groupsResponse, 'グループチャット一覧の取得に失敗しました。');
+            throw new Error(message);
+        }
+
+        const groupData = await groupsResponse.json();
+        const groupMatches = Array.isArray(groupData)
+            ? groupData.map(group => ({
+                id: group.id,
+                is_group_chat: true,
+                group_info: {
+                    name: group.name,
+                    avatar_url: group.avatar_url || null,
+                    member_count: group.members ? group.members.length : 0
+                },
+                members: group.members || [],
+                created_at: group.created_at,
+                updated_at: group.updated_at
+            }))
+            : [];
+
+        return [...directMatches, ...groupMatches];
     } catch (error) {
-        console.error('マッチ一覧の取得に失敗しました:', error);
-        // グローバルな showError を直接呼び出す
-        showError('マッチ一覧の取得に失敗しました。');
+        console.error('チャット一覧の取得に失敗しました:', error);
+        showError(error.message || 'チャット一覧の取得に失敗しました。');
         return [];
     }
 }
 
 /**
- * 会話履歴を取得
+ * Fetchレスポンスからエラーメッセージを抽出
  */
-async function fetchConversation(matchId) {
+async function extractErrorMessage(response, fallbackMessage) {
+    try {
+        const data = await response.json();
+        if (data?.detail) {
+            return data.detail;
+        }
+        if (data?.message) {
+            return data.message;
+        }
+    } catch (e) {
+        // JSON以外のレスポンスの場合は無視
+    }
+    return fallbackMessage;
+}
+
+/**
+ * 会話履歴を取得
+ * @param {string} matchId - マッチIDまたはグループチャットID
+ * @param {boolean} isGroupChat - グループチャットの場合true
+ */
+async function fetchConversation(matchId, isGroupChat = false) {
     try {
         const token = getAuthToken();
         if (!token) {
             throw new Error('認証トークンがありません');
         }
 
-        const response = await fetch(`${API_BASE_URL}/matches/${matchId}/conversation?limit=50`, {
+        // グループチャットとダイレクトチャットで異なるエンドポイントを使用
+        const endpoint = isGroupChat 
+            ? `${API_BASE_URL}/group-chats/${matchId}?limit=50`
+            : `${API_BASE_URL}/matches/${matchId}/conversation?limit=50`;
+
+        const response = await fetch(endpoint, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -143,7 +196,7 @@ async function fetchConversation(matchId) {
 
         if (!response.ok) {
             if (response.status === 401) {
-                window.location.href = '/public/login.html';
+                window.location.href = '/login.html';
                 return null;
             }
             throw new Error(`HTTP error! status: ${response.status}`);
@@ -185,7 +238,7 @@ export async function renderMatchList(matches) {
                 let lastMessage = null;
 
                 try {
-                    const conversation = await fetchConversation(match.id);
+                    const conversation = await fetchConversation(match.id, true);  // グループチャットフラグを渡す
                     if (conversation && conversation.messages && conversation.messages.length > 0) {
                         lastMessage = conversation.messages[conversation.messages.length - 1];
                     }
@@ -206,7 +259,7 @@ export async function renderMatchList(matches) {
                 let lastMessage = null;
 
                 try {
-                    const conversation = await fetchConversation(match.id);
+                    const conversation = await fetchConversation(match.id, false);  // ダイレクトチャットフラグを渡す
                     if (conversation && conversation.messages && conversation.messages.length > 0) {
                         lastMessage = conversation.messages[conversation.messages.length - 1];
                     }
@@ -383,6 +436,7 @@ export async function selectMatch(match, otherUser) {
     }
 
     currentConversationId = conversation.id;
+    currentIsGroupChat = false;  // ダイレクトチャット
 
     // メッセージをレンダリング
     renderMessages(conversation.messages);
@@ -391,7 +445,7 @@ export async function selectMatch(match, otherUser) {
     document.getElementById('message-input-area').classList.remove('hidden');
 
     // WebSocket接続
-    connectWebSocket(conversation.id);
+    connectWebSocket(conversation.id, false);
 }
 
 /**
@@ -444,13 +498,14 @@ export async function selectGroupChat(match, groupInfo) {
         document.getElementById('chat-window').style.display = 'flex';
     }
 
-    // 会話履歴を取得
-    const conversation = await fetchConversation(match.id);
+    // 会話履歴を取得（グループチャット）
+    const conversation = await fetchConversation(match.id, true);
     if (!conversation) {
         return;
     }
 
     currentConversationId = conversation.id;
+    currentIsGroupChat = true;  // グループチャット
 
     // メッセージをレンダリング
     renderMessages(conversation.messages);
@@ -459,7 +514,7 @@ export async function selectGroupChat(match, groupInfo) {
     document.getElementById('message-input-area').classList.remove('hidden');
 
     // WebSocket接続
-    connectWebSocket(conversation.id);
+    connectWebSocket(conversation.id, true);
 }
 
 /**
@@ -517,7 +572,7 @@ async function appendMessage(message, isOwnMessage = null) {
     const messageHtml = isOwnMessage
         ? `
         <div class="flex justify-end mb-4 group" data-message-id="${message.id}">
-            <div class="max-w-xs md:max-w-md lg:max-w-lg flex flex-col items-end">
+            <div class="max-w-sm md:max-w-md lg:max-w-lg xl:max-w-2xl flex flex-col items-end">
                 <div class="message-bubble user text-sm text-white shadow-lg">
                     ${escapeHtml(message.body)}
                 </div>
@@ -531,7 +586,7 @@ async function appendMessage(message, isOwnMessage = null) {
                  alt="${senderInfo?.handle || 'Unknown'}" 
                  class="w-10 h-10 rounded-full object-cover mr-3 flex-shrink-0 border-2 border-gray-200 shadow-sm"
                  onerror="this.onerror=null; this.src='https://placehold.co/32x32/f0f0f0/666?text=U'">
-            <div class="max-w-xs md:max-w-md lg:max-w-lg flex flex-col">
+            <div class="max-w-sm md:max-w-md lg:max-w-lg xl:max-w-2xl flex flex-col">
                 <p class="text-xs font-semibold text-gray-700 mb-1.5">${senderInfo?.handle || 'Unknown User'}</p>
                 <div class="message-bubble other text-sm text-gray-900 shadow-md">
                     ${escapeHtml(message.body)}
@@ -607,16 +662,23 @@ function escapeHtml(text) {
 
 /**
  * WebSocket接続
+ * @param {string} conversationId - 会話ID
+ * @param {boolean} isGroupChat - グループチャットの場合true
  */
-function connectWebSocket(conversationId) {
+function connectWebSocket(conversationId, isGroupChat = false) {
     const token = getAuthToken();
     if (!token) {
         console.error('認証トークンがありません');
         return;
     }
 
-    // WebSocket URLを構築
-    const wsUrl = `${WS_BASE_URL}/chat?conversation_id=${conversationId}&token=${encodeURIComponent(token)}`;
+    // グループチャットとダイレクトチャットで異なるエンドポイントとパラメータを使用
+    let wsUrl;
+    if (isGroupChat) {
+        wsUrl = `${WS_BASE_URL}/group-chat?group_conversation_id=${conversationId}&token=${encodeURIComponent(token)}`;
+    } else {
+        wsUrl = `${WS_BASE_URL}/chat?conversation_id=${conversationId}&token=${encodeURIComponent(token)}`;
+    }
 
     try {
         websocket = new WebSocket(wsUrl);
@@ -649,7 +711,7 @@ function connectWebSocket(conversationId) {
             if (currentConversationId) {
                 setTimeout(() => {
                     if (currentConversationId === conversationId) {
-                        connectWebSocket(conversationId);
+                        connectWebSocket(conversationId, currentIsGroupChat);
                     }
                 }, 3000);
             }

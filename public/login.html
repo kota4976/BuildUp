@@ -1,103 +1,127 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ログイン - BuildUp</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
 
     <style>
-        /* CSSカスタムスタイル (Tailwindでカバーしきれない部分の補完とテーマカラー設定) */
-        :root {
-            --primary-color: #3f51b5; /* BuildUp Primary Blue (indigo-600に近い色) */
-            --primary-hover: #4f60c8;
-            --bg-light: #f4f7f9;
-        }
+      /* CSSカスタムスタイル (Tailwindでカバーしきれない部分の補完とテーマカラー設定) */
+      :root {
+        --primary-color: #3f51b5; /* BuildUp Primary Blue (indigo-600に近い色) */
+        --primary-hover: #4f60c8;
+        --bg-light: #f4f7f9;
+      }
 
-        /* カスタムカラークラスの定義 */
-        .bg-primary { background-color: var(--primary-color); }
-        .hover\:bg-primary-hover:hover { background-color: var(--primary-hover); }
-        .text-primary { color: var(--primary-color); }
-        .focus\:ring-primary:focus { --tw-ring-color: var(--primary-color); }
+      /* カスタムカラークラスの定義 */
+      .bg-primary {
+        background-color: var(--primary-color);
+      }
+      .hover\:bg-primary-hover:hover {
+        background-color: var(--primary-hover);
+      }
+      .text-primary {
+        color: var(--primary-color);
+      }
+      .focus\:ring-primary:focus {
+        --tw-ring-color: var(--primary-color);
+      }
 
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-light);
-            min-height: 100vh;
-            margin: 0;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
+      body {
+        font-family: "Inter", sans-serif;
+        background-color: var(--bg-light);
+        min-height: 100vh;
+        margin: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+      }
 
-        /* ロゴの元のスタイル指定を維持（画像パスへの依存） */
-        .logo-container {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-        }
-        .logo-container img {
-            max-width: 250px; /* 元のCSSの最大幅を維持 */
-            height: auto;
-            display: block;
-            margin: 0 auto;
-        }
+      /* ロゴの元のスタイル指定を維持（画像パスへの依存） */
+      .logo-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 20px;
+      }
+      .logo-container img {
+        max-width: 250px; /* 元のCSSの最大幅を維持 */
+        height: auto;
+        display: block;
+        margin: 0 auto;
+      }
 
-        /* ソーシャルボタンの調整 */
-        .social-login-grid {
-            display: flex;
-            gap: 10px;
-        }
+      /* ソーシャルボタンの調整 */
+      .social-login-grid {
+        display: flex;
+        gap: 10px;
+      }
 
-        .social-btn {
-            flex: 1; /* flex: 1を維持して幅を均等に */
-            transition: all 0.2s ease-in-out;
-        }
+      .social-btn {
+        flex: 1; /* flex: 1を維持して幅を均等に */
+        transition: all 0.2s ease-in-out;
+      }
     </style>
-</head>
-<body class="min-h-screen flex items-center justify-center p-4">
-
-<div id="login-container" class="w-full max-w-md bg-white p-8 sm:p-10 rounded-xl shadow-2xl border border-gray-200">
-
-    <div class="header text-center mb-8">
+  </head>
+  <body class="min-h-screen flex items-center justify-center p-4">
+    <div
+      id="login-container"
+      class="w-full max-w-md bg-white p-8 sm:p-10 rounded-xl shadow-2xl border border-gray-200"
+    >
+      <div class="header text-center mb-8">
         <div class="logo-container">
-            <img src="images/BuildUp-logo.jpg" alt="BuildUp ロゴ">
+          <img src="images/BuildUp-logo.jpg" alt="BuildUp ロゴ" />
         </div>
 
         <h1 class="text-2xl font-bold text-gray-900 mb-1">ログイン</h1>
         <p class="text-sm text-gray-500">アカウントにサインインしてください</p>
-    </div>
+      </div>
 
-    <div id="message-box" class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md relative mb-4" role="alert">
+      <div
+        id="message-box"
+        class="hidden bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded-md relative mb-4"
+        role="alert"
+      >
         <strong class="font-bold">エラー: </strong>
         <span id="error-message" class="block sm:inline"></span>
-    </div>
+      </div>
 
-
-    <div class="social-login-grid mt-8">
-        <button id="github-btn" class="social-btn w-full flex items-center justify-center py-3 border border-gray-300 rounded-xl bg-white text-gray-700 font-medium hover:bg-gray-50 transition duration-150">
-            <i class="fab fa-github text-lg mr-3"></i> <span>GitHubでログイン</span>
+      <div class="social-login-grid mt-8">
+        <button
+          id="github-btn"
+          class="social-btn w-full flex items-center justify-center py-3 border border-gray-300 rounded-xl bg-white text-gray-700 font-medium hover:bg-gray-50 transition duration-150"
+        >
+          <i class="fab fa-github text-lg mr-3"></i>
+          <span>GitHubでログイン</span>
         </button>
+      </div>
+
+      <p class="signup-link text-center mt-8 text-gray-600 text-sm">
+        アカウントをお持ちでない方は
+        <a
+          href="signup.html"
+          class="font-bold text-primary hover:underline transition duration-150"
+          >新規登録</a
+        >
+      </p>
     </div>
 
-    <p class="signup-link text-center mt-8 text-gray-600 text-sm">
-        アカウントをお持ちでない方は
-        <a href="signup.html" class="font-bold text-primary hover:underline transition duration-150">新規登録</a>
-    </p>
-</div>
+    <script type="module">
+      // APIリファレンスに基づく設定
+      // nginx経由でアクセスするため相対パスを使用
+      const API_BASE_URL = "/api/v1";
 
-<script type="module">
-    // APIリファレンスに基づく設定
-    const API_BASE_URL = 'http://localhost:8080/api/v1';
+      // --- UI要素の取得 ---
+      const githubBtn = document.getElementById("github-btn");
 
-    // --- UI要素の取得 ---
-    const githubBtn = document.getElementById('github-btn');
-
-    // --- GitHubログインボタンの処理 ---
-    function handleGithubLogin(e) {
+      // --- GitHubログインボタンの処理 ---
+      function handleGithubLogin(e) {
         e.preventDefault();
 
         // APIリファレンスに従い、GitHub認証ページにリダイレクト
@@ -105,15 +129,15 @@
 
         // ユーザーをGitHubの認証ページに遷移させる
         window.location.href = githubLoginUrl;
-    }
+      }
 
-    // --- 初期化とイベントリスナーの設定 ---
-    window.onload = () => {
+      // --- 初期化とイベントリスナーの設定 ---
+      window.onload = () => {
         // GitHubボタンにイベントリスナーを設定
         if (githubBtn) {
-            githubBtn.addEventListener('click', handleGithubLogin);
+          githubBtn.addEventListener("click", handleGithubLogin);
         }
-    };
-</script>
-</body>
+      };
+    </script>
+  </body>
 </html>

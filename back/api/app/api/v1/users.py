@@ -58,6 +58,7 @@ async def search_users(
     # ただし、完全なクエリをログに出すには、SQLAlchemyの機能を正しく使う必要があります。
     # ここでは簡易的なログ出力にとどめます。
 
+    # handleで検索
     query_filter = User.deleted_at.is_(None) & (User.handle.ilike(search_pattern))
 
     # 検索ロジックの実行

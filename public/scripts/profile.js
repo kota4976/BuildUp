@@ -1,5 +1,6 @@
 // --- API呼び出しの設定 ---
-const API_BASE_URL = 'http://localhost:8080/api/v1';
+// nginx経由でアクセスするため相対パスを使用
+const API_BASE_URL = '/api/v1';
 
 // --- グローバル変数 ---
 let currentUserBio = "";
@@ -44,7 +45,7 @@ async function fetchMyInfo(tokenToUse) {
             const errorData = await response.json();
             console.error(`❌ 認証失敗 (ステータス: ${response.status})`, errorData);
             localStorage.removeItem('access_token');
-            window.location.href = '/public/login.html?error=invalid_token';
+            window.location.href = '/login.html?error=invalid_token';
         }
     } catch (error) {
         console.error("ネットワークエラーが発生しました:", error);
@@ -232,12 +233,24 @@ async function searchSkillsAPI(query) {
 
 function renderSkillSearchResults(skills) {
     const skillSearchResults = document.getElementById('skill-search-results');
+    const searchInput = document.getElementById('skill-search-input');
+    const searchQuery = searchInput ? searchInput.value.trim() : '';
+    
     skillSearchResults.innerHTML = '';
-    if (skills.length === 0) {
-        skillSearchResults.innerHTML = '<div class="skill-search-item">見つかりません</div>';
+    
+    if (skills.length === 0 && searchQuery) {
+        // 検索結果がない場合、新規作成ボタンを表示
+        skillSearchResults.innerHTML = `
+            <div class="skill-search-item skill-search-no-result">検索結果がありません</div>
+            <div class="skill-search-item skill-create-btn" data-skill-name="${escapeHTML(searchQuery)}">
+                <i class="fa-solid fa-plus"></i> 「${escapeHTML(searchQuery)}」を新規作成
+            </div>
+        `;
         skillSearchResults.style.display = 'block';
         return;
     }
+    
+    // 検索結果を表示
     skills.forEach(skill => {
         const item = document.createElement('div');
         item.className = 'skill-search-item';
@@ -246,6 +259,16 @@ function renderSkillSearchResults(skills) {
         item.dataset.skillName = escapeHTML(skill.name);
         skillSearchResults.appendChild(item);
     });
+    
+    // 検索語句と完全一致するスキルがない場合、新規作成ボタンも追加
+    if (searchQuery && !skills.some(s => s.name.toLowerCase() === searchQuery.toLowerCase())) {
+        const createBtn = document.createElement('div');
+        createBtn.className = 'skill-search-item skill-create-btn';
+        createBtn.dataset.skillName = escapeHTML(searchQuery);
+        createBtn.innerHTML = `<i class="fa-solid fa-plus"></i> 「${escapeHTML(searchQuery)}」を新規作成`;
+        skillSearchResults.appendChild(createBtn);
+    }
+    
     skillSearchResults.style.display = 'block';
 }
 
@@ -289,6 +312,40 @@ function addSkillToModalList(skillId, skillName) {
     }
     document.getElementById('skill-search-input').value = '';
     document.getElementById('skill-search-results').style.display = 'none';
+}
+
+async function createNewSkill(skillName) {
+    const token = localStorage.getItem('access_token');
+    if (!token) {
+        window.location.href = '/login.html';
+        return null;
+    }
+    
+    try {
+        const endpoint = `${API_BASE_URL}/skills`;
+        const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name: skillName })
+        });
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.detail || 'スキルの作成に失敗しました');
+        }
+        
+        const newSkill = await response.json();
+        console.log('✅ スキル作成成功:', newSkill);
+        return newSkill;
+        
+    } catch (error) {
+        console.error('スキル作成エラー:', error);
+        alert(`エラー: ${error.message}`);
+        return null;
+    }
 }
 
 // --- スキル保存 (saveSkills) のロジック ---
@@ -383,10 +440,36 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
     if (skillSearchResults) {
-        skillSearchResults.addEventListener('click', (e) => {
+        skillSearchResults.addEventListener('click', async (e) => {
             const item = e.target.closest('.skill-search-item');
-            if (item && item.dataset.skillId) {
+            if (!item) return;
+            
+            // 既存のスキルをクリックした場合
+            if (item.dataset.skillId) {
                 addSkillToModalList(item.dataset.skillId, item.dataset.skillName);
+            }
+            // 新規作成ボタンをクリックした場合
+            else if (item.classList.contains('skill-create-btn')) {
+                const skillName = item.dataset.skillName;
+                if (!skillName) return;
+                
+                // ボタンを無効化して二重送信を防止
+                item.style.pointerEvents = 'none';
+                item.style.opacity = '0.6';
+                const originalText = item.innerHTML;
+                item.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 作成中...';
+                
+                const newSkill = await createNewSkill(skillName);
+                
+                if (newSkill) {
+                    // 作成成功したらモーダルリストに追加
+                    addSkillToModalList(newSkill.id, newSkill.name);
+                } else {
+                    // 失敗した場合はボタンを元に戻す
+                    item.style.pointerEvents = '';
+                    item.style.opacity = '';
+                    item.innerHTML = originalText;
+                }
             }
         });
     }
@@ -428,6 +511,8 @@ document.addEventListener('DOMContentLoaded', () => {
     if (token) {
         console.log("URLハッシュからトークンを取得しました。");
         localStorage.setItem('access_token', token);
+        // ヘッダーコンポーネントに認証状態の変更を通知
+        window.dispatchEvent(new Event('auth-state-changed'));
         window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
         fetchMyInfo(token);
 
@@ -438,7 +523,7 @@ document.addEventListener('DOMContentLoaded', () => {
             fetchMyInfo(token);
         } else {
             console.log("トークンが見つかりません。ログインページにリダイレクトします。");
-            window.location.href = '/public/login.html';
+            window.location.href = '/login.html';
         }
     }
 });

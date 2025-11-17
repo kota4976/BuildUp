@@ -11,17 +11,17 @@ from app.database import Base
 
 class MemberRole(str, enum.Enum):
     """Role of a member in group conversation"""
-    OWNER = "owner"
-    MEMBER = "member"
+    owner = "owner"
+    member = "member"
 
 
 class GroupConversation(Base):
-    """Group chat conversation for project collaboration"""
+    """Group chat conversation for project collaboration or general purpose"""
     __tablename__ = "group_conversations"
     
     id = Column(UUID(as_uuid=True), primary_key=True, default=uuid.uuid4)
-    project_id = Column(UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"), nullable=False, unique=True)
-    name = Column(Text, nullable=False)  # e.g., "Project ABC Team Chat"
+    project_id = Column(UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE"), nullable=True, unique=True)  # Optional: for project-based groups
+    name = Column(Text, nullable=False)  # e.g., "Project ABC Team Chat" or "My Friends"
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
     updated_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow, onupdate=datetime.utcnow)
     
@@ -37,7 +37,7 @@ class GroupMember(Base):
     
     group_conversation_id = Column(UUID(as_uuid=True), ForeignKey("group_conversations.id", ondelete="CASCADE"), nullable=False, primary_key=True)
     user_id = Column(UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE"), nullable=False, primary_key=True)
-    role = Column(SQLEnum(MemberRole), nullable=False, default=MemberRole.MEMBER)
+    role = Column(SQLEnum(MemberRole), nullable=False, default=MemberRole.member)
     joined_at = Column(DateTime(timezone=True), nullable=False, default=datetime.utcnow)
     
     # Relationships

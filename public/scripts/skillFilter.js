@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
     // APIのエンドポイント
-    const API_BASE_URL = 'http://localhost:8080/api/v1';
+    // nginx経由でアクセスするため相対パスを使用
+    const API_BASE_URL = '/api/v1';
 
     // スキルをフェッチしてHTMLに描画する
     const loadSkills = async () => {

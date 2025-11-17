@@ -1,7 +1,8 @@
 // scripts/applications.js
 
-// API設定 (FastAPIサーバーのポートに固定)
-const API_BASE_URL = 'http://localhost:8080/api/v1';
+// API設定
+// nginx経由でアクセスするため相対パスを使用
+const API_BASE_URL = '/api/v1';
 
 // グローバル変数
 let currentUser = null;
@@ -30,7 +31,7 @@ function escapeHtml(text) {
 async function getCurrentUser() {
     const token = getAuthToken();
     if (!token) {
-        window.location.href = '/public/login.html';
+        window.location.href = '/login.html';
         return null;
     }
 
@@ -41,7 +42,7 @@ async function getCurrentUser() {
 
         if (!response.ok) {
             localStorage.removeItem('access_token');
-            window.location.href = '/public/login.html';
+            window.location.href = '/login.html';
             return null;
         }
         return await response.json();
@@ -168,7 +169,7 @@ function renderApplications(applications, type) {
                 `;
             } else if (app.status === 'accepted') { // ★★★ 修正: 承認済みの場合はチャットボタンを表示 ★★★
                 footerHtml = `
-                    <a href="/public/chat.html" class="action-btn btn-primary">
+                    <a href="/chat.html" class="action-btn btn-primary">
                         <i data-lucide="message-square" class="w-5 h-5"></i> チャットを開始
                     </a>
                 `;
@@ -181,7 +182,7 @@ function renderApplications(applications, type) {
                 footerHtml = `<span class="text-sm text-gray-500">現在審査中です。</span>`;
             } else if (app.status === 'accepted') {
                 footerHtml = `
-                    <a href="/public/chat.html" class="action-btn btn-primary">
+                    <a href="/chat.html" class="action-btn btn-primary">
                         <i data-lucide="message-square" class="w-5 h-5"></i> チャットを開始
                     </a>
                  `;
