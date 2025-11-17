@@ -4,8 +4,8 @@
  */
 
 // 外部依存 (chat.js から引き継ぎ - モジュール外のAPI_BASE_URLに依存)
-const API_HOST_PORT = 'localhost:8080';
-const API_BASE_URL = `http://${API_HOST_PORT}/api/v1`;
+// nginx経由でアクセスするため相対パスを使用
+const API_BASE_URL = '/api/v1';
 
 // グローバル変数 (外部から参照/更新される可能性のある状態変数)
 // ※ selectedMembers のみ、このモジュール内で完結するため export しません。
@@ -66,7 +66,8 @@ export async function searchUsers(query) {
         const data = await response.json();
         // 以前表示されたかもしれないエラーメッセージをクリア
         document.getElementById('chat-list-error')?.classList.add('hidden');
-        return data.users || [];
+        // APIは配列を直接返す（data.usersではない）
+        return Array.isArray(data) ? data : (data.users || []);
     } catch (error) {
         if (error.message.includes('Failed to fetch') || error.message.includes('ERR_BLOCKED_BY_CLIENT')) {
             showError('ネットワーク接続エラー、またはAPIサーバーが停止/CORSブロックされています。');
@@ -122,7 +123,7 @@ export async function createGroupChat(groupName, memberIds) {
             throw new Error('認証トークンがありません');
         }
 
-        const response = await fetch(`${API_BASE_URL}/groups`, {
+        const response = await fetch(`${API_BASE_URL}/group-chats/general`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${token}`,
@@ -140,7 +141,7 @@ export async function createGroupChat(groupName, memberIds) {
         }
 
         const data = await response.json();
-        return data.group;
+        return data;  // APIは直接グループオブジェクトを返す
     } catch (error) {
         console.error('グループチャットの作成に失敗しました:', error);
         throw error;
@@ -456,8 +457,8 @@ export function initChatCreationModal(dependencies) {
                 is_group_chat: true,
                 group_info: {
                     name: group.name,
-                    avatar_url: group.avatar_url,
-                    member_count: group.member_count
+                    avatar_url: group.avatar_url || null,
+                    member_count: group.members ? group.members.length : 0
                 }
             };
             matches.push(groupMatch);

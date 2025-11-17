@@ -59,6 +59,72 @@
             display: inline-block; background-color: #eef2ff; color: #4338ca;
             padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; margin-right: 5px;
         }
+        
+        /* スキル検索結果のスタイル */
+        .skill-search-item {
+            padding: 10px;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .skill-search-item:last-child {
+            border-bottom: none;
+        }
+        .skill-search-item:hover {
+            background-color: #f0f0f0;
+        }
+        .skill-search-no-result {
+            color: #999;
+            font-style: italic;
+            cursor: default;
+        }
+        .skill-search-no-result:hover {
+            background-color: white;
+        }
+        .skill-create-btn {
+            background-color: #e8f5e9 !important;
+            color: #2e7d32;
+            font-weight: 600;
+            border-left: 3px solid #4caf50;
+        }
+        .skill-create-btn:hover {
+            background-color: #c8e6c9 !important;
+        }
+        .skill-create-btn i {
+            margin-right: 6px;
+        }
+        
+        /* スキル入力行のスタイル */
+        .skill-input-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 4px;
+            margin-bottom: 8px;
+        }
+        .skill-name-display {
+            flex-grow: 1;
+            font-weight: 600;
+        }
+        .skill-level-select {
+            padding: 5px 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            background: white;
+        }
+        .remove-skill-btn {
+            background-color: #f44336;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+        .remove-skill-btn:hover {
+            background-color: #d32f2f;
+        }
     </style>
 </head>
 <body>
@@ -116,9 +182,12 @@
 
             <div class="form-group">
                 <h3>Required Skills</h3>
-                <div id="skills-container">
+                <div class="skill-search-container">
+                    <input type="text" id="project-skill-search-input" placeholder="スキルを検索..." style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; margin-bottom: 10px;">
+                    <div id="project-skill-search-results" style="background: white; border: 1px solid #ddd; border-radius: 4px; max-height: 200px; overflow-y: auto; display: none;"></div>
                 </div>
-                <button type="button" id="add-skill-btn">+ Add Skill</button>
+                <div id="skills-container" style="margin-top: 15px;">
+                </div>
             </div>
 
             <div id="form-error" class="error-message" style="display: none;"></div>

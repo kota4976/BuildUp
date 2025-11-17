@@ -1,7 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
 
     // ▼▼▼ APIベースURLを関数の外に定義 ▼▼▼
-    const API_BASE_URL = 'http://localhost:8080/api/v1';
+    // nginx経由でアクセスするため相対パスを使用
+    const API_BASE_URL = '/api/v1';
 
     // --- 要素の取得 ---
     const projectGrid = document.getElementById('project-grid');
@@ -62,7 +63,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     const fetchAndRenderProjects = async (filters = {}) => {
         const { query, skill_id } = filters;
-        const url = new URL('projects', API_BASE_URL + '/');
+        const url = new URL(`${API_BASE_URL}/projects`, window.location.origin);
 
         if (query) { url.searchParams.append('query', query); }
         if (skill_id) { url.searchParams.append('skill_id', skill_id); }
@@ -179,7 +180,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (!token) {
             alert("ログインしてください。");
-            window.location.href = '/public/login.html';
+            window.location.href = '/login.html';
             return;
         }
 

@@ -202,7 +202,8 @@ async def github_callback(
         # Create JWT token
         jwt_token = create_access_token(data={"sub": str(user.id)})
 
-        FRONTEND_PROFILE_URL = "http://localhost:5500/public/profile.html"
+        # フロントエンドのプロファイルページURL（nginx経由）
+        FRONTEND_PROFILE_URL = "http://localhost/profile.html"
 
         # トークンをURLハッシュ（#）として渡す準備
         fragment_data = {
@@ -245,5 +246,5 @@ async def get_current_user_info(
     Returns:
         Current user information
     """
-    return UserResponse.from_orm(current_user)
+    return current_user
 

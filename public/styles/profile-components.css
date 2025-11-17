@@ -99,6 +99,26 @@
 }
 .skill-search-item { padding: 10px; cursor: pointer; }
 .skill-search-item:hover { background: #f0f0f0; }
+.skill-search-no-result {
+    color: #999;
+    font-style: italic;
+    cursor: default;
+}
+.skill-search-no-result:hover {
+    background: white;
+}
+.skill-create-btn {
+    background: #e8f5e9 !important;
+    color: #2e7d32;
+    font-weight: 600;
+    border-left: 3px solid #4caf50;
+}
+.skill-create-btn:hover {
+    background: #c8e6c9 !important;
+}
+.skill-create-btn i {
+    margin-right: 6px;
+}
 .selected-skills-title {
     font-size: 1rem; font-weight: 600; margin-top: 20px;
     margin-bottom: 10px; border-top: 1px solid #eee; padding-top: 16px;

@@ -22,10 +22,11 @@ Authorization: Bearer <jwt_token>
 GET /auth/github/login
 ```
 
-GitHubの認証ページにリダイレクトします。
+GitHub の認証ページにリダイレクトします。
 
 **クエリパラメータ**:
-- `state` (optional): CSRF保護用の状態パラメータ
+
+- `state` (optional): CSRF 保護用の状態パラメータ
 
 **レスポンス**: 302 Redirect
 
@@ -37,10 +38,11 @@ GitHubの認証ページにリダイレクトします。
 GET /auth/github/callback
 ```
 
-GitHub認証後のコールバック。JWTトークンを発行します。
+GitHub 認証後のコールバック。JWT トークンを発行します。
 
 **クエリパラメータ**:
-- `code` (required): GitHubの認証コード
+
+- `code` (required): GitHub の認証コード
 - `state` (optional): 状態パラメータ
 
 **レスポンス**: 200 OK
@@ -185,7 +187,7 @@ PUT /users/me/skills
 
 ---
 
-#### GitHubリポジトリ同期
+#### GitHub リポジトリ同期
 
 ```
 POST /users/me/repos/sync
@@ -193,7 +195,7 @@ POST /users/me/repos/sync
 
 🔒 **認証必要**
 
-GitHubからリポジトリ情報を取得して同期します。
+GitHub からリポジトリ情報を取得して同期します。
 
 **レスポンス**: 200 OK
 
@@ -214,6 +216,7 @@ GET /skills
 ```
 
 **クエリパラメータ**:
+
 - `query` (optional): 検索クエリ
 - `limit` (optional, default: 20): 最大取得数
 
@@ -231,6 +234,53 @@ GET /skills
       "name": "JavaScript"
     }
   ]
+}
+```
+
+---
+
+#### スキル作成
+
+```
+POST /skills
+```
+
+🔒 **認証必要**
+
+新しいスキルを作成します。既に同じ名前のスキルが存在する場合は、既存のスキルを返します。
+
+**リクエストボディ**:
+
+```json
+{
+  "name": "React"
+}
+```
+
+**レスポンス**: 201 Created
+
+```json
+{
+  "id": 15,
+  "name": "React"
+}
+```
+
+**エラーレスポンス**:
+
+- **400 Bad Request**: スキル名が空、または 100 文字を超える場合
+
+```json
+{
+  "detail": "スキル名を入力してください"
+}
+```
+
+- **500 Internal Server Error**: スキル作成に失敗した場合
+
+```json
+{
+  "detail": "スキルの作成に失敗しました"
 }
 ```
 
@@ -284,9 +334,10 @@ GET /projects
 ```
 
 **クエリパラメータ**:
+
 - `query` (optional): 検索クエリ（タイトル・説明）
-- `skill_id` (optional): スキルIDでフィルタ
-- `owner_id` (optional): オーナーIDでフィルタ
+- `skill_id` (optional): スキル ID でフィルタ
+- `owner_id` (optional): オーナー ID でフィルタ
 - `status` (optional): ステータスでフィルタ
 - `limit` (optional, default: 20): 最大取得数
 - `offset` (optional, default: 0): オフセット
@@ -614,8 +665,9 @@ GET /matches/{match_id}/conversation
 🔒 **認証必要**
 
 **クエリパラメータ**:
+
 - `limit` (optional, default: 50): 最大メッセージ数
-- `before_id` (optional): このメッセージIDより前のメッセージを取得
+- `before_id` (optional): このメッセージ ID より前のメッセージを取得
 
 **レスポンス**: 200 OK
 
@@ -712,8 +764,9 @@ GET /group-chats/{group_conversation_id}
 🔒 **認証必要**（メンバーのみ）
 
 **クエリパラメータ**:
+
 - `limit` (optional, default: 50): 最大メッセージ数
-- `before_id` (optional): このメッセージIDより前のメッセージを取得
+- `before_id` (optional): このメッセージ ID より前のメッセージを取得
 
 **レスポンス**: 200 OK
 
@@ -824,13 +877,13 @@ GET /group-chats/projects/{project_id}/group-conversation
 
 ## WebSocket
 
-#### チャット接続（1対1）
+#### チャット接続（1 対 1）
 
 ```
 WS /ws/chat?conversation_id={uuid}&token={jwt}
 ```
 
-🔒 **認証必要**（クエリパラメータでJWT）
+🔒 **認証必要**（クエリパラメータで JWT）
 
 **送信メッセージ**:
 
@@ -856,6 +909,7 @@ WS /ws/chat?conversation_id={uuid}&token={jwt}
 **Ping/Pong**:
 
 送信:
+
 ```json
 {
   "type": "ping"
@@ -863,6 +917,7 @@ WS /ws/chat?conversation_id={uuid}&token={jwt}
 ```
 
 受信:
+
 ```json
 {
   "type": "pong"
@@ -877,7 +932,7 @@ WS /ws/chat?conversation_id={uuid}&token={jwt}
 WS /ws/group-chat?group_conversation_id={uuid}&token={jwt}
 ```
 
-🔒 **認証必要**（クエリパラメータでJWT、メンバーのみ）
+🔒 **認証必要**（クエリパラメータで JWT、メンバーのみ）
 
 **送信メッセージ**:
 
@@ -903,6 +958,7 @@ WS /ws/group-chat?group_conversation_id={uuid}&token={jwt}
 **Ping/Pong**:
 
 送信:
+
 ```json
 {
   "type": "ping"
@@ -910,6 +966,7 @@ WS /ws/group-chat?group_conversation_id={uuid}&token={jwt}
 ```
 
 受信:
+
 ```json
 {
   "type": "pong"
@@ -932,7 +989,7 @@ WS /ws/group-chat?group_conversation_id={uuid}&token={jwt}
 }
 ```
 
-### HTTPステータスコード
+### HTTP ステータスコード
 
 - `200 OK`: 成功
 - `201 Created`: リソース作成成功
@@ -952,7 +1009,6 @@ WS /ws/group-chat?group_conversation_id={uuid}&token={jwt}
 
 ## API バージョニング
 
-現在のAPIバージョン: `v1`
+現在の API バージョン: `v1`
 
 将来的に破壊的変更が必要な場合は、新しいバージョン（v2）を提供します。
-

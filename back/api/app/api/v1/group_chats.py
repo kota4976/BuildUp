@@ -12,6 +12,7 @@ from app.models.project import Project
 from app.models.group_chat import GroupConversation, GroupMember, GroupMessage, MemberRole
 from app.schemas.group_chat import (
     GroupConversationCreate,
+    GeneralGroupCreate,
     GroupConversationResponse,
     GroupConversationDetailResponse,
     GroupConversationUpdate,
@@ -23,6 +24,73 @@ from app.schemas.common import SuccessResponse
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+
+@router.post("/general", response_model=GroupConversationResponse, status_code=status.HTTP_201_CREATED)
+async def create_general_group(
+    data: GeneralGroupCreate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Create a general group conversation (not project-based)
+    
+    The creator is automatically added as a member with owner role.
+    Additional members specified in member_ids are added with member role.
+    
+    Args:
+        data: General group creation data
+        current_user: Current authenticated user
+        db: Database session
+    
+    Returns:
+        Created group conversation
+    """
+    # Validate that all member IDs exist and are not deleted
+    members_to_add = db.query(User).filter(
+        User.id.in_(data.member_ids),
+        User.deleted_at.is_(None)
+    ).all()
+    
+    if len(members_to_add) != len(data.member_ids):
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="One or more user IDs are invalid"
+        )
+    
+    # Create group conversation
+    group_conv = GroupConversation(
+        project_id=None,  # General group, not project-based
+        name=data.name
+    )
+    db.add(group_conv)
+    db.flush()
+    
+    # Add creator as owner
+    owner_member = GroupMember(
+        group_conversation_id=group_conv.id,
+        user_id=current_user.id,
+        role=MemberRole.owner
+    )
+    db.add(owner_member)
+    
+    # Add other members
+    for user in members_to_add:
+        # Skip if user is the creator (already added as owner)
+        if user.id == current_user.id:
+            continue
+        
+        member = GroupMember(
+            group_conversation_id=group_conv.id,
+            user_id=user.id,
+            role=MemberRole.member
+        )
+        db.add(member)
+    
+    db.commit()
+    db.refresh(group_conv)
+    
+    return GroupConversationResponse.from_orm(group_conv)
 
 
 @router.post("", response_model=GroupConversationResponse, status_code=status.HTTP_201_CREATED)
@@ -83,7 +151,7 @@ async def create_group_conversation(
     member = GroupMember(
         group_conversation_id=group_conv.id,
         user_id=current_user.id,
-        role=MemberRole.OWNER
+        role=MemberRole.owner
     )
     db.add(member)
     db.commit()
@@ -238,7 +306,7 @@ async def update_group_conversation(
         )
     ).first()
     
-    if not member or member.role != MemberRole.OWNER:
+    if not member or member.role != MemberRole.owner:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only owner can update group conversation"
@@ -294,7 +362,7 @@ async def add_member_to_group(
         )
     ).first()
     
-    if not current_member or current_member.role != MemberRole.OWNER:
+    if not current_member or current_member.role != MemberRole.owner:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Only owner can add members"
@@ -326,7 +394,7 @@ async def add_member_to_group(
     member = GroupMember(
         group_conversation_id=group_conversation_id,
         user_id=data.user_id,
-        role=MemberRole.MEMBER
+        role=MemberRole.member
     )
     db.add(member)
     db.commit()
@@ -380,7 +448,7 @@ async def remove_member_from_group(
             detail="Not a member of this group"
         )
     
-    is_owner = current_member.role == MemberRole.OWNER
+    is_owner = current_member.role == MemberRole.owner
     is_self_removal = str(current_user.id) == user_id
     
     if not is_owner and not is_self_removal:
@@ -404,7 +472,7 @@ async def remove_member_from_group(
         )
     
     # Cannot remove the owner
-    if member_to_remove.role == MemberRole.OWNER and not is_self_removal:
+    if member_to_remove.role == MemberRole.owner and not is_self_removal:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Cannot remove the owner"
