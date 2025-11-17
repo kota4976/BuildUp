@@ -1,9 +1,29 @@
 """Tests for authentication endpoints"""
+from urllib.parse import urlparse, parse_qsl
+
 from fastapi.testclient import TestClient
+from httpx import Response
 from sqlalchemy.orm import Session
 
 from app.models.user import OAuthAccount, User
 from app.services.github_service import GitHubService
+
+
+def _assert_profile_redirect(response: Response) -> dict:
+    """
+    Assert that the GitHub callback now redirects to the profile page with tokens in the fragment.
+    Returns the fragment parameters for further inspection.
+    """
+    assert response.status_code == 307
+    location = response.headers.get("location")
+    assert location is not None
+    assert location.startswith("http://localhost/profile.html#")
+
+    parsed = urlparse(location)
+    fragment_params = dict(parse_qsl(parsed.fragment))
+    assert fragment_params.get("access_token")
+    assert fragment_params.get("token_type") == "bearer"
+    return fragment_params
 
 
 def test_github_login_redirect(client: TestClient):
@@ -65,12 +85,14 @@ def test_github_callback_reuses_existing_user(
     monkeypatch.setattr(GitHubService, "get_user_info", mock_get_user_info)
     monkeypatch.setattr(GitHubService, "get_user_emails", mock_get_user_emails)
 
-    response = client.get("/api/v1/auth/github/callback", params={"code": "sample_code"})
+    response = client.get(
+        "/api/v1/auth/github/callback",
+        params={"code": "sample_code"},
+        follow_redirects=False
+    )
 
-    assert response.status_code == 200
-    payload = response.json()
-    assert payload["user"]["id"] == str(test_user.id)
-    assert payload["user"]["github_login"] == test_user.github_login
+    tokens = _assert_profile_redirect(response)
+    assert tokens["access_token"]  # non-empty token issued
 
     oauth_accounts = (
         db_session.query(OAuthAccount)
@@ -115,12 +137,14 @@ def test_github_callback_generates_unique_handle(client: TestClient, db_session:
     monkeypatch.setattr(GitHubService, "get_user_info", mock_get_user_info)
     monkeypatch.setattr(GitHubService, "get_user_emails", mock_get_user_emails)
 
-    response = client.get("/api/v1/auth/github/callback", params={"code": "another_code"})
+    response = client.get(
+        "/api/v1/auth/github/callback",
+        params={"code": "another_code"},
+        follow_redirects=False
+    )
 
-    assert response.status_code == 200
-    response_user = response.json()["user"]
-    assert response_user["github_login"] == "duplicate"
-    assert response_user["handle"].startswith("duplicate")
+    tokens = _assert_profile_redirect(response)
+    assert tokens["access_token"]
 
     new_user = db_session.query(User).filter(User.github_login == "duplicate").one()
     assert new_user.handle == "duplicate-1"

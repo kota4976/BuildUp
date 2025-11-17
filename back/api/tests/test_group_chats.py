@@ -65,7 +65,7 @@ def test_group_conversation(
     member = GroupMember(
         group_conversation_id=group_conv.id,
         user_id=test_user.id,
-        role=MemberRole.OWNER
+        role=MemberRole.owner
     )
     db_session.add(member)
     db_session.commit()
@@ -271,7 +271,7 @@ def test_update_group_conversation_not_owner(
     member = GroupMember(
         group_conversation_id=test_group_conversation.id,
         user_id=test_user2.id,
-        role=MemberRole.MEMBER
+        role=MemberRole.member
     )
     db_session.add(member)
     db_session.commit()
@@ -324,7 +324,7 @@ def test_add_member_not_owner(
     member = GroupMember(
         group_conversation_id=test_group_conversation.id,
         user_id=test_user2.id,
-        role=MemberRole.MEMBER
+        role=MemberRole.member
     )
     db_session.add(member)
     db_session.commit()
@@ -354,7 +354,7 @@ def test_add_duplicate_member(
     member = GroupMember(
         group_conversation_id=test_group_conversation.id,
         user_id=test_user2.id,
-        role=MemberRole.MEMBER
+        role=MemberRole.member
     )
     db_session.add(member)
     db_session.commit()
@@ -385,7 +385,7 @@ def test_remove_member_from_group(
     member = GroupMember(
         group_conversation_id=test_group_conversation.id,
         user_id=test_user2.id,
-        role=MemberRole.MEMBER
+        role=MemberRole.member
     )
     db_session.add(member)
     db_session.commit()
@@ -413,7 +413,7 @@ def test_remove_self_from_group(
     member = GroupMember(
         group_conversation_id=test_group_conversation.id,
         user_id=test_user2.id,
-        role=MemberRole.MEMBER
+        role=MemberRole.member
     )
     db_session.add(member)
     db_session.commit()
@@ -440,12 +440,12 @@ def test_remove_member_unauthorized(
     member2 = GroupMember(
         group_conversation_id=test_group_conversation.id,
         user_id=test_user2.id,
-        role=MemberRole.MEMBER
+        role=MemberRole.member
     )
     member3 = GroupMember(
         group_conversation_id=test_group_conversation.id,
         user_id=test_user3.id,
-        role=MemberRole.MEMBER
+        role=MemberRole.member
     )
     db_session.add_all([member2, member3])
     db_session.commit()
