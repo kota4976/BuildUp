@@ -173,6 +173,114 @@
     </div>
 </div>
 
+<!-- 音声・ビデオ通話モーダル -->
+<div
+        id="call-modal"
+        class="fixed inset-0 z-50 bg-black bg-opacity-90 hidden items-center justify-center"
+>
+    <div class="relative w-full h-full flex flex-col items-center justify-center p-4">
+        <!-- リモートビデオ（相手の映像） -->
+        <div class="relative w-full h-full max-w-6xl max-h-[90vh] bg-gray-900 rounded-xl overflow-hidden shadow-2xl">
+            <video
+                    id="remote-video"
+                    autoplay
+                    playsinline
+                    class="w-full h-full object-cover"
+            ></video>
+            
+            <!-- ローカルビデオ（自分の映像）- 小さく右下に表示 -->
+            <div class="absolute top-4 right-4 w-48 h-36 bg-gray-800 rounded-lg overflow-hidden shadow-xl border-2 border-white">
+                <video
+                        id="local-video"
+                        autoplay
+                        playsinline
+                        muted
+                        class="w-full h-full object-cover"
+                ></video>
+            </div>
+            
+            <!-- 通話情報 -->
+            <div class="absolute top-4 left-4 bg-black bg-opacity-60 px-4 py-2 rounded-lg text-white">
+                <p class="text-sm font-medium" id="call-partner-name">接続中...</p>
+                <p class="text-xs text-gray-300" id="call-duration">00:00</p>
+                <p class="text-xs" id="call-status">接続待機中...</p>
+            </div>
+            
+            <!-- 通話コントロール -->
+            <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex items-center space-x-4">
+                <!-- マイクオン/オフ -->
+                <button
+                        id="toggle-audio"
+                        class="p-4 bg-gray-700 hover:bg-gray-600 text-white rounded-full transition-all shadow-lg"
+                        title="マイクオン/オフ"
+                >
+                    <i data-lucide="mic" class="w-6 h-6"></i>
+                </button>
+                
+                <!-- ビデオオン/オフ -->
+                <button
+                        id="toggle-video"
+                        class="p-4 bg-gray-700 hover:bg-gray-600 text-white rounded-full transition-all shadow-lg"
+                        title="ビデオオン/オフ"
+                >
+                    <i data-lucide="video" class="w-6 h-6"></i>
+                </button>
+                
+                <!-- 通話終了 -->
+                <button
+                        id="end-call"
+                        class="p-4 bg-red-600 hover:bg-red-700 text-white rounded-full transition-all shadow-lg"
+                        title="通話終了"
+                >
+                    <i data-lucide="phone-off" class="w-6 h-6"></i>
+                </button>
+                
+                <!-- 画面共有 -->
+                <button
+                        id="toggle-screen-share"
+                        class="p-4 bg-gray-700 hover:bg-gray-600 text-white rounded-full transition-all shadow-lg"
+                        title="画面共有"
+                >
+                    <i data-lucide="monitor" class="w-6 h-6"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 着信通知モーダル -->
+<div
+        id="incoming-call-modal"
+        class="fixed inset-0 z-50 bg-black bg-opacity-70 hidden items-center justify-center p-4"
+>
+    <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center transform transition-all">
+        <div class="mb-6">
+            <div class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center animate-pulse">
+                <i data-lucide="phone-incoming" class="w-12 h-12 text-white"></i>
+            </div>
+            <h3 class="text-2xl font-bold text-gray-800 mb-2" id="caller-name">着信中...</h3>
+            <p class="text-gray-600" id="call-type-label">ビデオ通話</p>
+        </div>
+        
+        <div class="flex justify-center space-x-4">
+            <button
+                    id="reject-call"
+                    class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-full font-semibold transition-all shadow-lg flex items-center space-x-2"
+            >
+                <i data-lucide="phone-off" class="w-5 h-5"></i>
+                <span>拒否</span>
+            </button>
+            <button
+                    id="accept-call"
+                    class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-full font-semibold transition-all shadow-lg flex items-center space-x-2"
+            >
+                <i data-lucide="phone" class="w-5 h-5"></i>
+                <span>応答</span>
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- 新しいチャット作成モーダル -->
 <div
         id="create-chat-modal"
@@ -320,7 +428,8 @@
         currentUser,
         getAuthToken,
         getUserInfo,
-        userCache
+        userCache,
+        initCallButtons
     } from './scripts/chat.js';
 
     import { initChatCreationModal } from './scripts/chatCreate.js';
@@ -344,6 +453,9 @@
             getUserInfo: getUserInfo,
             userCache: userCache
         });
+        
+        // 3. 通話ボタンの初期化
+        initCallButtons();
     });
 </script>
 <script>

@@ -14,6 +14,8 @@ class ConnectionManager:
         self.active_connections: Dict[str, Set[WebSocket]] = {}
         # Map of WebSocket -> (user_id, conversation_id)
         self.connection_info: Dict[WebSocket, tuple] = {}
+        # Map of user_id -> set of WebSocket connections
+        self.user_connections: Dict[str, Set[WebSocket]] = {}
     
     async def connect(self, websocket: WebSocket, user_id: str, conversation_id: str):
         """
@@ -31,6 +33,11 @@ class ConnectionManager:
         
         self.active_connections[conversation_id].add(websocket)
         self.connection_info[websocket] = (user_id, conversation_id)
+        
+        # Add to user connections map
+        if user_id not in self.user_connections:
+            self.user_connections[user_id] = set()
+        self.user_connections[user_id].add(websocket)
         
         logger.info(f"User {user_id} connected to conversation {conversation_id}")
     
@@ -51,6 +58,14 @@ class ConnectionManager:
                 if not self.active_connections[conversation_id]:
                     del self.active_connections[conversation_id]
             
+            # Remove from user connections map
+            if user_id in self.user_connections:
+                self.user_connections[user_id].discard(websocket)
+                
+                # Clean up empty user connection sets
+                if not self.user_connections[user_id]:
+                    del self.user_connections[user_id]
+            
             del self.connection_info[websocket]
             
             logger.info(f"User {user_id} disconnected from conversation {conversation_id}")
@@ -70,6 +85,24 @@ class ConnectionManager:
                     await connection.send_json(message)
                 except Exception as e:
                     logger.error(f"Error sending message: {str(e)}")
+                    # Remove dead connection
+                    self.disconnect(connection)
+    
+    async def send_to_user(self, user_id: str, message: dict):
+        """
+        Send a message to all connections for a specific user
+        
+        Args:
+            user_id: User ID
+            message: Message data to send
+        """
+        if user_id in self.user_connections:
+            connections = self.user_connections[user_id].copy()
+            for connection in connections:
+                try:
+                    await connection.send_json(message)
+                except Exception as e:
+                    logger.error(f"Error sending message to user {user_id}: {str(e)}")
                     # Remove dead connection
                     self.disconnect(connection)
     

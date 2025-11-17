@@ -435,3 +435,152 @@ input:focus {
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
   transition-duration: 150ms;
 }
+
+/* ----------------------------------------------------------------
+ * 音声・ビデオ通話用CSS
+ * ---------------------------------------------------------------- */
+
+/* 通話モーダルの表示制御 */
+#call-modal.show,
+#incoming-call-modal.show {
+  display: flex !important;
+}
+
+/* ビデオ要素のスタイル */
+#remote-video,
+#local-video {
+  background-color: #1f2937;
+}
+
+/* ローカルビデオのホバーエフェクト */
+#local-video:hover {
+  transform: scale(1.05);
+  transition: transform 0.3s ease;
+}
+
+/* 通話コントロールボタンのアニメーション */
+#call-modal button {
+  transition: all 0.3s ease;
+}
+
+#call-modal button:hover {
+  transform: scale(1.1);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+}
+
+#call-modal button:active {
+  transform: scale(0.95);
+}
+
+/* マイク/ビデオオフ時のスタイル */
+#toggle-audio.muted,
+#toggle-video.disabled {
+  background-color: #ef4444;
+}
+
+#toggle-audio.muted:hover,
+#toggle-video.disabled:hover {
+  background-color: #dc2626;
+}
+
+/* 画面共有アクティブ時 */
+#toggle-screen-share.active {
+  background-color: #3b82f6;
+}
+
+#toggle-screen-share.active:hover {
+  background-color: #2563eb;
+}
+
+/* 通話時間表示のアニメーション */
+#call-duration {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.05em;
+}
+
+/* 着信モーダルのアニメーション */
+#incoming-call-modal.show > div {
+  animation: bounceIn 0.5s ease-out;
+}
+
+@keyframes bounceIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.3) translateY(-50px);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+  70% {
+    transform: scale(0.9);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* 通話ボタンのパルスアニメーション */
+.call-button-pulse {
+  animation: pulse-ring 1.5s ease-out infinite;
+}
+
+@keyframes pulse-ring {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
+  }
+  70% {
+    box-shadow: 0 0 0 20px rgba(59, 130, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
+}
+
+/* 音声のみ通話時（ビデオなし）の表示 */
+#call-modal.audio-only #remote-video,
+#call-modal.audio-only #local-video {
+  display: none;
+}
+
+#call-modal.audio-only .relative.w-full.h-full {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+/* 音声のみ通話時のアバター表示 */
+#call-modal.audio-only::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 200px;
+  height: 200px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 640px) {
+  #call-modal .absolute.top-4.right-4 {
+    width: 120px;
+    height: 90px;
+  }
+  
+  #call-modal .absolute.bottom-8 {
+    bottom: 4rem;
+  }
+  
+  #call-modal button {
+    padding: 0.75rem;
+  }
+  
+  #call-modal button i {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+}
