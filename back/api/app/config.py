@@ -1,5 +1,5 @@
 """Application configuration using Pydantic Settings"""
-from typing import List
+from typing import List, Optional
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -12,13 +12,13 @@ class Settings(BaseSettings):
         case_sensitive=False
     )
     
-    # Database
-    database_url: str
-    postgres_host: str = "localhost"
-    postgres_port: int = 5432
-    postgres_db: str = "buildup"
-    postgres_user: str = "buildup_user"
-    postgres_password: str = "postgres"
+    # Database routing
+    database_url: Optional[str] = None
+    database_target: str = "dev"  # dev (SSH) or docker (local container)
+    runtime_context: str = "local"  # local (host) or docker (container)
+    database_url_docker: Optional[str] = None
+    database_url_dev_local: Optional[str] = None
+    database_url_dev_docker: Optional[str] = None
     
     # GitHub OAuth
     github_client_id: str
@@ -38,6 +38,36 @@ class Settings(BaseSettings):
     # Server
     api_host: str = "127.0.0.1"
     api_port: int = 8080
+
+    @property
+    def database_url_resolved(self) -> str:
+        """
+        Determine the effective database URL based on target and runtime context.
+        Priority order:
+            1. Explicit DATABASE_URL
+            2. Preset matched by DATABASE_TARGET and RUNTIME_CONTEXT
+        """
+        if self.database_url:
+            return self.database_url
+
+        target = self.database_target.lower()
+        context = self.runtime_context.lower()
+
+        if target == "docker":
+            if not self.database_url_docker:
+                raise ValueError("DATABASE_URL_DOCKER is not configured")
+            return self.database_url_docker
+
+        if target == "dev":
+            if context == "docker":
+                if not self.database_url_dev_docker:
+                    raise ValueError("DATABASE_URL_DEV_DOCKER is not configured")
+                return self.database_url_dev_docker
+            if not self.database_url_dev_local:
+                raise ValueError("DATABASE_URL_DEV_LOCAL is not configured")
+            return self.database_url_dev_local
+
+        raise ValueError(f"Unsupported DATABASE_TARGET '{self.database_target}'")
     
     @property
     def cors_origins_list(self) -> List[str]:
