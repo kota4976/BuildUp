@@ -1,6 +1,5 @@
 """Authentication endpoints"""
 import logging
-import os
 from typing import Optional
 import urllib.parse
 from datetime import datetime
@@ -13,6 +12,7 @@ from sqlalchemy.exc import IntegrityError
 from app.database import get_db
 from app.core.security import create_access_token
 from app.core.deps import get_current_user
+from app.config import settings
 from app.services.github_service import GitHubService
 from app.models.user import User, OAuthAccount
 from app.models.audit import AuditLog
@@ -21,7 +21,7 @@ from app.schemas.user import UserResponse
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
-FRONTEND_PROFILE_URL = os.getenv("FRONTEND_PROFILE_URL", "/profile.html")
+FRONTEND_PROFILE_URL = settings.frontend_profile_url
 
 
 def _generate_unique_handle(db: Session, base_handle: str) -> str:

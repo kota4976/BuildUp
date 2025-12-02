@@ -1,11 +1,11 @@
 """Tests for authentication endpoints"""
-import os
 from urllib.parse import urlparse, parse_qsl
 
 from fastapi.testclient import TestClient
 from httpx import Response
 from sqlalchemy.orm import Session
 
+from app.config import settings
 from app.models.user import OAuthAccount, User
 from app.services.github_service import GitHubService
 
@@ -20,7 +20,7 @@ def _assert_profile_redirect(response: Response) -> dict:
     assert location is not None
 
     parsed = urlparse(location)
-    expected_profile = urlparse(os.getenv("FRONTEND_PROFILE_URL", "/profile.html"))
+    expected_profile = urlparse(settings.frontend_profile_url)
     assert parsed.path == expected_profile.path
     if expected_profile.scheme:
         assert parsed.scheme == expected_profile.scheme
