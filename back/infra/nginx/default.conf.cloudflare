@@ -1,8 +1,43 @@
-# HTTPサーバー（Cloudflare Tunnel経由でアクセスされるためHTTPのみ）
-# CloudflareがHTTPS終端を行うため、nginxはHTTPで動作
+# Cloudflare経由でアクセスされる場合のnginx設定
+# Cloudflareのプロキシ機能を使用する場合、実際のクライアントIPを取得するために
+# X-Forwarded-For ヘッダーを適切に処理する必要があります
+#
+# 使用方法:
+# docker-compose.ymlでこのファイルをマウント:
+#   - ./nginx/default.conf.cloudflare:/etc/nginx/conf.d/default.conf:ro
+
+# HTTPサーバー - HTTPSへのリダイレクト
 server {
     listen 80;
     server_name _;
+    
+    # Cloudflareからのアクセスのみを許可（オプション、セキュリティ向上）
+    # 実際のIPレンジは https://www.cloudflare.com/ips/ を参照
+    # allow 173.245.48.0/20;
+    # allow 103.21.244.0/22;
+    # ... 他のCloudflare IPレンジ
+    # deny all;
+    
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+# HTTPSサーバー
+server {
+    listen 443 ssl http2;
+    server_name _;
+    
+    # SSL証明書（Let's Encryptなど、本番環境用）
+    # Cloudflare経由の場合、CloudflareがSSL終端を行うため、
+    # 自己署名証明書でも動作しますが、本番環境では適切な証明書を使用してください
+    ssl_certificate /etc/nginx/ssl/cert.pem;
+    ssl_certificate_key /etc/nginx/ssl/key.pem;
+    
+    # SSL設定
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
     
     # Cloudflare経由でアクセスされる場合のIPアドレス取得
     # Cloudflareが設定するヘッダーから実際のクライアントIPを取得
@@ -40,7 +75,7 @@ server {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto https;  # Cloudflare経由なので常にHTTPS
+        proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header CF-Connecting-IP $http_cf_connecting_ip;
         proxy_set_header CF-Ray $http_cf_ray;
         
@@ -59,7 +94,7 @@ server {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto https;  # Cloudflare経由なので常にHTTPS
+        proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header CF-Connecting-IP $http_cf_connecting_ip;
         proxy_set_header CF-Ray $http_cf_ray;
         
@@ -75,7 +110,7 @@ server {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header CF-Connecting-IP $http_cf_connecting_ip;
     }
 
@@ -85,7 +120,7 @@ server {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header CF-Connecting-IP $http_cf_connecting_ip;
     }
 
@@ -94,7 +129,7 @@ server {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header CF-Connecting-IP $http_cf_connecting_ip;
     }
 
@@ -103,7 +138,7 @@ server {
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto https;
+        proxy_set_header X-Forwarded-Proto $scheme;
         proxy_set_header CF-Connecting-IP $http_cf_connecting_ip;
     }
 
@@ -113,6 +148,8 @@ server {
     }
     
     # Cache static assets
+    # Cloudflare経由の場合、Cloudflareがキャッシュを行うため、
+    # サーバー側のキャッシュ設定は調整可能
     location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot)$ {
         expires 1y;
         add_header Cache-Control "public, immutable";

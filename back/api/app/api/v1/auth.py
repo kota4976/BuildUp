@@ -1,12 +1,14 @@
 """Authentication endpoints"""
 import logging
+import os
 from typing import Optional
 import urllib.parse
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, HTTPException, status, Query
 from fastapi.responses import RedirectResponse
 from sqlalchemy.orm import Session
 from sqlalchemy.exc import IntegrityError
-from datetime import datetime
 
 from app.database import get_db
 from app.core.security import create_access_token
@@ -19,6 +21,7 @@ from app.schemas.user import UserResponse
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+FRONTEND_PROFILE_URL = os.getenv("FRONTEND_PROFILE_URL", "/profile.html")
 
 
 def _generate_unique_handle(db: Session, base_handle: str) -> str:
@@ -201,9 +204,6 @@ async def github_callback(
 
         # Create JWT token
         jwt_token = create_access_token(data={"sub": str(user.id)})
-
-        # フロントエンドのプロファイルページURL（nginx経由）
-        FRONTEND_PROFILE_URL = "http://localhost/profile.html"
 
         # トークンをURLハッシュ（#）として渡す準備
         fragment_data = {

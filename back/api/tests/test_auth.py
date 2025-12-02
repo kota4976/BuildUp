@@ -1,4 +1,5 @@
 """Tests for authentication endpoints"""
+import os
 from urllib.parse import urlparse, parse_qsl
 
 from fastapi.testclient import TestClient
@@ -17,9 +18,15 @@ def _assert_profile_redirect(response: Response) -> dict:
     assert response.status_code == 307
     location = response.headers.get("location")
     assert location is not None
-    assert location.startswith("http://localhost/profile.html#")
 
     parsed = urlparse(location)
+    expected_profile = urlparse(os.getenv("FRONTEND_PROFILE_URL", "/profile.html"))
+    assert parsed.path == expected_profile.path
+    if expected_profile.scheme:
+        assert parsed.scheme == expected_profile.scheme
+    if expected_profile.netloc:
+        assert parsed.netloc == expected_profile.netloc
+
     fragment_params = dict(parse_qsl(parsed.fragment))
     assert fragment_params.get("access_token")
     assert fragment_params.get("token_type") == "bearer"
