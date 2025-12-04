@@ -201,13 +201,11 @@ function renderApplications(applications, type) {
                 </div>
 
                 <div class="applicant-info">
-                    <a href="/profile.html?id=${otherUser?.id}" class="flex items-center gap-3 hover:opacity-80 transition-opacity">
-                        <img src="${otherUser?.avatar_url || 'https://placehold.co/40x40/f0f0f0/666?text=U'}" alt="${otherUser?.handle || 'Unknown'}">
-                        <div class="applicant-details">
-                            <h4>${otherUser?.handle || 'Unknown User'}</h4>
-                            <p>${isReceived ? '応募者' : 'プロジェクトオーナー'}</p>
-                        </div>
-                    </a>
+                    <img src="${otherUser?.avatar_url || 'https://placehold.co/40x40/f0f0f0/666?text=U'}" alt="${otherUser?.handle || 'Unknown'}">
+                    <div class="applicant-details">
+                        <h4>${otherUser?.handle || 'Unknown User'}</h4>
+                        <p>${isReceived ? '応募者' : 'プロジェクトオーナー'}</p>
+                    </div>
                     <span class="text-sm text-gray-500 ml-auto">応募日: ${createdDate}</span>
                 </div>
                 

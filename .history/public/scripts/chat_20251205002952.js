@@ -356,23 +356,14 @@ export async function renderMatchList(matches) {
                 : lastMessage.body;
         }
 
-        const avatarHtml = !isGroup && otherUser
-            ? `<a href="/profile.html?id=${otherUser.id}" class="relative flex-shrink-0" onclick="event.stopPropagation()">
-                 <img src="${avatarUrl}" 
-                      alt="${displayName}" 
-                      class="w-14 h-14 rounded-full object-cover mr-4 border-2 border-gray-200"
-                      onerror="this.onerror=null; this.src='https://placehold.co/48x48/f0f0f0/666?text=U'">
-                 <div class="absolute bottom-0 right-3 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
-               </a>`
-            : `<div class="relative flex-shrink-0">
-                 <img src="${avatarUrl}" 
-                      alt="${displayName}" 
-                      class="w-14 h-14 rounded-full object-cover mr-4 border-2 border-gray-200 ${isGroup ? 'group-avatar' : ''}"
-                      onerror="this.onerror=null; this.src='https://placehold.co/48x48/f0f0f0/666?text=${isGroup ? 'G' : 'U'}'">
-               </div>`;
-
         matchItem.innerHTML = `
-            ${avatarHtml}
+            <div class="relative flex-shrink-0">
+                <img src="${avatarUrl}" 
+                     alt="${displayName}" 
+                     class="w-14 h-14 rounded-full object-cover mr-4 border-2 border-gray-200 ${isGroup ? 'group-avatar' : ''}"
+                     onerror="this.onerror=null; this.src='https://placehold.co/48x48/f0f0f0/666?text=${isGroup ? 'G' : 'U'}'">
+                ${!isGroup ? '<div class="absolute bottom-0 right-3 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>' : ''}
+            </div>
             <div class="flex-grow min-w-0">
                 <div class="flex justify-between items-center mb-1">
                     <h2 class="text-sm font-semibold text-gray-900 truncate">${displayName}</h2>
@@ -425,11 +416,10 @@ export async function selectMatch(match, otherUser) {
     const chatHeaderStatus = document.getElementById('chat-header-status');
     chatHeader.innerHTML = `
         <div class="flex items-center space-x-3 flex-1 min-w-0">
-            <a href="/profile.html?id=${otherUser.id}" class="flex-shrink-0 hover:opacity-80 transition-opacity">
-                <img src="${otherUser.avatar_url || 'https://placehold.co/40x40/f0f0f0/666?text=U'}"
-                     alt="${otherUser.handle}"
-                     class="w-10 h-10 rounded-full object-cover border-2 border-gray-200 shadow-sm">
-            </a>
+            <img src="${otherUser.avatar_url || 'https://placehold.co/40x40/f0f0f0/666?text=U'}" 
+                 alt="${otherUser.handle}" 
+                 class="w-10 h-10 rounded-full object-cover border-2 border-gray-200 flex-shrink-0 shadow-sm"
+                 onerror="this.onerror=null; this.src='https://placehold.co/40x40/f0f0f0/666?text=U'">
             <div class="flex flex-col min-w-0 flex-1">
                 <h2 class="text-lg font-semibold text-gray-800 truncate">${otherUser.handle || 'Unknown User'}</h2>
                 <p class="text-xs text-gray-500 flex items-center">

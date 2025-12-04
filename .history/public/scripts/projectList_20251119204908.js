@@ -118,14 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
         statusBadge.textContent = project.status.toUpperCase();
         statusBadge.className = `status-badge status-${project.status}`;
 
-        // オーナー情報をセット
-        const ownerHtml = `
-            <a href="/profile.html?id=${project.owner.id}" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #333;">
-                <img src="${project.owner.avatar_url || 'https://placehold.co/32x32/f0f0f0/666?text=U'}" alt="${project.owner.handle}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
-                <span style="font-weight: 600;">${project.owner.handle}</span>
-            </a>
-        `;
-        document.getElementById('detail-owner-handle').innerHTML = ownerHtml;
+        // オーナー情報をセット (オーナーハンドル名は UserResponse から取得する必要があるため、一旦IDを表示)
+        document.getElementById('detail-owner-handle').textContent = `Owner ID: ${project.owner_id}`;
 
         // 応募フォームにIDをセット
         applyProjectIdInput.value = projectId;
