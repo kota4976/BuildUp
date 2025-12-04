@@ -72,6 +72,7 @@ services:
     environment:
       RUNTIME_CONTEXT: docker
       DATABASE_TARGET: ${DATABASE_TARGET:-dev}
+      FRONTEND_PROFILE_URL: http://localhost/profile.html
     ports:
       - "8080:8080"
     restart: unless-stopped
