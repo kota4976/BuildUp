@@ -290,6 +290,9 @@ body {
     box-shadow: 0 5px 15px rgba(0,0,0,0.2);
     transform: translateY(-30px);
     transition: transform 0.3s ease;
+    /* 縦長になった場合にスクロールできるようにする */
+    max-height: 90vh;
+    overflow-y: auto;
 }
 .modal-overlay.visible .modal-content {
     transform: translateY(0);
@@ -407,4 +410,47 @@ body {
     border-radius: 12px;
     font-size: 0.8rem;
     font-weight: 500;
+}
+
+/* --- レベル基準の説明用スタイル --- */
+.level-criteria {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 15px;
+    font-size: 0.8rem;
+    color: #555;
+    line-height: 1.5;
+}
+
+.level-criteria p {
+    margin: 0 0 8px 0;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.level-criteria ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.level-criteria li {
+    margin-bottom: 6px;
+    display: flex;
+    align-items: baseline;
+}
+
+.level-criteria li:last-child {
+    margin-bottom: 0;
+}
+
+.level-label {
+    display: inline-block;
+    width: 35px;
+    font-weight: 700;
+    color: #3f51b5;
+    flex-shrink: 0;
+    margin-right: 5px;
 }
