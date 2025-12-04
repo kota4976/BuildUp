@@ -42,12 +42,17 @@ class ProjectUpdate(BaseModel):
     required_skills: Optional[List[ProjectSkillSchema]] = None
 
 
+from app.schemas.user import UserResponse
+
+
 class ProjectResponse(ProjectBase):
     """Project response schema"""
     id: UUID4
     owner_id: UUID4
     created_at: datetime
     updated_at: datetime
+    
+    owner: Optional[UserResponse] = None
     
     class Config:
         from_attributes = True

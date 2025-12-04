@@ -28,7 +28,7 @@ let currentPartnerName = null;  // 現在のチャット相手の名前
 /**
  * 現在のWebSocket接続を取得（WebRTC用）
  */
-window.getCurrentWebSocket = function() {
+window.getCurrentWebSocket = function () {
     return websocket;
 };
 
@@ -196,7 +196,7 @@ async function fetchConversation(matchId, isGroupChat = false) {
         }
 
         // グループチャットとダイレクトチャットで異なるエンドポイントを使用
-        const endpoint = isGroupChat 
+        const endpoint = isGroupChat
             ? `${API_BASE_URL}/group-chats/${matchId}?limit=50`
             : `${API_BASE_URL}/matches/${matchId}/conversation?limit=50`;
 
@@ -356,14 +356,23 @@ export async function renderMatchList(matches) {
                 : lastMessage.body;
         }
 
+        const avatarHtml = !isGroup && otherUser
+            ? `<a href="/profile.html?id=${otherUser.id}" class="relative flex-shrink-0" onclick="event.stopPropagation()">
+                 <img src="${avatarUrl}" 
+                      alt="${displayName}" 
+                      class="w-14 h-14 rounded-full object-cover mr-4 border-2 border-gray-200"
+                      onerror="this.onerror=null; this.src='https://placehold.co/48x48/f0f0f0/666?text=U'">
+                 <div class="absolute bottom-0 right-3 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>
+               </a>`
+            : `<div class="relative flex-shrink-0">
+                 <img src="${avatarUrl}" 
+                      alt="${displayName}" 
+                      class="w-14 h-14 rounded-full object-cover mr-4 border-2 border-gray-200 ${isGroup ? 'group-avatar' : ''}"
+                      onerror="this.onerror=null; this.src='https://placehold.co/48x48/f0f0f0/666?text=${isGroup ? 'G' : 'U'}'">
+               </div>`;
+
         matchItem.innerHTML = `
-            <div class="relative flex-shrink-0">
-                <img src="${avatarUrl}" 
-                     alt="${displayName}" 
-                     class="w-14 h-14 rounded-full object-cover mr-4 border-2 border-gray-200 ${isGroup ? 'group-avatar' : ''}"
-                     onerror="this.onerror=null; this.src='https://placehold.co/48x48/f0f0f0/666?text=${isGroup ? 'G' : 'U'}'">
-                ${!isGroup ? '<div class="absolute bottom-0 right-3 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></div>' : ''}
-            </div>
+            ${avatarHtml}
             <div class="flex-grow min-w-0">
                 <div class="flex justify-between items-center mb-1">
                     <h2 class="text-sm font-semibold text-gray-900 truncate">${displayName}</h2>
@@ -416,10 +425,11 @@ export async function selectMatch(match, otherUser) {
     const chatHeaderStatus = document.getElementById('chat-header-status');
     chatHeader.innerHTML = `
         <div class="flex items-center space-x-3 flex-1 min-w-0">
-            <img src="${otherUser.avatar_url || 'https://placehold.co/40x40/f0f0f0/666?text=U'}" 
-                 alt="${otherUser.handle}" 
-                 class="w-10 h-10 rounded-full object-cover border-2 border-gray-200 flex-shrink-0 shadow-sm"
-                 onerror="this.onerror=null; this.src='https://placehold.co/40x40/f0f0f0/666?text=U'">
+            <a href="/profile.html?id=${otherUser.id}" class="flex-shrink-0 hover:opacity-80 transition-opacity">
+                <img src="${otherUser.avatar_url || 'https://placehold.co/40x40/f0f0f0/666?text=U'}"
+                     alt="${otherUser.handle}"
+                     class="w-10 h-10 rounded-full object-cover border-2 border-gray-200 shadow-sm">
+            </a>
             <div class="flex flex-col min-w-0 flex-1">
                 <h2 class="text-lg font-semibold text-gray-800 truncate">${otherUser.handle || 'Unknown User'}</h2>
                 <p class="text-xs text-gray-500 flex items-center">
@@ -587,25 +597,21 @@ async function appendMessage(message, isOwnMessage = null) {
         ? `
         <div class="flex justify-end mb-4 group" data-message-id="${message.id}">
             <div class="max-w-sm md:max-w-md lg:max-w-lg xl:max-w-2xl flex flex-col items-end">
-                <div class="message-bubble user text-sm text-white shadow-lg">
-                    ${escapeHtml(message.body)}
-                </div>
-                <span class="text-xs text-gray-500 mt-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">${timeString}</span>
+                <div class="message-bubble user text-sm text-white shadow-lg">${escapeHtml(message.body)}</div><span class="text-xs text-gray-500 mt-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">${timeString}</span>
             </div>
         </div>
         `
         : `
         <div class="flex justify-start mb-4 group" data-message-id="${message.id}">
-            <img src="${senderInfo?.avatar_url || 'https://placehold.co/32x32/f0f0f0/666?text=U'}" 
-                 alt="${senderInfo?.handle || 'Unknown'}" 
-                 class="w-10 h-10 rounded-full object-cover mr-3 flex-shrink-0 border-2 border-gray-200 shadow-sm"
-                 onerror="this.onerror=null; this.src='https://placehold.co/32x32/f0f0f0/666?text=U'">
+            <a href="/profile.html?id=${senderInfo?.id}" class="flex-shrink-0 mr-3 hover:opacity-80 transition-opacity">
+                <img src="${senderInfo?.avatar_url || 'https://placehold.co/32x32/f0f0f0/666?text=U'}" 
+                     alt="${senderInfo?.handle || 'Unknown'}" 
+                     class="w-10 h-10 rounded-full object-cover border-2 border-gray-200 shadow-sm"
+                     onerror="this.onerror=null; this.src='https://placehold.co/32x32/f0f0f0/666?text=U'">
+            </a>
             <div class="max-w-sm md:max-w-md lg:max-w-lg xl:max-w-2xl flex flex-col">
-                <p class="text-xs font-semibold text-gray-700 mb-1.5">${senderInfo?.handle || 'Unknown User'}</p>
-                <div class="message-bubble other text-sm text-gray-900 shadow-md">
-                    ${escapeHtml(message.body)}
-                </div>
-                <span class="text-xs text-gray-500 mt-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">${timeString}</span>
+                <a href="/profile.html?id=${senderInfo?.id}" class="text-xs font-semibold text-gray-700 mb-1.5 hover:underline">${senderInfo?.handle || 'Unknown User'}</a>
+                <div class="message-bubble other text-sm text-gray-900 shadow-md">${escapeHtml(message.body)}</div><span class="text-xs text-gray-500 mt-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">${timeString}</span>
             </div>
         </div>
         `;
@@ -712,7 +718,7 @@ function connectWebSocket(conversationId, isGroupChat = false) {
             } else if (data.type === 'error') {
                 console.error('WebSocketエラー:', data.message);
                 showError(data.message);
-            } 
+            }
             // WebRTCシグナリングメッセージの処理
             else if (['offer', 'answer', 'ice-candidate', 'reject', 'end'].includes(data.type)) {
                 webrtcManager.handleSignalingMessage(data);
@@ -833,7 +839,7 @@ export function initCallButtons() {
             });
         }
     });
-    
+
     console.log('通話ボタンの初期化が完了しました');
 }
 
@@ -896,6 +902,58 @@ function startVideoCall() {
 }
 
 /**
+ * 絵文字ピッカーの初期化
+ */
+function initEmojiPicker() {
+    const emojiButton = document.getElementById('emoji-button');
+    const pickerContainer = document.getElementById('emoji-picker-container');
+    const messageInput = document.getElementById('message-input');
+
+    if (!emojiButton || !pickerContainer || !messageInput) return;
+
+    // picmoが読み込まれているか確認
+    if (typeof picmo === 'undefined') {
+        console.error('picmo library not loaded');
+        return;
+    }
+
+    // ピッカーを作成
+    const picker = picmo.createPicker({
+        rootElement: pickerContainer,
+        showPreview: false,
+        autoFocusSearch: false
+    });
+
+    // 絵文字選択イベント
+    picker.addEventListener('emoji:select', (selection) => {
+        const emoji = selection.emoji;
+        const cursorPosition = messageInput.selectionStart;
+        const text = messageInput.value;
+        const newText = text.slice(0, cursorPosition) + emoji + text.slice(cursorPosition);
+
+        messageInput.value = newText;
+
+        // カーソル位置を更新
+        const newCursorPosition = cursorPosition + emoji.length;
+        messageInput.setSelectionRange(newCursorPosition, newCursorPosition);
+        messageInput.focus();
+    });
+
+    // ボタンクリックで表示切り替え
+    emojiButton.addEventListener('click', (e) => {
+        e.stopPropagation();
+        pickerContainer.classList.toggle('hidden');
+    });
+
+    // 外部クリックで閉じる
+    document.addEventListener('click', (e) => {
+        if (!pickerContainer.contains(e.target) && !emojiButton.contains(e.target)) {
+            pickerContainer.classList.add('hidden');
+        }
+    });
+}
+
+/**
  * 初期化 (exportを追加)
  */
 export async function init() {
@@ -926,6 +984,9 @@ export async function init() {
             }
         });
     }
+
+    // 絵文字ピッカー初期化
+    initEmojiPicker();
 
     // 戻るボタンイベント
     const backButton = document.getElementById('back-to-list');

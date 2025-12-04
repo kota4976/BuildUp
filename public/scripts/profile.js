@@ -19,6 +19,46 @@ const escapeHTML = (str) => {
     });
 };
 
+// --- 他のユーザーの情報を取得 ---
+async function fetchOtherUserProfile(userId, tokenToUse) {
+    const endpoint = `${API_BASE_URL}/users/${userId}`;
+    console.log("他ユーザー情報を取得中...", endpoint);
+
+    try {
+        const headers = {};
+        if (tokenToUse) headers['Authorization'] = `Bearer ${tokenToUse}`;
+
+        const response = await fetch(endpoint, {
+            method: 'GET',
+            headers: headers
+        });
+
+        if (response.ok) {
+            const userData = await response.json();
+            console.log("✅ ユーザー情報取得成功:", userData);
+
+            updateProfileUI(userData);
+
+            // スキルとリポジトリは UserDetailResponse に含まれているのでそこから描画
+            // ただし fetchMySkillsAndRepos は /users/{id} を叩くので、ここでは renderMySkills を直接呼ぶか、
+            // 既存関数を再利用するか。
+            // UserDetailResponse には skills が含まれている。
+            if (userData.skills) {
+                renderMySkills(userData.skills);
+            }
+
+            // プロジェクト取得
+            fetchMyProjects(userData.id, tokenToUse);
+
+        } else {
+            console.error(`❌ ユーザー情報取得失敗 (ステータス: ${response.status})`);
+            document.querySelector('.main-content').innerHTML = '<p class="text-center mt-10">ユーザーが見つかりませんでした。</p>';
+        }
+    } catch (error) {
+        console.error("ネットワークエラーが発生しました:", error);
+    }
+}
+
 // --- 認証 & データ取得 ---
 async function fetchMyInfo(tokenToUse) {
     const endpoint = `${API_BASE_URL}/auth/me`;
@@ -121,7 +161,7 @@ function renderMyProjects(projects) {
         ).join('');
         projectCard.innerHTML = `
             <h4>${escapeHTML(project.title)}</h4>
-            <p>${escapeHTML(project.description)}</p>
+            <div class="markdown-body" style="font-size: 0.9em; color: #555;">${DOMPurify.sanitize(marked.parse(project.description))}</div>
             <div class="card-skills">${skillsHtml}</div>
         `;
         listContainer.appendChild(projectCard);
@@ -235,9 +275,9 @@ function renderSkillSearchResults(skills) {
     const skillSearchResults = document.getElementById('skill-search-results');
     const searchInput = document.getElementById('skill-search-input');
     const searchQuery = searchInput ? searchInput.value.trim() : '';
-    
+
     skillSearchResults.innerHTML = '';
-    
+
     if (skills.length === 0 && searchQuery) {
         // 検索結果がない場合、新規作成ボタンを表示
         skillSearchResults.innerHTML = `
@@ -249,7 +289,7 @@ function renderSkillSearchResults(skills) {
         skillSearchResults.style.display = 'block';
         return;
     }
-    
+
     // 検索結果を表示
     skills.forEach(skill => {
         const item = document.createElement('div');
@@ -259,7 +299,7 @@ function renderSkillSearchResults(skills) {
         item.dataset.skillName = escapeHTML(skill.name);
         skillSearchResults.appendChild(item);
     });
-    
+
     // 検索語句と完全一致するスキルがない場合、新規作成ボタンも追加
     if (searchQuery && !skills.some(s => s.name.toLowerCase() === searchQuery.toLowerCase())) {
         const createBtn = document.createElement('div');
@@ -268,7 +308,7 @@ function renderSkillSearchResults(skills) {
         createBtn.innerHTML = `<i class="fa-solid fa-plus"></i> 「${escapeHTML(searchQuery)}」を新規作成`;
         skillSearchResults.appendChild(createBtn);
     }
-    
+
     skillSearchResults.style.display = 'block';
 }
 
@@ -320,7 +360,7 @@ async function createNewSkill(skillName) {
         window.location.href = '/login.html';
         return null;
     }
-    
+
     try {
         const endpoint = `${API_BASE_URL}/skills`;
         const response = await fetch(endpoint, {
@@ -331,16 +371,16 @@ async function createNewSkill(skillName) {
             },
             body: JSON.stringify({ name: skillName })
         });
-        
+
         if (!response.ok) {
             const errorData = await response.json();
             throw new Error(errorData.detail || 'スキルの作成に失敗しました');
         }
-        
+
         const newSkill = await response.json();
         console.log('✅ スキル作成成功:', newSkill);
         return newSkill;
-        
+
     } catch (error) {
         console.error('スキル作成エラー:', error);
         alert(`エラー: ${error.message}`);
@@ -443,7 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
         skillSearchResults.addEventListener('click', async (e) => {
             const item = e.target.closest('.skill-search-item');
             if (!item) return;
-            
+
             // 既存のスキルをクリックした場合
             if (item.dataset.skillId) {
                 addSkillToModalList(item.dataset.skillId, item.dataset.skillName);
@@ -452,15 +492,15 @@ document.addEventListener('DOMContentLoaded', () => {
             else if (item.classList.contains('skill-create-btn')) {
                 const skillName = item.dataset.skillName;
                 if (!skillName) return;
-                
+
                 // ボタンを無効化して二重送信を防止
                 item.style.pointerEvents = 'none';
                 item.style.opacity = '0.6';
                 const originalText = item.innerHTML;
                 item.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 作成中...';
-                
+
                 const newSkill = await createNewSkill(skillName);
-                
+
                 if (newSkill) {
                     // 作成成功したらモーダルリストに追加
                     addSkillToModalList(newSkill.id, newSkill.name);
@@ -507,20 +547,42 @@ document.addEventListener('DOMContentLoaded', () => {
         const params = new URLSearchParams(hash);
         return params.get('access_token');
     }
+
+    // URLパラメータからユーザーIDを取得
+    const urlParams = new URLSearchParams(window.location.search);
+    const targetUserId = urlParams.get('id');
+
     let token = getTokenFromHash();
-    if (token) {
-        console.log("URLハッシュからトークンを取得しました。");
-        localStorage.setItem('access_token', token);
-        // ヘッダーコンポーネントに認証状態の変更を通知
-        window.dispatchEvent(new Event('auth-state-changed'));
-        window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
-        fetchMyInfo(token);
+    if (!token) token = localStorage.getItem('access_token');
+
+    if (targetUserId) {
+        // 他のユーザーのプロフィールを表示
+        console.log(`ユーザーID: ${targetUserId} のプロフィールを表示します`);
+
+        // 編集ボタンを非表示にする
+        if (bioEditBtn) bioEditBtn.style.display = 'none';
+        if (skillsEditBtn) skillsEditBtn.style.display = 'none';
+
+        // トークンがあればヘッダー用などに保存しておく（必須ではないが）
+        if (token) {
+            localStorage.setItem('access_token', token);
+            window.dispatchEvent(new Event('auth-state-changed'));
+        }
+
+        fetchOtherUserProfile(targetUserId, token);
 
     } else {
-        console.log("URLハッシュにトークンなし。localStorageを確認します。");
-        token = localStorage.getItem('access_token');
+        // 自分のプロフィールを表示 (既存ロジック)
         if (token) {
+            console.log("トークンあり。自分のプロフィールを表示します。");
+            localStorage.setItem('access_token', token);
+            window.dispatchEvent(new Event('auth-state-changed'));
+            // ハッシュをクリア
+            if (window.location.hash) {
+                window.history.replaceState({}, document.title, window.location.pathname + window.location.search);
+            }
             fetchMyInfo(token);
+
         } else {
             console.log("トークンが見つかりません。ログインページにリダイレクトします。");
             window.location.href = '/login.html';

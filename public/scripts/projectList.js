@@ -105,7 +105,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // --- モーダルに詳細情報をセット ---
         document.getElementById('detail-project-title').textContent = escapeHTML(project.title);
-        document.getElementById('detail-description').innerHTML = `<strong>Description:</strong> ${escapeHTML(project.description)}`;
+        // マークダウンをパースしてサニタイズして表示
+        const descriptionHtml = DOMPurify.sanitize(marked.parse(project.description));
+        document.getElementById('detail-description').innerHTML = `<strong>Description:</strong><div class="markdown-body" style="margin-top: 10px;">${descriptionHtml}</div>`;
 
         // スキルリストを生成
         const skillsContainer = document.getElementById('detail-required-skills');
@@ -118,8 +120,14 @@ document.addEventListener('DOMContentLoaded', () => {
         statusBadge.textContent = project.status.toUpperCase();
         statusBadge.className = `status-badge status-${project.status}`;
 
-        // オーナー情報をセット (オーナーハンドル名は UserResponse から取得する必要があるため、一旦IDを表示)
-        document.getElementById('detail-owner-handle').textContent = `Owner ID: ${project.owner_id}`;
+        // オーナー情報をセット
+        const ownerHtml = `
+            <a href="/profile.html?id=${project.owner.id}" style="display: flex; align-items: center; gap: 10px; text-decoration: none; color: #333;">
+                <img src="${project.owner.avatar_url || 'https://placehold.co/32x32/f0f0f0/666?text=U'}" alt="${project.owner.handle}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                <span style="font-weight: 600;">${project.owner.handle}</span>
+            </a>
+        `;
+        document.getElementById('detail-owner-handle').innerHTML = ownerHtml;
 
         // 応募フォームにIDをセット
         applyProjectIdInput.value = projectId;
@@ -155,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="card-date">${new Date(project.created_at).toLocaleDateString('ja-JP').replace(/\//g, '-')}</span>
                     </div>
                     <h4>${escapeHTML(project.title)}</h4>
-                    <p>${escapeHTML(project.description)}</p>
+                    <div class="markdown-body" style="font-size: 0.9em; color: #555; max-height: 100px; overflow: hidden;">${DOMPurify.sanitize(marked.parse(project.description))}</div>
                     <div class="card-skills">${skillsHtml}</div>
                 </div>
             `;

@@ -9,6 +9,10 @@ class ApplicationCreate(BaseModel):
     message: Optional[str] = None
 
 
+from app.schemas.project import ProjectResponse
+from app.schemas.user import UserResponse
+
+
 class ApplicationResponse(BaseModel):
     """Application response schema"""
     id: UUID4
@@ -18,6 +22,10 @@ class ApplicationResponse(BaseModel):
     status: str
     created_at: datetime
     updated_at: datetime
+    
+    # Added fields for eager loaded relationships
+    project: Optional[ProjectResponse] = None
+    applicant: Optional[UserResponse] = None
     
     class Config:
         from_attributes = True
