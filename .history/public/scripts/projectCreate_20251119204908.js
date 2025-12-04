@@ -74,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function renderSkillSearchResults(skills, searchQuery) {
         const skillSearchResults = document.getElementById('project-skill-search-results');
         skillSearchResults.innerHTML = '';
-
+        
         if (skills.length === 0 && searchQuery) {
             skillSearchResults.innerHTML = `
                 <div class="skill-search-item skill-search-no-result">検索結果がありません</div>
@@ -85,7 +85,7 @@ document.addEventListener('DOMContentLoaded', () => {
             skillSearchResults.style.display = 'block';
             return;
         }
-
+        
         skills.forEach(skill => {
             const item = document.createElement('div');
             item.className = 'skill-search-item';
@@ -94,7 +94,7 @@ document.addEventListener('DOMContentLoaded', () => {
             item.dataset.skillName = escapeHTML(skill.name);
             skillSearchResults.appendChild(item);
         });
-
+        
         if (searchQuery && !skills.some(s => s.name.toLowerCase() === searchQuery.toLowerCase())) {
             const createBtn = document.createElement('div');
             createBtn.className = 'skill-search-item skill-create-btn';
@@ -102,7 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
             createBtn.innerHTML = `<i class="fa-solid fa-plus"></i> 「${escapeHTML(searchQuery)}」を新規作成`;
             skillSearchResults.appendChild(createBtn);
         }
-
+        
         skillSearchResults.style.display = 'block';
     }
 
@@ -113,7 +113,7 @@ document.addEventListener('DOMContentLoaded', () => {
             window.location.href = '/login.html';
             return null;
         }
-
+        
         try {
             const endpoint = `${API_BASE_URL}/skills`;
             const response = await fetch(endpoint, {
@@ -124,16 +124,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 },
                 body: JSON.stringify({ name: skillName })
             });
-
+            
             if (!response.ok) {
                 const errorData = await response.json();
                 throw new Error(errorData.detail || 'スキルの作成に失敗しました');
             }
-
+            
             const newSkill = await response.json();
             console.log('✅ スキル作成成功:', newSkill);
             return newSkill;
-
+            
         } catch (error) {
             console.error('スキル作成エラー:', error);
             alert(`エラー: ${error.message}`);
@@ -152,12 +152,12 @@ document.addEventListener('DOMContentLoaded', () => {
             const skillRow = document.createElement('div');
             skillRow.className = 'skill-input-row';
             skillRow.dataset.skillId = skill.skill_id;
-
+            
             let levelOptions = '';
             for (let i = 1; i <= 5; i++) {
                 levelOptions += `<option value="${i}" ${skill.required_level == i ? 'selected' : ''}>Lv. ${i}</option>`;
             }
-
+            
             skillRow.innerHTML = `
                 <span class="skill-name-display">${escapeHTML(skill.skill_name)}</span>
                 <select class="skill-level-select">${levelOptions}</select>
@@ -199,20 +199,20 @@ document.addEventListener('DOMContentLoaded', () => {
         skillSearchResults.addEventListener('click', async (e) => {
             const item = e.target.closest('.skill-search-item');
             if (!item) return;
-
+            
             if (item.dataset.skillId) {
                 addSkillToList(item.dataset.skillId, item.dataset.skillName);
             } else if (item.classList.contains('skill-create-btn')) {
                 const skillName = item.dataset.skillName;
                 if (!skillName) return;
-
+                
                 item.style.pointerEvents = 'none';
                 item.style.opacity = '0.6';
                 const originalText = item.innerHTML;
                 item.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> 作成中...';
-
+                
                 const newSkill = await createNewSkill(skillName);
-
+                
                 if (newSkill) {
                     addSkillToList(newSkill.id, newSkill.name);
                 } else {
@@ -228,7 +228,7 @@ document.addEventListener('DOMContentLoaded', () => {
     skillsContainer.addEventListener('click', (e) => {
         const skillRow = e.target.closest('.skill-input-row');
         if (!skillRow) return;
-
+        
         if (e.target.classList.contains('remove-skill-btn')) {
             const skillId = parseInt(skillRow.dataset.skillId);
             selectedSkills = selectedSkills.filter(s => s.skill_id !== skillId);
@@ -246,23 +246,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-
-    // --- マークダウンプレビュー機能 ---
-    const descriptionInput = document.getElementById('project-description');
-    const descriptionPreview = document.getElementById('description-preview');
-
-    if (descriptionInput && descriptionPreview) {
-        descriptionInput.addEventListener('input', () => {
-            const markdownText = descriptionInput.value;
-            if (markdownText.trim()) {
-                const htmlContent = DOMPurify.sanitize(marked.parse(markdownText));
-                descriptionPreview.innerHTML = htmlContent;
-                descriptionPreview.style.display = 'block';
-            } else {
-                descriptionPreview.style.display = 'none';
-            }
-        });
-    }
 
     // --- フォーム送信処理 ---
     form.addEventListener('submit', async (e) => {

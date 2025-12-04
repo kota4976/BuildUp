@@ -163,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         <span class="card-date">${new Date(project.created_at).toLocaleDateString('ja-JP').replace(/\//g, '-')}</span>
                     </div>
                     <h4>${escapeHTML(project.title)}</h4>
-                    <div class="markdown-body" style="font-size: 0.9em; color: #555; max-height: 100px; overflow: hidden;">${DOMPurify.sanitize(marked.parse(project.description))}</div>
+                    <p>${escapeHTML(project.description)}</p>
                     <div class="card-skills">${skillsHtml}</div>
                 </div>
             `;

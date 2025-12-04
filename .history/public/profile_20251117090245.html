@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>プロフィール - BuildUp</title>
+    <link rel="stylesheet" href="styles/profile.css">
+    <link rel="stylesheet" href="styles/profile-components.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+
+    <style>
+
+    </style>
+</head>
+<body>
+
+<build-up-header></build-up-header>
+<script src="component/header-component.js" type="module"></script>
+
+<div class="main-content">
+
+    <div class="profile-card">
+        <img src="images/profile_placeholder.jpg" alt="プロフィール画像" class="profile-img" id="profile-avatar">
+        <div class="profile-info" id="profile-info-container">
+            <h1 id="profile-name">読み込み中...</h1>
+            <p id="profile-bio"></p>
+        </div>
+        <button class="edit-btn" id="edit-profile-btn">✍️ Edit Profile</button>
+    </div>
+
+    <div class="tabs">
+        <a href="#" class="active">Overview</a>
+        <a href="#">Projects</a>
+        <a href="#">Skills</a>
+        <a href="#">Achievements</a>
+    </div>
+
+    <div class="profile-layout">
+
+        <div class="left-column">
+
+            <div id="overview-content" class="tab-content active">
+                <div class="section-card about-section">
+                    <h3>About</h3>
+                    <p id="profile-about-text"></p>
+                </div>
+            </div>
+
+            <div id="projects-content" class="tab-content hidden">
+                <div class="project-list" id="profile-projects-list">
+                </div>
+            </div>
+
+            <div id="skills-content" class="tab-content hidden">
+                <div class="section-card">
+                    <div class="skills-header">
+                        <h3>Skills</h3>
+                        <button class="edit-btn" id="edit-skills-btn">✍️ Edit Skills</button>
+                    </div>
+                    <div class="skill-list" id="profile-skills-list">
+                        ...
+                    </div>
+                </div>
+            </div>
+
+        </div> <div class="right-column">
+        <div class="section-card contact-info" id="profile-contact-info">
+            <h3>Contact Information</h3>
+            <div class="info-item" id="contact-email"></div>
+            <div class="info-item" id="contact-github"></div>
+        </div>
+        <div class="section-card quick-stats" id="profile-stats">
+            <h3>Quick Stats</h3>
+        </div>
+    </div>
+
+    </div> </div> <div class="modal-overlay" id="edit-profile-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>プロフィールを編集</h2>
+            <button class="modal-close-btn" id="modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <label for="bio-textarea">自己紹介 (Bio)</label>
+            <textarea id="bio-textarea" placeholder="あなたのプロフィールを入力してください..."></textarea>
+            <div id="modal-error-message"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-save-btn" id="modal-save-btn">保存する</button>
+        </div>
+    </div>
+</div>
+
+<div class="modal-overlay" id="edit-skills-modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>スキルを編集</h2>
+            <button class="modal-close-btn" id="skills-modal-close-btn">&times;</button>
+        </div>
+        <div class="modal-body">
+            <label for="skill-search-input">スキルを検索して追加</label>
+            <input type="text" id="skill-search-input" placeholder="例: React, Python...">
+            <div id="skill-search-results">
+            </div>
+            <h4 class="selected-skills-title">現在のスキル</h4>
+            <div id="selected-skills-list">
+            </div>
+            <div id="skill-modal-error" class="error-message" style="display: none;"></div>
+        </div>
+        <div class="modal-footer">
+            <button class="modal-save-btn" id="skills-modal-save-btn">保存する</button>
+        </div>
+    </div>
+</div>
+
+
+<script src="scripts/tab_switcher.js" defer></script>
+
+<script src="scripts/profile.js" defer></script>
+
+</body>
+</html>
