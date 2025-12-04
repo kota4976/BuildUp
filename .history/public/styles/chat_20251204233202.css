@@ -49,16 +49,16 @@ build-up-header {
 /* メッセージバブルの基本的なスタイル */
 .message-bubble {
   border-radius: 22px;
-  display: block;
+  display: inline-block;
   width: fit-content;
   max-width: 85%;
   word-wrap: break-word;
   overflow-wrap: break-word;
-  word-break: break-word;
+  word-break: keep-all;
   position: relative;
   padding: 8px 14px;
   line-height: 1.4;
-  white-space: pre-line;
+  white-space: pre-wrap;
 }
 
 /* ユーザーメッセージ (青) - より洗練されたデザイン */

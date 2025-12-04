@@ -50,7 +50,7 @@ build-up-header {
 .message-bubble {
   border-radius: 22px;
   display: block;
-  width: fit-content;
+  width: max-content;
   max-width: 85%;
   word-wrap: break-word;
   overflow-wrap: break-word;
@@ -58,7 +58,7 @@ build-up-header {
   position: relative;
   padding: 8px 14px;
   line-height: 1.4;
-  white-space: pre-line;
+  white-space: pre-wrap;
 }
 
 /* ユーザーメッセージ (青) - より洗練されたデザイン */

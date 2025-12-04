@@ -28,7 +28,7 @@ let currentPartnerName = null;  // 現在のチャット相手の名前
 /**
  * 現在のWebSocket接続を取得（WebRTC用）
  */
-window.getCurrentWebSocket = function () {
+window.getCurrentWebSocket = function() {
     return websocket;
 };
 
@@ -196,7 +196,7 @@ async function fetchConversation(matchId, isGroupChat = false) {
         }
 
         // グループチャットとダイレクトチャットで異なるエンドポイントを使用
-        const endpoint = isGroupChat
+        const endpoint = isGroupChat 
             ? `${API_BASE_URL}/group-chats/${matchId}?limit=50`
             : `${API_BASE_URL}/matches/${matchId}/conversation?limit=50`;
 
@@ -587,7 +587,9 @@ async function appendMessage(message, isOwnMessage = null) {
         ? `
         <div class="flex justify-end mb-4 group" data-message-id="${message.id}">
             <div class="max-w-sm md:max-w-md lg:max-w-lg xl:max-w-2xl flex flex-col items-end">
-                <div class="message-bubble user text-sm text-white shadow-lg">${escapeHtml(message.body)}</div>
+                <div class="message-bubble user text-sm text-white shadow-lg">
+                    ${escapeHtml(message.body)}
+                </div>
                 <span class="text-xs text-gray-500 mt-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">${timeString}</span>
             </div>
         </div>
@@ -600,7 +602,9 @@ async function appendMessage(message, isOwnMessage = null) {
                  onerror="this.onerror=null; this.src='https://placehold.co/32x32/f0f0f0/666?text=U'">
             <div class="max-w-sm md:max-w-md lg:max-w-lg xl:max-w-2xl flex flex-col">
                 <p class="text-xs font-semibold text-gray-700 mb-1.5">${senderInfo?.handle || 'Unknown User'}</p>
-                <div class="message-bubble other text-sm text-gray-900 shadow-md">${escapeHtml(message.body)}</div>
+                <div class="message-bubble other text-sm text-gray-900 shadow-md">
+                    ${escapeHtml(message.body)}
+                </div>
                 <span class="text-xs text-gray-500 mt-1 px-2 opacity-0 group-hover:opacity-100 transition-opacity">${timeString}</span>
             </div>
         </div>
@@ -708,7 +712,7 @@ function connectWebSocket(conversationId, isGroupChat = false) {
             } else if (data.type === 'error') {
                 console.error('WebSocketエラー:', data.message);
                 showError(data.message);
-            }
+            } 
             // WebRTCシグナリングメッセージの処理
             else if (['offer', 'answer', 'ice-candidate', 'reject', 'end'].includes(data.type)) {
                 webrtcManager.handleSignalingMessage(data);
@@ -829,7 +833,7 @@ export function initCallButtons() {
             });
         }
     });
-
+    
     console.log('通話ボタンの初期化が完了しました');
 }
 

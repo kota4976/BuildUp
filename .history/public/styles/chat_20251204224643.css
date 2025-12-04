@@ -27,8 +27,7 @@ build-up-header {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-top: 60px;
-  /* ヘッダーの高さに応じて調整 */
+  padding-top: 60px; /* ヘッダーの高さに応じて調整 */
   padding: 60px 20px 20px 20px;
 }
 
@@ -48,31 +47,36 @@ build-up-header {
 
 /* メッセージバブルの基本的なスタイル */
 .message-bubble {
-  border-radius: 22px;
-  display: block;
-  width: fit-content;
-  max-width: 85%;
+  border-radius: 18px;
+  max-width: 75%;
+  min-width: auto;
   word-wrap: break-word;
+  word-break: keep-all;
   overflow-wrap: break-word;
-  word-break: break-word;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
   position: relative;
-  padding: 8px 14px;
+  padding: 6px 12px;
   line-height: 1.4;
-  white-space: pre-line;
+  white-space: pre-wrap;
 }
 
 /* ユーザーメッセージ (青) - より洗練されたデザイン */
 .message-bubble.user {
-  background: linear-gradient(135deg, #833ab4 0%, #fd1d1d 50%, #fcb045 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
+  border-bottom-right-radius: 4px;
   margin-left: auto;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 /* 相手のメッセージ (白) - より洗練されたデザイン */
 .message-bubble.other {
-  background: #efefef;
-  color: #262626;
+  background: #ffffff;
+  color: #1f2937;
+  border-bottom-left-radius: 4px;
+  border: 1px solid #e5e7eb;
   margin-right: auto;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 /* アクティブなチャットアイテム */
@@ -148,12 +152,6 @@ build-up-header {
     display: block !important;
   }
 
-  /* モバイルでの入力エリア調整 */
-  #message-input-area {
-    padding-bottom: 20px;
-    /* iPhoneのホームバー考慮 */
-  }
-
   .main-container {
     max-width: 100%;
   }
@@ -185,7 +183,6 @@ build-up-header {
   from {
     transform: rotate(0deg);
   }
-
   to {
     transform: rotate(360deg);
   }
@@ -222,13 +219,11 @@ build-up-header {
 }
 
 @keyframes pulse {
-
   0%,
   100% {
     opacity: 1;
     transform: scale(1);
   }
-
   50% {
     opacity: 0.7;
     transform: scale(1.05);
@@ -264,7 +259,6 @@ build-up-header {
     opacity: 0;
     transform: translateY(10px) scale(0.95);
   }
-
   to {
     opacity: 1;
     transform: translateY(0) scale(1);
@@ -272,7 +266,7 @@ build-up-header {
 }
 
 /* メッセージのタイムスタンプ */
-.message-bubble+span {
+.message-bubble + span {
   transition: opacity 0.2s ease;
 }
 
@@ -308,42 +302,54 @@ build-up-header {
 /* メッセージ入力フィールドのフォーカス - より視覚的に */
 #message-input {
   transition: all 0.3s ease;
-  border-radius: 9999px;
-  background-color: #efefef;
-  border: 1px solid transparent;
 }
 
 #message-input:focus {
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+  border-color: #3b82f6;
   background: white;
-  border-color: #dbdbdb;
-  box-shadow: none;
 }
 
 /* チャットリストのヘッダー - グラデーション効果 */
-.chat-list>div:first-child {
-  background: linear-gradient(135deg,
-      rgb(94, 137, 255) 0%,
-      rgb(94, 137, 255) 100%);
+.chat-list > div:first-child {
+  background: linear-gradient(
+    135deg,
+    rgb(94, 137, 255) 0%,
+    rgb(94, 137, 255) 100%
+  );
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 /* チャットヘッダーの改善 */
 #chat-header {
   backdrop-filter: blur(10px);
-  background: linear-gradient(to right,
-      rgba(249, 250, 251, 0.9),
-      rgba(255, 255, 255, 0.9));
+  background: linear-gradient(
+    to right,
+    rgba(249, 250, 251, 0.9),
+    rgba(255, 255, 255, 0.9)
+  );
   border-bottom: 1px solid #e5e7eb;
 }
 
 /* メッセージエリアの背景パターン */
 #messages-area {
-  background: white;
+  background: linear-gradient(
+      to bottom,
+      rgba(249, 250, 251, 0.5),
+      rgba(255, 255, 255, 0.5)
+    ),
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 20px,
+      rgba(229, 231, 235, 0.1) 20px,
+      rgba(229, 231, 235, 0.1) 21px
+    );
 }
 
 /* メッセージ間のスペーシング */
-#messages-area>div {
-  margin-bottom: 8px !important;
+#messages-area > div {
+  margin-bottom: 12px;
 }
 
 /* アバターのホバーエフェクト */
@@ -377,7 +383,6 @@ build-up-header {
     opacity: 0;
     transform: translateY(20px);
   }
-
   to {
     opacity: 1;
     transform: translateY(0);
@@ -392,23 +397,18 @@ build-up-header {
 .chat-item:nth-child(1) {
   animation-delay: 0.05s;
 }
-
 .chat-item:nth-child(2) {
   animation-delay: 0.1s;
 }
-
 .chat-item:nth-child(3) {
   animation-delay: 0.15s;
 }
-
 .chat-item:nth-child(4) {
   animation-delay: 0.2s;
 }
-
 .chat-item:nth-child(5) {
   animation-delay: 0.25s;
 }
-
 .chat-item:nth-child(n + 6) {
   animation-delay: 0.3s;
 }
@@ -499,7 +499,7 @@ input:focus {
 }
 
 /* 着信モーダルのアニメーション */
-#incoming-call-modal.show>div {
+#incoming-call-modal.show > div {
   animation: bounceIn 0.5s ease-out;
 }
 
@@ -508,16 +508,13 @@ input:focus {
     opacity: 0;
     transform: scale(0.3) translateY(-50px);
   }
-
   50% {
     opacity: 1;
     transform: scale(1.05);
   }
-
   70% {
     transform: scale(0.9);
   }
-
   100% {
     transform: scale(1) translateY(0);
   }
@@ -532,11 +529,9 @@ input:focus {
   0% {
     box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.7);
   }
-
   70% {
     box-shadow: 0 0 0 20px rgba(59, 130, 246, 0);
   }
-
   100% {
     box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
   }
@@ -575,15 +570,15 @@ input:focus {
     width: 120px;
     height: 90px;
   }
-
+  
   #call-modal .absolute.bottom-8 {
     bottom: 4rem;
   }
-
+  
   #call-modal button {
     padding: 0.75rem;
   }
-
+  
   #call-modal button i {
     width: 1.25rem;
     height: 1.25rem;

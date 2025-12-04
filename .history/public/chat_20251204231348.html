@@ -9,7 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
-    <link rel="stylesheet" href="styles/chat.css?v=2" />
+    <link rel="stylesheet" href="styles/chat.css" />
 </head>
 
 <body class="bg-gradient-to-br from-gray-50 to-gray-100">
@@ -350,9 +350,9 @@
             getUserInfo,
             userCache,
             initCallButtons
-        } from './scripts/chat.js?v=2';
+        } from './scripts/chat.js';
 
-        import { initChatCreationModal } from './scripts/chatCreate.js?v=2';
+        import { initChatCreationModal } from './scripts/chatCreate.js';
 
         // ページロード時にすべての初期化と依存性の注入を実行
         document.addEventListener('DOMContentLoaded', async () => {
