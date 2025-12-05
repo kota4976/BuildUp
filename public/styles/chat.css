@@ -27,7 +27,6 @@ build-up-header {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  /* padding-topは次のショートハンドで上書きされるため削除 */
   padding: 70px 20px 20px 20px;
 }
 
@@ -46,7 +45,7 @@ build-up-header {
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
   background: white;
-  position: relative; /* 子要素のabsolute配置の基準にする */
+  /* position: relativeを削除（これが原因で子のfixed/absoluteが崩れた可能性あり） */
   height: 100%; /* 親のflexアイテムとして高さを埋める */
 }
 
@@ -139,12 +138,14 @@ build-up-header {
   }
 
   .chat-window.active {
-    position: absolute;
-    top: 0;
+    /* ここが重要：absolute -> fixed に変更し、topをヘッダー高さ分下げる */
+    position: fixed;
+    top: 70px;
     left: 0;
     right: 0;
     bottom: 0;
-    z-index: 10;
+    height: calc(100vh - 70px);
+    z-index: 49; /* ヘッダー(50)より下 */
     background-color: white;
     border-radius: 0;
   }
