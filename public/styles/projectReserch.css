@@ -325,3 +325,69 @@ body {
     margin-bottom: 15px;
     font-size: 14px;
 }
+
+/* --- レスポンシブ対応 (追加) --- */
+@media (max-width: 768px) {
+    .main-content {
+        padding: 20px 15px; /* 余白を狭く */
+    }
+
+    /* レイアウトを縦並びに */
+    .project-discovery-layout {
+        grid-template-columns: 1fr; /* 1カラム */
+        gap: 20px;
+    }
+
+    /* 検索バーとフィルタを見やすく */
+    .filter-sidebar {
+        background-color: #fff;
+        padding: 15px;
+        border-radius: 8px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+    }
+    
+    .filter-sidebar h2 {
+        font-size: 18px;
+    }
+
+    /* プロジェクトグリッドを1カラムに */
+    .project-grid {
+        grid-template-columns: 1fr; /* 1枚ずつ表示 */
+        gap: 20px;
+    }
+
+    /* カード内の画像高さ調整 */
+    .card-image {
+        height: 200px;
+    }
+
+    /* モーダルの調整 */
+    .modal-content {
+        width: 90%;
+        margin: 15% auto;
+        padding: 20px;
+    }
+
+    /* フォーム要素のレスポンシブ */
+    #skills-container .skill-input-row {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    #skills-container .skill-input-row input:first-child,
+    #skills-container .skill-input-row input:last-of-type {
+        flex-basis: auto;
+        width: 100%;
+    }
+    
+    /* 検索結果ヘッダー */
+    .results-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .create-project-btn {
+        width: 100%;
+    }
+}

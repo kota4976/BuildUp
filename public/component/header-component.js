@@ -10,7 +10,7 @@ class BuildUpHeader extends HTMLElement {
     this.userHandle = null;
     this.userAvatar = null;
 
-    // 初期のレイアウトHTMLを定義 (ロード中/未認証時のベース)
+    // 初期のレイアウトHTMLを定義
     this.baseTemplate = `
             <style>
                 /* --- CSS: コンポーネントの見た目を定義 --- */
@@ -23,10 +23,11 @@ class BuildUpHeader extends HTMLElement {
                 
                 .navbar {
                     background-color: #ffffff;
-                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* シャドウを少し強める */
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
                     display: flex; 
                     justify-content: center;
-                    padding: 12px 40px; /* パディングを調整 */
+                    padding: 0 20px;
+                    height: 70px; /* 高さを固定 */
                 }
 
                 .navbar-container {
@@ -34,18 +35,24 @@ class BuildUpHeader extends HTMLElement {
                     width: 100%;
                     margin: 0 auto;
                     display: flex;
-                    /* [修正] 左右寄せに変更 */
                     justify-content: space-between; 
                     align-items: center;
+                    height: 100%;
                 }
 
                 .nav-left {
                     display: flex;
                     align-items: center;
+                    height: 100%;
                 }
                 
                 /* ロゴ */
-                .logo { text-decoration: none; display: flex; align-items: center; }
+                .logo { 
+                    text-decoration: none; 
+                    display: flex; 
+                    align-items: center; 
+                    z-index: 1001; /* モバイルメニューより上に */
+                }
                 .logo-img { height: 35px; width: auto; display: block; }
 
                 /* メニュー */
@@ -60,7 +67,7 @@ class BuildUpHeader extends HTMLElement {
                     font-weight: 500;
                     font-size: 0.95rem;
                     padding: 5px 0;
-                    transition: all 0.2s ease; /* トランジション追加 */
+                    transition: all 0.2s ease;
                 }
                 .nav-link:hover {
                     color: #007bff;
@@ -72,6 +79,7 @@ class BuildUpHeader extends HTMLElement {
                     display: flex;
                     align-items: center;
                     gap: 10px;
+                    z-index: 1001; /* モバイルメニューより上に */
                 }
                 .auth-button {
                     padding: 8px 15px;
@@ -80,6 +88,7 @@ class BuildUpHeader extends HTMLElement {
                     font-weight: 600;
                     text-decoration: none;
                     transition: background-color 0.2s ease;
+                    white-space: nowrap; /* 折り返し禁止 */
                 }
                 .login-btn {
                     background-color: #f0f0f0;
@@ -148,26 +157,96 @@ class BuildUpHeader extends HTMLElement {
                     color: #dc3545;
                     cursor: pointer;
                 }
+
+                /* ハンバーガーメニューボタン (PCでは非表示) */
+                .menu-toggle {
+                    display: none;
+                    flex-direction: column;
+                    justify-content: space-around;
+                    width: 30px;
+                    height: 25px;
+                    background: transparent;
+                    border: none;
+                    cursor: pointer;
+                    padding: 0;
+                    z-index: 1002; /* 最前面 */
+                    margin-right: 15px;
+                }
+                .menu-toggle span {
+                    width: 30px;
+                    height: 3px;
+                    background: #333;
+                    border-radius: 10px;
+                    transition: all 0.3s linear;
+                    position: relative;
+                    transform-origin: 1px;
+                }
                 
-                /* --- レスポンシブ対応 --- */
+                /* ハンバーガーのアニメーション */
+                .menu-toggle.open span:nth-child(1) {
+                    transform: rotate(45deg);
+                }
+                .menu-toggle.open span:nth-child(2) {
+                    opacity: 0;
+                    transform: translateX(20px);
+                }
+                .menu-toggle.open span:nth-child(3) {
+                    transform: rotate(-45deg);
+                }
+
+                
+                /* --- レスポンシブ対応 (スマホ向け) --- */
                 @media (max-width: 768px) {
                     .navbar {
-                        padding: 10px 20px;
+                        padding: 0 15px;
                     }
-                    .nav-menu {
-                        /* モバイルではメニューを非表示 */
-                        display: none;
-                    }
-                    .auth-button {
-                        padding: 6px 12px;
-                    }
-                    .profile-icon {
-                        width: 36px;
-                        height: 36px;
-                    }
+                    
+                    /* ハンバーガーメニューを表示 */
                     .menu-toggle {
-                        display: block !important; 
-                        margin-left: 10px;
+                        display: flex;
+                    }
+
+                    /* ナビゲーションメニューをモバイル用に変更 */
+                    .nav-menu {
+                        position: fixed;
+                        top: 70px; /* ヘッダーの高さ分下げる */
+                        left: 0;
+                        flex-direction: column;
+                        background-color: #ffffff;
+                        width: 100%;
+                        height: calc(100vh - 70px);
+                        margin-left: 0;
+                        padding: 20px 0;
+                        gap: 0;
+                        border-top: 1px solid #eee;
+                        transform: translateX(-100%); /* 左に隠す */
+                        transition: transform 0.3s ease-in-out;
+                        z-index: 999;
+                    }
+
+                    .nav-menu.active {
+                        transform: translateX(0); /* 表示 */
+                    }
+
+                    .nav-link {
+                        padding: 15px 30px;
+                        font-size: 1.1rem;
+                        border-bottom: 1px solid #f0f0f0;
+                        width: 100%;
+                        box-sizing: border-box;
+                        display: block;
+                    }
+
+                    .nav-link:hover {
+                        background-color: #f9f9f9;
+                        border-bottom: 1px solid #f0f0f0; /* ホバー時の線をリセット */
+                        color: #007bff;
+                    }
+
+                    /* 認証ボタンを少し小さく */
+                    .auth-button {
+                        padding: 6px 10px;
+                        font-size: 0.85rem;
                     }
                 }
             </style>
@@ -175,10 +254,18 @@ class BuildUpHeader extends HTMLElement {
             <header class="navbar">
                 <div class="navbar-container">
                     <div class="nav-left">
+                        <!-- ハンバーガーボタン -->
+                        <button class="menu-toggle" id="mobile-menu-toggle" aria-label="メニューを開く">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </button>
+
                         <a href="/" class="logo">
                             <img src="images/BuildUp-logo.jpg" alt="BuildUp Logo" class="logo-img">
                         </a>
-                        <nav class="nav-menu">
+                        
+                        <nav class="nav-menu" id="nav-menu">
                             <a href="/projectReserch.html" class="nav-link">プロジェクト</a>
                             <a href="/chat.html" class="nav-link">メッセージ</a>
                             <a href="/applications.html" class="nav-link">応募管理</a>
@@ -187,7 +274,6 @@ class BuildUpHeader extends HTMLElement {
                     
                     <!-- 認証状態に応じて中身が変わるコンテナ -->
                     <div id="auth-status-container" class="nav-right-buttons">
-                        <!-- ロード中はスピナーか何も表示しない -->
                         <div class="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-500"></div>
                     </div>
                 </div>
@@ -200,6 +286,29 @@ class BuildUpHeader extends HTMLElement {
     this.shadowRoot.innerHTML = this.baseTemplate;
     this.checkAuthStatus();
     this.addEventListeners();
+    this.addMobileMenuListeners(); // 追加
+  }
+
+  // スマホメニュー用のイベントリスナー
+  addMobileMenuListeners() {
+      const toggleBtn = this.shadowRoot.getElementById('mobile-menu-toggle');
+      const navMenu = this.shadowRoot.getElementById('nav-menu');
+
+      if (toggleBtn && navMenu) {
+          toggleBtn.addEventListener('click', () => {
+              toggleBtn.classList.toggle('open');
+              navMenu.classList.toggle('active');
+          });
+
+          // メニュー内のリンクをクリックしたら閉じる
+          const links = navMenu.querySelectorAll('.nav-link');
+          links.forEach(link => {
+              link.addEventListener('click', () => {
+                  toggleBtn.classList.remove('open');
+                  navMenu.classList.remove('active');
+              });
+          });
+      }
   }
 
   // 認証状態の確認
@@ -300,7 +409,7 @@ class BuildUpHeader extends HTMLElement {
       document.addEventListener("click", (e) => {
         const path = e.composedPath();
         if (!path.includes(avatarIcon) && !path.includes(dropdownMenu)) {
-          dropdownMenu.classList.remove("show");
+            if(dropdownMenu) dropdownMenu.classList.remove("show");
         }
       });
 
