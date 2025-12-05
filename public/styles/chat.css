@@ -27,14 +27,17 @@ build-up-header {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-top: 70px; /* ヘッダー高さ70pxに合わせる */
+  /* padding-topは次のショートハンドで上書きされるため削除 */
   padding: 70px 20px 20px 20px;
 }
 
 /* チャットリストとウィンドウの領域が利用可能な高さをフルに使う */
 .main-container {
   flex-grow: 1;
-  max-height: calc(100vh - 90px); /* 上下余白考慮 */
+  /* 上下のpadding (20px + 20px) とヘッダー (70px) を考慮 */
+  /* ただしflex-growがあるのでheight: autoでも良いが、スクロールのために制限 */
+  height: 100%;
+  overflow: hidden;
 }
 
 /* メインコンテナの角丸を調整 */
@@ -44,6 +47,7 @@ build-up-header {
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
   background: white;
   position: relative; /* 子要素のabsolute配置の基準にする */
+  height: 100%; /* 親のflexアイテムとして高さを埋める */
 }
 
 /* メッセージバブルの基本的なスタイル */
@@ -125,12 +129,13 @@ build-up-header {
 /* モバイルでのチャットウィンドウの全画面表示 */
 @media (max-width: 767px) {
   .main-container-wrapper {
-    padding: 70px 0 0 0; /* ヘッダー高さ70pxに合わせる */
+    /* ヘッダー高さ70pxに合わせる。左右のパディングを削除して全幅にする */
+    padding: 70px 0 0 0;
   }
 
   .main-container-fixed {
     border-radius: 0;
-    height: calc(100vh - 70px); /* ヘッダー分引く */
+    height: 100%;
   }
 
   .chat-window.active {
@@ -156,6 +161,7 @@ build-up-header {
 
   .main-container {
     max-width: 100%;
+    max-height: none; /* モバイルでは制限を解除 */
   }
 }
 
@@ -369,9 +375,10 @@ build-up-header {
     font-size: 0.9rem;
   }
 
-  .main-container-wrapper {
-    padding: 70px 0 0 0;
-  }
+  /* 
+    全称セレクタへのtransitionは副作用が強いため、必要な要素にのみ適用するように変更
+    .main-container-wrapperのpaddingは上のメディアクエリで設定済み
+  */
 }
 
 /* アニメーションの改善 */
@@ -431,8 +438,13 @@ input:focus {
   ring-offset: 2px;
 }
 
-/* トランジションの統一 */
-* {
+/* 個別のトランジション設定 (全称セレクタ削除) */
+.chat-item,
+.chat-list,
+.chat-window,
+button,
+input,
+.main-container-wrapper {
   transition-property: color, background-color, border-color, transform, opacity,
     box-shadow;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
