@@ -1,391 +1,565 @@
 <!DOCTYPE html>
 <html lang="ja">
-
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>チャット | BuildUp</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
     <script src="https://unpkg.com/picmo@latest/dist/umd/index.js"></script>
 
     <link rel="stylesheet" href="styles/chat.css?v=2" />
-</head>
+  </head>
 
-<body class="bg-gradient-to-br from-gray-50 to-gray-100">
+  <body class="bg-gradient-to-br from-gray-50 to-gray-100">
     <build-up-header></build-up-header>
 
     <div class="main-container-wrapper">
+      <div
+        class="main-container main-container-fixed flex mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden h-full border border-gray-200"
+      >
         <div
-            class="main-container main-container-fixed flex mx-auto bg-white rounded-2xl shadow-2xl overflow-hidden h-full border border-gray-200">
-            <div id="chat-list"
-                class="chat-list w-full md:w-80 flex-shrink-0 border-r border-gray-200 bg-white overflow-y-auto custom-scrollbar flex flex-col h-full">
-                <div class="flex-shrink-0 bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-5 shadow-md">
-                    <div class="flex items-center justify-between">
-                        <h1 class="text-2xl font-bold text-white">チャット</h1>
-                        <button id="create-chat-btn"
-                            class="p-2 rounded-full hover:bg-blue-800 transition-colors text-white">
-                            <i data-lucide="plus" class="w-5 h-5"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <div id="chat-list-loading" class="flex flex-col items-center justify-center p-8">
-                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-3"></div>
-                    <div class="text-gray-500 text-sm">読み込み中...</div>
-                </div>
-
-                <div id="chat-list-error"
-                    class="hidden m-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
-                    <div class="flex items-center">
-                        <i data-lucide="alert-circle" class="w-5 h-5 mr-2"></i>
-                        <p>エラーが発生しました。ページをリロードしてください。</p>
-                    </div>
-                </div>
-
-                <div id="message-container" class="flex-grow overflow-y-auto">
-                </div>
+          id="chat-list"
+          class="chat-list w-full md:w-80 flex-shrink-0 border-r border-gray-200 bg-white overflow-y-auto custom-scrollbar flex flex-col h-full"
+        >
+          <div
+            class="flex-shrink-0 bg-gradient-to-r from-blue-600 to-blue-700 px-6 py-5 shadow-md"
+          >
+            <div class="flex items-center justify-between">
+              <h1 class="text-2xl font-bold text-white">チャット</h1>
+              <button
+                id="create-chat-btn"
+                class="p-2 rounded-full hover:bg-blue-800 transition-colors text-white"
+              >
+                <i data-lucide="plus" class="w-5 h-5"></i>
+              </button>
             </div>
+          </div>
 
-            <div id="chat-window" class="chat-window flex-grow flex flex-col hidden md:flex h-full">
-                <div id="chat-header"
-                    class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white flex-shrink-0 shadow-sm">
-                    <div class="flex items-center flex-1 min-w-0">
-                        <button id="back-to-list"
-                            class="back-btn mr-3 p-2 hidden text-gray-600 hover:bg-gray-200 hover:text-gray-900 rounded-full transition-all">
-                            <i data-lucide="arrow-left" class="w-5 h-5"></i>
-                        </button>
-                        <div id="chat-header-content" class="flex items-center flex-1 min-w-0">
-                            <div class="flex flex-col min-w-0 flex-1">
-                                <h2 class="text-lg font-semibold text-gray-800 truncate">
-                                    チャットを選択してください
-                                </h2>
-                                <p class="text-xs text-gray-500 hidden" id="chat-header-status">
-                                    オンライン
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="chat-header-actions" class="flex space-x-2 text-gray-500 hidden">
-                        <button class="p-2 hover:bg-gray-200 hover:text-blue-600 rounded-full transition-all">
-                            <i data-lucide="phone" class="w-5 h-5"></i>
-                        </button>
-                        <button class="p-2 hover:bg-gray-200 hover:text-blue-600 rounded-full transition-all">
-                            <i data-lucide="video" class="w-5 h-5"></i>
-                        </button>
-                        <button class="p-2 hover:bg-gray-200 hover:text-blue-600 rounded-full transition-all">
-                            <i data-lucide="more-vertical" class="w-5 h-5"></i>
-                        </button>
-                    </div>
-                </div>
+          <div
+            id="chat-list-loading"
+            class="flex flex-col items-center justify-center p-8"
+          >
+            <div
+              class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mb-3"
+            ></div>
+            <div class="text-gray-500 text-sm">読み込み中...</div>
+          </div>
 
-                <div id="messages-area"
-                    class="flex-grow p-6 overflow-y-auto custom-scrollbar bg-gradient-to-b from-gray-50 to-white">
-                    <div class="flex flex-col items-center justify-center h-full text-gray-400">
-                        <div class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center mb-4">
-                            <i data-lucide="message-circle" class="w-10 h-10 text-gray-400"></i>
-                        </div>
-                        <p class="text-lg font-medium text-gray-500">
-                            チャットを選択してください
-                        </p>
-                        <p class="text-sm text-gray-400 mt-2">
-                            左側のリストから会話を選んでください
-                        </p>
-                    </div>
-                </div>
-
-                <div id="message-input-area"
-                    class="px-6 py-4 border-t border-gray-200 bg-white flex-shrink-0 hidden shadow-lg">
-                    <form id="chat-form" class="flex items-end space-x-3">
-                        <div class="flex-1 relative">
-                            <input type="text" id="message-input" placeholder="メッセージを入力..."
-                                class="w-full px-4 py-3 pr-12 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-gray-50 focus:bg-white placeholder-gray-400 text-gray-800"
-                                aria-label="Message input" autocomplete="off" />
-                            <button type="button"
-                                class="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-blue-600 rounded-full transition-colors"
-                                id="emoji-button">
-                                <i data-lucide="smile" class="w-5 h-5"></i>
-                            </button>
-                            <div id="emoji-picker-container"
-                                class="hidden absolute bottom-14 right-0 z-50 shadow-xl rounded-lg overflow-hidden">
-                            </div>
-                        </div>
-
-                        <button type="submit"
-                            class="p-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl hover:from-blue-700 hover:to-blue-800 transition-all flex items-center justify-center flex-shrink-0 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95">
-                            <i data-lucide="send" class="w-5 h-5"></i>
-                        </button>
-                    </form>
-                </div>
+          <div
+            id="chat-list-error"
+            class="hidden m-4 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm"
+          >
+            <div class="flex items-center">
+              <i data-lucide="alert-circle" class="w-5 h-5 mr-2"></i>
+              <p>エラーが発生しました。ページをリロードしてください。</p>
             </div>
+          </div>
+
+          <div id="message-container" class="flex-grow overflow-y-auto"></div>
         </div>
+
+        <div
+          id="chat-window"
+          class="chat-window flex-grow flex flex-col hidden md:flex h-full"
+        >
+          <div
+            id="chat-header"
+            class="flex items-center justify-between px-6 py-4 border-b border-gray-200 bg-gradient-to-r from-gray-50 to-white flex-shrink-0 shadow-sm"
+          >
+            <div class="flex items-center flex-1 min-w-0">
+              <button
+                id="back-to-list"
+                class="back-btn mr-3 p-2 hidden text-gray-600 hover:bg-gray-200 hover:text-gray-900 rounded-full transition-all"
+              >
+                <i data-lucide="arrow-left" class="w-5 h-5"></i>
+              </button>
+              <div
+                id="chat-header-content"
+                class="flex items-center flex-1 min-w-0"
+              >
+                <div class="flex flex-col min-w-0 flex-1">
+                  <h2 class="text-lg font-semibold text-gray-800 truncate">
+                    チャットを選択してください
+                  </h2>
+                  <p
+                    class="text-xs text-gray-500 hidden"
+                    id="chat-header-status"
+                  >
+                    オンライン
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div
+              id="chat-header-actions"
+              class="flex space-x-2 text-gray-500 hidden flex-shrink-0"
+            >
+              <button
+                class="p-2 hover:bg-gray-200 hover:text-blue-600 rounded-full transition-all"
+              >
+                <i data-lucide="phone" class="w-5 h-5"></i>
+              </button>
+              <button
+                class="p-2 hover:bg-gray-200 hover:text-blue-600 rounded-full transition-all"
+              >
+                <i data-lucide="video" class="w-5 h-5"></i>
+              </button>
+              <button
+                class="p-2 hover:bg-gray-200 hover:text-blue-600 rounded-full transition-all"
+              >
+                <i data-lucide="more-vertical" class="w-5 h-5"></i>
+              </button>
+            </div>
+          </div>
+
+          <div
+            id="messages-area"
+            class="flex-grow p-6 overflow-y-auto custom-scrollbar bg-gradient-to-b from-gray-50 to-white"
+          >
+            <div
+              class="flex flex-col items-center justify-center h-full text-gray-400"
+            >
+              <div
+                class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center mb-4"
+              >
+                <i
+                  data-lucide="message-circle"
+                  class="w-10 h-10 text-gray-400"
+                ></i>
+              </div>
+              <p class="text-lg font-medium text-gray-500">
+                チャットを選択してください
+              </p>
+              <p class="text-sm text-gray-400 mt-2">
+                左側のリストから会話を選んでください
+              </p>
+            </div>
+          </div>
+
+          <div
+            id="message-input-area"
+            class="px-6 py-4 border-t border-gray-200 bg-white flex-shrink-0 hidden shadow-lg"
+          >
+            <form id="chat-form" class="flex items-end space-x-3">
+              <div class="flex-1 relative">
+                <input
+                  type="text"
+                  id="message-input"
+                  placeholder="メッセージを入力..."
+                  class="w-full px-4 py-3 pr-12 border-2 border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all bg-gray-50 focus:bg-white placeholder-gray-400 text-gray-800"
+                  aria-label="Message input"
+                  autocomplete="off"
+                />
+                <button
+                  type="button"
+                  class="absolute right-3 top-1/2 transform -translate-y-1/2 p-2 text-gray-400 hover:text-blue-600 rounded-full transition-colors"
+                  id="emoji-button"
+                >
+                  <i data-lucide="smile" class="w-5 h-5"></i>
+                </button>
+                <div
+                  id="emoji-picker-container"
+                  class="hidden absolute bottom-14 right-0 z-50 shadow-xl rounded-lg overflow-hidden"
+                ></div>
+              </div>
+
+              <button
+                type="submit"
+                class="p-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white rounded-2xl hover:from-blue-700 hover:to-blue-800 transition-all flex items-center justify-center flex-shrink-0 shadow-lg hover:shadow-xl transform hover:scale-105 active:scale-95"
+              >
+                <i data-lucide="send" class="w-5 h-5"></i>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- 音声・ビデオ通話モーダル -->
-    <div id="call-modal" class="fixed inset-0 z-50 bg-black bg-opacity-90 hidden items-center justify-center">
-        <div class="relative w-full h-full flex flex-col items-center justify-center p-4">
-            <!-- リモートビデオ（相手の映像） -->
-            <div
-                class="relative w-full h-full max-w-6xl max-h-[90vh] bg-gray-900 rounded-xl overflow-hidden shadow-2xl">
-                <video id="remote-video" autoplay playsinline class="w-full h-full object-cover"></video>
+    <div
+      id="call-modal"
+      class="fixed inset-0 z-50 bg-black bg-opacity-90 hidden items-center justify-center"
+    >
+      <div
+        class="relative w-full h-full flex flex-col items-center justify-center p-4"
+      >
+        <!-- リモートビデオ（相手の映像） -->
+        <div
+          class="relative w-full h-full max-w-6xl max-h-[90vh] bg-gray-900 rounded-xl overflow-hidden shadow-2xl"
+        >
+          <video
+            id="remote-video"
+            autoplay
+            playsinline
+            class="w-full h-full object-cover"
+          ></video>
 
-                <!-- ローカルビデオ（自分の映像）- 小さく右下に表示 -->
-                <div
-                    class="absolute top-4 right-4 w-48 h-36 bg-gray-800 rounded-lg overflow-hidden shadow-xl border-2 border-white">
-                    <video id="local-video" autoplay playsinline muted class="w-full h-full object-cover"></video>
-                </div>
+          <!-- ローカルビデオ（自分の映像）- 小さく右下に表示 -->
+          <div
+            class="absolute top-4 right-4 w-48 h-36 bg-gray-800 rounded-lg overflow-hidden shadow-xl border-2 border-white"
+          >
+            <video
+              id="local-video"
+              autoplay
+              playsinline
+              muted
+              class="w-full h-full object-cover"
+            ></video>
+          </div>
 
-                <!-- 通話情報 -->
-                <div class="absolute top-4 left-4 bg-black bg-opacity-60 px-4 py-2 rounded-lg text-white">
-                    <p class="text-sm font-medium" id="call-partner-name">接続中...</p>
-                    <p class="text-xs text-gray-300" id="call-duration">00:00</p>
-                    <p class="text-xs" id="call-status">接続待機中...</p>
-                </div>
+          <!-- 通話情報 -->
+          <div
+            class="absolute top-4 left-4 bg-black bg-opacity-60 px-4 py-2 rounded-lg text-white"
+          >
+            <p class="text-sm font-medium" id="call-partner-name">接続中...</p>
+            <p class="text-xs text-gray-300" id="call-duration">00:00</p>
+            <p class="text-xs" id="call-status">接続待機中...</p>
+          </div>
 
-                <!-- 通話コントロール -->
-                <div class="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex items-center space-x-4">
-                    <!-- マイクオン/オフ -->
-                    <button id="toggle-audio"
-                        class="p-4 bg-gray-700 hover:bg-gray-600 text-white rounded-full transition-all shadow-lg"
-                        title="マイクオン/オフ">
-                        <i data-lucide="mic" class="w-6 h-6"></i>
-                    </button>
+          <!-- 通話コントロール -->
+          <div
+            class="absolute bottom-8 left-1/2 transform -translate-x-1/2 flex items-center space-x-4"
+          >
+            <!-- マイクオン/オフ -->
+            <button
+              id="toggle-audio"
+              class="p-4 bg-gray-700 hover:bg-gray-600 text-white rounded-full transition-all shadow-lg"
+              title="マイクオン/オフ"
+            >
+              <i data-lucide="mic" class="w-6 h-6"></i>
+            </button>
 
-                    <!-- ビデオオン/オフ -->
-                    <button id="toggle-video"
-                        class="p-4 bg-gray-700 hover:bg-gray-600 text-white rounded-full transition-all shadow-lg"
-                        title="ビデオオン/オフ">
-                        <i data-lucide="video" class="w-6 h-6"></i>
-                    </button>
+            <!-- ビデオオン/オフ -->
+            <button
+              id="toggle-video"
+              class="p-4 bg-gray-700 hover:bg-gray-600 text-white rounded-full transition-all shadow-lg"
+              title="ビデオオン/オフ"
+            >
+              <i data-lucide="video" class="w-6 h-6"></i>
+            </button>
 
-                    <!-- 通話終了 -->
-                    <button id="end-call"
-                        class="p-4 bg-red-600 hover:bg-red-700 text-white rounded-full transition-all shadow-lg"
-                        title="通話終了">
-                        <i data-lucide="phone-off" class="w-6 h-6"></i>
-                    </button>
+            <!-- 通話終了 -->
+            <button
+              id="end-call"
+              class="p-4 bg-red-600 hover:bg-red-700 text-white rounded-full transition-all shadow-lg"
+              title="通話終了"
+            >
+              <i data-lucide="phone-off" class="w-6 h-6"></i>
+            </button>
 
-                    <!-- 画面共有 -->
-                    <button id="toggle-screen-share"
-                        class="p-4 bg-gray-700 hover:bg-gray-600 text-white rounded-full transition-all shadow-lg"
-                        title="画面共有">
-                        <i data-lucide="monitor" class="w-6 h-6"></i>
-                    </button>
-                </div>
-            </div>
+            <!-- 画面共有 -->
+            <button
+              id="toggle-screen-share"
+              class="p-4 bg-gray-700 hover:bg-gray-600 text-white rounded-full transition-all shadow-lg"
+              title="画面共有"
+            >
+              <i data-lucide="monitor" class="w-6 h-6"></i>
+            </button>
+          </div>
         </div>
+      </div>
     </div>
 
     <!-- 着信通知モーダル -->
-    <div id="incoming-call-modal"
-        class="fixed inset-0 z-50 bg-black bg-opacity-70 hidden items-center justify-center p-4">
-        <div class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center transform transition-all">
-            <div class="mb-6">
-                <div
-                    class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center animate-pulse">
-                    <i data-lucide="phone-incoming" class="w-12 h-12 text-white"></i>
-                </div>
-                <h3 class="text-2xl font-bold text-gray-800 mb-2" id="caller-name">着信中...</h3>
-                <p class="text-gray-600" id="call-type-label">ビデオ通話</p>
-            </div>
-
-            <div class="flex justify-center space-x-4">
-                <button id="reject-call"
-                    class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-full font-semibold transition-all shadow-lg flex items-center space-x-2">
-                    <i data-lucide="phone-off" class="w-5 h-5"></i>
-                    <span>拒否</span>
-                </button>
-                <button id="accept-call"
-                    class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-full font-semibold transition-all shadow-lg flex items-center space-x-2">
-                    <i data-lucide="phone" class="w-5 h-5"></i>
-                    <span>応答</span>
-                </button>
-            </div>
+    <div
+      id="incoming-call-modal"
+      class="fixed inset-0 z-50 bg-black bg-opacity-70 hidden items-center justify-center p-4"
+    >
+      <div
+        class="bg-white rounded-2xl shadow-2xl p-8 max-w-md w-full text-center transform transition-all"
+      >
+        <div class="mb-6">
+          <div
+            class="w-24 h-24 mx-auto mb-4 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center animate-pulse"
+          >
+            <i data-lucide="phone-incoming" class="w-12 h-12 text-white"></i>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-800 mb-2" id="caller-name">
+            着信中...
+          </h3>
+          <p class="text-gray-600" id="call-type-label">ビデオ通話</p>
         </div>
+
+        <div class="flex justify-center space-x-4">
+          <button
+            id="reject-call"
+            class="px-6 py-3 bg-red-600 hover:bg-red-700 text-white rounded-full font-semibold transition-all shadow-lg flex items-center space-x-2"
+          >
+            <i data-lucide="phone-off" class="w-5 h-5"></i>
+            <span>拒否</span>
+          </button>
+          <button
+            id="accept-call"
+            class="px-6 py-3 bg-green-600 hover:bg-green-700 text-white rounded-full font-semibold transition-all shadow-lg flex items-center space-x-2"
+          >
+            <i data-lucide="phone" class="w-5 h-5"></i>
+            <span>応答</span>
+          </button>
+        </div>
+      </div>
     </div>
 
     <!-- 新しいチャット作成モーダル -->
-    <div id="create-chat-modal"
-        class="fixed inset-0 z-50 bg-black bg-opacity-50 hidden items-center justify-center p-4">
-        <div
-            class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md transform transition-all max-h-[90vh] overflow-y-auto">
-            <div class="flex justify-between items-center border-b pb-3 mb-4">
-                <h3 class="text-xl font-semibold text-gray-800">新しいチャットを作成</h3>
-                <button id="close-chat-modal" class="text-gray-500 hover:text-gray-800 text-2xl">&times;</button>
-            </div>
-
-            <!-- タブ切り替え -->
-            <div class="mb-6">
-                <div class="flex border-b">
-                    <button type="button" id="tab-direct"
-                        class="flex-1 py-3 px-4 text-center font-medium border-b-2 border-blue-600 text-blue-600 transition-colors">
-                        ダイレクトチャット
-                    </button>
-                    <button type="button" id="tab-group"
-                        class="flex-1 py-3 px-4 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors">
-                        グループチャット
-                    </button>
-                </div>
-            </div>
-
-            <!-- ダイレクトチャットフォーム -->
-            <form id="direct-chat-form" class="space-y-4">
-                <div>
-                    <label for="user-search" class="block text-sm font-medium text-gray-700 mb-2">ユーザーを検索</label>
-                    <div class="relative">
-                        <input type="text" id="user-search" placeholder="ユーザー名またはハンドルネームで検索..."
-                            class="w-full border border-gray-300 rounded-lg px-4 py-3 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:ring-1 outline-none transition-colors" />
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                            <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
-                        </div>
-                    </div>
-                    <div id="user-search-results"
-                        class="mt-2 max-h-48 overflow-y-auto border border-gray-200 rounded-lg hidden bg-white shadow-sm">
-                    </div>
-                </div>
-
-                <div id="selected-user" class="hidden p-4 bg-blue-50 rounded-lg border border-blue-200">
-                    <div class="flex items-center justify-between">
-                        <div class="flex items-center">
-                            <img id="selected-user-avatar" src="" alt=""
-                                class="w-10 h-10 rounded-full mr-3 border-2 border-white shadow-sm">
-                            <div>
-                                <span id="selected-user-name" class="font-semibold text-gray-800 block"></span>
-                                <span id="selected-user-handle" class="text-sm text-gray-600"></span>
-                            </div>
-                        </div>
-                        <button type="button" id="remove-selected-user"
-                            class="text-gray-500 hover:text-gray-700 text-xl p-1">
-                            &times;
-                        </button>
-                    </div>
-                    <input type="hidden" id="selected-user-id">
-                </div>
-
-                <div id="direct-chat-error" class="text-sm text-red-600 mt-2 hidden"></div>
-
-                <div class="mt-6 flex justify-end space-x-3">
-                    <button type="button" id="cancel-direct-chat"
-                        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
-                        キャンセル
-                    </button>
-                    <button type="submit"
-                        class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
-                        チャットを開始
-                    </button>
-                </div>
-            </form>
-
-            <!-- グループチャットフォーム -->
-            <form id="group-chat-form" class="space-y-4 hidden">
-                <div>
-                    <label for="group-name" class="block text-sm font-medium text-gray-700 mb-2">グループ名</label>
-                    <input type="text" id="group-name" placeholder="例: フロントエンドチーム"
-                        class="w-full border border-gray-300 rounded-lg px-4 py-3 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:ring-1 outline-none transition-colors"
-                        required>
-                </div>
-
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">メンバーを追加</label>
-                    <div class="relative">
-                        <input type="text" id="group-user-search" placeholder="ユーザーを検索..."
-                            class="w-full border border-gray-300 rounded-lg px-4 py-3 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:ring-1 outline-none transition-colors" />
-                        <div class="absolute inset-y-0 right-0 flex items-center pr-3">
-                            <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
-                        </div>
-                    </div>
-                    <div id="group-user-search-results"
-                        class="mt-2 max-h-48 overflow-y-auto border border-gray-200 rounded-lg hidden bg-white shadow-sm">
-                    </div>
-                </div>
-
-                <div id="selected-members" class="space-y-2">
-                    <label class="block text-sm font-medium text-gray-700 mb-2">選択されたメンバー</label>
-                    <div id="selected-members-list"
-                        class="min-h-20 border-2 border-dashed border-gray-200 rounded-lg p-4 bg-gray-50">
-                        <p class="text-gray-500 text-sm text-center">メンバーが選択されていません</p>
-                    </div>
-                </div>
-
-                <div id="group-chat-error" class="text-sm text-red-600 mt-2 hidden"></div>
-
-                <div class="mt-6 flex justify-end space-x-3">
-                    <button type="button" id="cancel-group-chat"
-                        class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors">
-                        キャンセル
-                    </button>
-                    <button type="submit"
-                        class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed">
-                        グループを作成
-                    </button>
-                </div>
-            </form>
+    <div
+      id="create-chat-modal"
+      class="fixed inset-0 z-50 bg-black bg-opacity-50 hidden items-center justify-center p-4"
+    >
+      <div
+        class="bg-white rounded-xl shadow-2xl p-6 w-full max-w-md transform transition-all max-h-[90vh] overflow-y-auto"
+      >
+        <div class="flex justify-between items-center border-b pb-3 mb-4">
+          <h3 class="text-xl font-semibold text-gray-800">
+            新しいチャットを作成
+          </h3>
+          <button
+            id="close-chat-modal"
+            class="text-gray-500 hover:text-gray-800 text-2xl"
+          >
+            &times;
+          </button>
         </div>
+
+        <!-- タブ切り替え -->
+        <div class="mb-6">
+          <div class="flex border-b">
+            <button
+              type="button"
+              id="tab-direct"
+              class="flex-1 py-3 px-4 text-center font-medium border-b-2 border-blue-600 text-blue-600 transition-colors"
+            >
+              ダイレクトチャット
+            </button>
+            <button
+              type="button"
+              id="tab-group"
+              class="flex-1 py-3 px-4 text-center font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700 transition-colors"
+            >
+              グループチャット
+            </button>
+          </div>
+        </div>
+
+        <!-- ダイレクトチャットフォーム -->
+        <form id="direct-chat-form" class="space-y-4">
+          <div>
+            <label
+              for="user-search"
+              class="block text-sm font-medium text-gray-700 mb-2"
+              >ユーザーを検索</label
+            >
+            <div class="relative">
+              <input
+                type="text"
+                id="user-search"
+                placeholder="ユーザー名またはハンドルネームで検索..."
+                class="w-full border border-gray-300 rounded-lg px-4 py-3 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:ring-1 outline-none transition-colors"
+              />
+              <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
+              </div>
+            </div>
+            <div
+              id="user-search-results"
+              class="mt-2 max-h-48 overflow-y-auto border border-gray-200 rounded-lg hidden bg-white shadow-sm"
+            ></div>
+          </div>
+
+          <div
+            id="selected-user"
+            class="hidden p-4 bg-blue-50 rounded-lg border border-blue-200"
+          >
+            <div class="flex items-center justify-between">
+              <div class="flex items-center">
+                <img
+                  id="selected-user-avatar"
+                  src=""
+                  alt=""
+                  class="w-10 h-10 rounded-full mr-3 border-2 border-white shadow-sm"
+                />
+                <div>
+                  <span
+                    id="selected-user-name"
+                    class="font-semibold text-gray-800 block"
+                  ></span>
+                  <span
+                    id="selected-user-handle"
+                    class="text-sm text-gray-600"
+                  ></span>
+                </div>
+              </div>
+              <button
+                type="button"
+                id="remove-selected-user"
+                class="text-gray-500 hover:text-gray-700 text-xl p-1"
+              >
+                &times;
+              </button>
+            </div>
+            <input type="hidden" id="selected-user-id" />
+          </div>
+
+          <div
+            id="direct-chat-error"
+            class="text-sm text-red-600 mt-2 hidden"
+          ></div>
+
+          <div class="mt-6 flex justify-end space-x-3">
+            <button
+              type="button"
+              id="cancel-direct-chat"
+              class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+            >
+              キャンセル
+            </button>
+            <button
+              type="submit"
+              class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              チャットを開始
+            </button>
+          </div>
+        </form>
+
+        <!-- グループチャットフォーム -->
+        <form id="group-chat-form" class="space-y-4 hidden">
+          <div>
+            <label
+              for="group-name"
+              class="block text-sm font-medium text-gray-700 mb-2"
+              >グループ名</label
+            >
+            <input
+              type="text"
+              id="group-name"
+              placeholder="例: フロントエンドチーム"
+              class="w-full border border-gray-300 rounded-lg px-4 py-3 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:ring-1 outline-none transition-colors"
+              required
+            />
+          </div>
+
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >メンバーを追加</label
+            >
+            <div class="relative">
+              <input
+                type="text"
+                id="group-user-search"
+                placeholder="ユーザーを検索..."
+                class="w-full border border-gray-300 rounded-lg px-4 py-3 shadow-sm focus:border-blue-500 focus:ring-blue-500 focus:ring-1 outline-none transition-colors"
+              />
+              <div class="absolute inset-y-0 right-0 flex items-center pr-3">
+                <i data-lucide="search" class="w-4 h-4 text-gray-400"></i>
+              </div>
+            </div>
+            <div
+              id="group-user-search-results"
+              class="mt-2 max-h-48 overflow-y-auto border border-gray-200 rounded-lg hidden bg-white shadow-sm"
+            ></div>
+          </div>
+
+          <div id="selected-members" class="space-y-2">
+            <label class="block text-sm font-medium text-gray-700 mb-2"
+              >選択されたメンバー</label
+            >
+            <div
+              id="selected-members-list"
+              class="min-h-20 border-2 border-dashed border-gray-200 rounded-lg p-4 bg-gray-50"
+            >
+              <p class="text-gray-500 text-sm text-center">
+                メンバーが選択されていません
+              </p>
+            </div>
+          </div>
+
+          <div
+            id="group-chat-error"
+            class="text-sm text-red-600 mt-2 hidden"
+          ></div>
+
+          <div class="mt-6 flex justify-end space-x-3">
+            <button
+              type="button"
+              id="cancel-group-chat"
+              class="px-4 py-2 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors"
+            >
+              キャンセル
+            </button>
+            <button
+              type="submit"
+              class="bg-blue-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-blue-700 transition-colors disabled:bg-gray-400 disabled:cursor-not-allowed"
+            >
+              グループを作成
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <script src="component/header-component.js" type="module"></script>
     <script>
-        /**
-         * グローバルなエラーハンドラとして showError を定義
-         * これにより、chat.js のモジュール実行前に発生したエラーも捕捉できます。
-         */
-        function showError(message) {
-            const errorDiv = document.getElementById('chat-list-error');
-            if (errorDiv) {
-                errorDiv.innerHTML = `<p>${message}</p>`;
-                errorDiv.classList.remove('hidden');
-            }
-            console.error(message);
+      /**
+       * グローバルなエラーハンドラとして showError を定義
+       * これにより、chat.js のモジュール実行前に発生したエラーも捕捉できます。
+       */
+      function showError(message) {
+        const errorDiv = document.getElementById("chat-list-error");
+        if (errorDiv) {
+          errorDiv.innerHTML = `<p>${message}</p>`;
+          errorDiv.classList.remove("hidden");
         }
+        console.error(message);
+      }
     </script>
 
     <script type="module">
-        // showError がグローバルに定義されたので、インポートする必要はありません。
-        // chat.js から必要な機能だけをインポートします。
-        import {
-            init,
-            renderMatchList,
-            selectMatch,
-            selectGroupChat,
-            matches,
-            currentUser,
-            getAuthToken,
-            getUserInfo,
-            userCache,
-            initCallButtons
-        } from './scripts/chat.js?v=2';
+      // showError がグローバルに定義されたので、インポートする必要はありません。
+      // chat.js から必要な機能だけをインポートします。
+      import {
+        init,
+        renderMatchList,
+        selectMatch,
+        selectGroupChat,
+        matches,
+        currentUser,
+        getAuthToken,
+        getUserInfo,
+        userCache,
+        initCallButtons,
+      } from "./scripts/chat.js?v=2";
 
-        import { initChatCreationModal } from './scripts/chatCreate.js?v=2';
+      import { initChatCreationModal } from "./scripts/chatCreate.js?v=2";
 
-        // ページロード時にすべての初期化と依存性の注入を実行
-        document.addEventListener('DOMContentLoaded', async () => {
+      // ページロード時にすべての初期化と依存性の注入を実行
+      document.addEventListener("DOMContentLoaded", async () => {
+        // 1. chat.js のメイン初期化を実行（認証、マッチ取得、一覧レンダリングなど）
+        //    これにより、currentUser や matches が初期化されます。
+        await init();
 
-            // 1. chat.js のメイン初期化を実行（認証、マッチ取得、一覧レンダリングなど）
-            //    これにより、currentUser や matches が初期化されます。
-            await init();
-
-            // 2. chatCreate.js に必要な依存関係をすべて渡し、チャット作成モーダルを初期化
-            initChatCreationModal({
-                currentUser: currentUser,
-                renderMatchList: renderMatchList,
-                selectMatch: selectMatch,
-                selectGroupChat: selectGroupChat,
-                matches: matches,
-                getAuthToken: getAuthToken,
-                showError: showError,     // グローバルに定義された showError を渡す (推奨パターン)
-                getUserInfo: getUserInfo,
-                userCache: userCache
-            });
-
-            // 3. 通話ボタンの初期化
-            initCallButtons();
+        // 2. chatCreate.js に必要な依存関係をすべて渡し、チャット作成モーダルを初期化
+        initChatCreationModal({
+          currentUser: currentUser,
+          renderMatchList: renderMatchList,
+          selectMatch: selectMatch,
+          selectGroupChat: selectGroupChat,
+          matches: matches,
+          getAuthToken: getAuthToken,
+          showError: showError, // グローバルに定義された showError を渡す (推奨パターン)
+          getUserInfo: getUserInfo,
+          userCache: userCache,
         });
+
+        // 3. 通話ボタンの初期化
+        initCallButtons();
+      });
     </script>
     <script>
-        lucide.createIcons(); // Lucide Iconsを初期化
+      lucide.createIcons(); // Lucide Iconsを初期化
     </script>
-
-</body>
-
+  </body>
 </html>

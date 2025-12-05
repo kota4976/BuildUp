@@ -27,15 +27,14 @@ build-up-header {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  padding-top: 60px;
-  /* ヘッダーの高さに応じて調整 */
-  padding: 60px 20px 20px 20px;
+  padding-top: 70px; /* ヘッダー高さ70pxに合わせる */
+  padding: 70px 20px 20px 20px;
 }
 
 /* チャットリストとウィンドウの領域が利用可能な高さをフルに使う */
 .main-container {
   flex-grow: 1;
-  max-height: calc(100vh - 80px);
+  max-height: calc(100vh - 90px); /* 上下余白考慮 */
 }
 
 /* メインコンテナの角丸を調整 */
@@ -44,6 +43,7 @@ build-up-header {
   overflow: hidden;
   box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
   background: white;
+  position: relative; /* 子要素のabsolute配置の基準にする */
 }
 
 /* メッセージバブルの基本的なスタイル */
@@ -125,12 +125,12 @@ build-up-header {
 /* モバイルでのチャットウィンドウの全画面表示 */
 @media (max-width: 767px) {
   .main-container-wrapper {
-    padding: 60px 0 0 0;
+    padding: 70px 0 0 0; /* ヘッダー高さ70pxに合わせる */
   }
 
   .main-container-fixed {
     border-radius: 0;
-    height: calc(100vh - 60px);
+    height: calc(100vh - 70px); /* ヘッダー分引く */
   }
 
   .chat-window.active {
@@ -222,7 +222,6 @@ build-up-header {
 }
 
 @keyframes pulse {
-
   0%,
   100% {
     opacity: 1;
@@ -272,7 +271,7 @@ build-up-header {
 }
 
 /* メッセージのタイムスタンプ */
-.message-bubble+span {
+.message-bubble + span {
   transition: opacity 0.2s ease;
 }
 
@@ -320,19 +319,23 @@ build-up-header {
 }
 
 /* チャットリストのヘッダー - グラデーション効果 */
-.chat-list>div:first-child {
-  background: linear-gradient(135deg,
-      rgb(94, 137, 255) 0%,
-      rgb(94, 137, 255) 100%);
+.chat-list > div:first-child {
+  background: linear-gradient(
+    135deg,
+    rgb(94, 137, 255) 0%,
+    rgb(94, 137, 255) 100%
+  );
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 /* チャットヘッダーの改善 */
 #chat-header {
   backdrop-filter: blur(10px);
-  background: linear-gradient(to right,
-      rgba(249, 250, 251, 0.9),
-      rgba(255, 255, 255, 0.9));
+  background: linear-gradient(
+    to right,
+    rgba(249, 250, 251, 0.9),
+    rgba(255, 255, 255, 0.9)
+  );
   border-bottom: 1px solid #e5e7eb;
 }
 
@@ -342,7 +345,7 @@ build-up-header {
 }
 
 /* メッセージ間のスペーシング */
-#messages-area>div {
+#messages-area > div {
   margin-bottom: 8px !important;
 }
 
@@ -367,7 +370,7 @@ build-up-header {
   }
 
   .main-container-wrapper {
-    padding: 60px 0 0 0;
+    padding: 70px 0 0 0;
   }
 }
 
@@ -499,7 +502,7 @@ input:focus {
 }
 
 /* 着信モーダルのアニメーション */
-#incoming-call-modal.show>div {
+#incoming-call-modal.show > div {
   animation: bounceIn 0.5s ease-out;
 }
 
